@@ -2,6 +2,7 @@ import { Tabs } from 'expo-router/js-tabs';
 import React from 'react';
 import { ColorValue, Text } from 'react-native';
 
+import { Wordmark } from '@/components/Logo';
 import { HelpButton } from '@/components/ui';
 import { useTheme } from '@/lib/theme';
 
@@ -23,7 +24,7 @@ export default function TabsLayout() {
         sceneStyle: { backgroundColor: t.bg },
       }}
     >
-      <Tabs.Screen name="index" options={{ title: 'Today', tabBarIcon: ({ color }) => <Icon glyph="☀" color={color} /> }} />
+      <Tabs.Screen name="index" options={{ title: 'Today', headerTitle: () => <Wordmark />, tabBarIcon: ({ color }) => <Icon glyph="☀" color={color} /> }} />
       <Tabs.Screen name="focus" options={{ title: 'Focus', tabBarIcon: ({ color }) => <Icon glyph="◎" color={color} /> }} />
       <Tabs.Screen name="mood" options={{ title: 'Mood', tabBarIcon: ({ color }) => <Icon glyph="♡" color={color} /> }} />
       <Tabs.Screen name="sleep" options={{ title: 'Sleep', tabBarIcon: ({ color }) => <Icon glyph="☾" color={color} /> }} />

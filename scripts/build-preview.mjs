@@ -11,8 +11,20 @@ if (scripts.length === 0) throw new Error('No scripts found in dist/index.html')
 
 const inlineJs = scripts
   .map((src) => fs.readFileSync(path.join(dist, src.replace(/^\//, '')), 'utf8').replace(/<\/script/gi, '<\\/script'))
+  .map(inlineAssets)
   .map((js) => `<script>${js}</script>`)
   .join('\n');
+
+// Images from the export are referenced by absolute path, which the preview host
+// cannot serve. Swap each one for a data URI.
+function inlineAssets(js) {
+  return js.replace(/"(\/assets\/[^"]+\.(png|jpg|jpeg|gif))"/g, (whole, url, ext) => {
+    const file = path.join(dist, decodeURIComponent(url));
+    if (!fs.existsSync(file)) return whole;
+    const mime = ext === 'jpg' ? 'jpeg' : ext;
+    return JSON.stringify(`data:image/${mime};base64,${fs.readFileSync(file).toString('base64')}`);
+  });
+}
 
 const styles = [...html.matchAll(/<style[^>]*>[\s\S]*?<\/style>/g)].map((m) => m[0]).join('\n');
 

@@ -2,6 +2,7 @@ import { router } from 'expo-router';
 import React, { useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 
+import { LogoMark } from '@/components/Logo';
 import { Body, Button, Card, Heading, Screen, Title } from '@/components/ui';
 import { REGION_NAMES, Region } from '@/lib/crisis';
 import { AgeGroup, useStore } from '@/lib/store';
@@ -37,6 +38,7 @@ export default function Welcome() {
   return (
     <Screen>
       <View style={{ height: 24 }} />
+      <LogoMark size={72} />
       <Title>Welcome to Luminary</Title>
       <Body>
         Everyday tools for focus, mood, sleep and long-term brain health. Made for every kind of brain, including ADHD and
