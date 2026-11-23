@@ -2,6 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getLocales } from 'expo-localization';
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 
+import { FactorRecord, recordFor, Status } from '@/content/rafi';
 import { Challenge, GameId, GameResult, nextLevel } from '@/training/engine';
 import type { Goal } from '@/training/planner';
 
@@ -34,6 +35,8 @@ export type State = {
   plans: IfThenPlan[];
   /** Rafi Programme risk factors the person has marked as covered. */
   rafi?: string[];
+  /** Rafi Programme: status and dated notes per risk factor. */
+  rafiPlan?: Record<string, FactorRecord>;
   settings: Settings;
   training: {
     levels: Partial<Record<GameId, number>>;
@@ -58,6 +61,10 @@ export type Settings = {
   breaks: boolean;
   goal: Goal;
   challenge: Challenge;
+  /** Shapes and a colour-blind-safe palette in colour-coded games. */
+  colourAssist: boolean;
+  /** Opt-in: compare training with sleep and mood check-ins, on this device. */
+  insights: boolean;
 };
 export const DEFAULT_SETTINGS: Settings = {
   calmMode: false,
@@ -70,6 +77,8 @@ export const DEFAULT_SETTINGS: Settings = {
   breaks: false,
   goal: 'mixed',
   challenge: 'balanced',
+  colourAssist: false,
+  insights: false,
 };
 
 function defaultState(): State {
@@ -104,6 +113,9 @@ type Actions = {
   saveSleep: (e: Omit<SleepEntry, 'at'>) => void;
   toggleHabit: (habitId: string) => void;
   toggleRafi: (id: string) => void;
+  setRafiStatus: (id: string, status: Status) => void;
+  addRafiNote: (id: string, text: string) => void;
+  removeRafiNote: (id: string, at: number) => void;
   addTask: (title: string, steps: string[]) => void;
   toggleStep: (taskId: string, stepId: string) => void;
   removeTask: (taskId: string) => void;
@@ -166,6 +178,21 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         update((s) => {
           const cur = s.rafi ?? [];
           return { ...s, rafi: cur.includes(id) ? cur.filter((x) => x !== id) : [...cur, id] };
+        }),
+      setRafiStatus: (id, status) =>
+        update((s) => {
+          const cur = recordFor(id, s.rafiPlan, s.rafi);
+          return { ...s, rafiPlan: { ...s.rafiPlan, [id]: { ...cur, status } } };
+        }),
+      addRafiNote: (id, text) =>
+        update((s) => {
+          const cur = recordFor(id, s.rafiPlan, s.rafi);
+          return { ...s, rafiPlan: { ...s.rafiPlan, [id]: { ...cur, log: [{ at: Date.now(), text }, ...cur.log].slice(0, 50) } } };
+        }),
+      removeRafiNote: (id, at) =>
+        update((s) => {
+          const cur = recordFor(id, s.rafiPlan, s.rafi);
+          return { ...s, rafiPlan: { ...s.rafiPlan, [id]: { ...cur, log: cur.log.filter((l) => l.at !== at) } } };
         }),
       toggleHabit: (habitId) =>
         update((s) => {

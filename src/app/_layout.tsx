@@ -36,7 +36,8 @@ function Gate() {
       <Stack.Screen name="help" options={{ title: 'Support services', presentation: 'modal' }} />
       <Stack.Screen name="settings" options={{ title: 'Settings and privacy' }} />
       <Stack.Screen name="preferences" options={{ title: 'Training preferences' }} />
-      <Stack.Screen name="rafi" options={{ title: 'The Rafi Programme' }} />
+      <Stack.Screen name="rafi/index" options={{ title: 'The Rafi Programme' }} />
+      <Stack.Screen name="rafi/[id]" options={{ title: 'The Rafi Programme' }} />
       <Stack.Screen name="article/[id]" options={{ title: 'Learn' }} />
       <Stack.Screen name="backup" options={{ title: 'Backup and move' }} />
       <Stack.Screen name="stats/[game]" options={{ title: 'Game details' }} />

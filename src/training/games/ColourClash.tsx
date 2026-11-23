@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 
+import { useStore } from '@/lib/store';
 import { useTheme } from '@/lib/theme';
 
 import { clashParams, costMs, defined, rtStats } from '../engine';
@@ -8,12 +9,26 @@ import { AnswerButton, GameFrame, GameProps } from '../GameFrame';
 import { useAnswerFeedback } from '../feedback';
 import { useKeys } from '../useKeys';
 
-const COLOURS = [
+type Colour = { name: string; hex: string; shape?: string };
+
+const COLOURS: Colour[] = [
   { name: 'Blue', hex: '#3D7BFF' },
   { name: 'Red', hex: '#E5484D' },
   { name: 'Green', hex: '#2E9E5B' },
   { name: 'Purple', hex: '#8A4DE0' },
   { name: 'Orange', hex: '#E8730C' },
+];
+
+/**
+ * Colour support: the Okabe-Ito palette, which stays distinct with the common types of
+ * colour blindness, and a shape for every colour so nobody has to rely on hue alone.
+ */
+const ASSIST: Colour[] = [
+  { name: 'Blue', hex: '#0072B2', shape: '■' },
+  { name: 'Red', hex: '#D55E00', shape: '▲' },
+  { name: 'Green', hex: '#009E73', shape: '●' },
+  { name: 'Pink', hex: '#CC79A7', shape: '◆' },
+  { name: 'Yellow', hex: '#E6A800', shape: '★' },
 ];
 
 type Trial = { word: number; ink: number };
@@ -23,14 +38,29 @@ type Fb = 'right' | 'wrong' | 'word' | 'late' | null;
 export function ColourClash({ level, onFinish, onQuit, untimed }: GameProps & { onQuit?: () => void }) {
   const t = useTheme();
   const p = clashParams(level);
-  const palette = COLOURS.slice(0, p.colours);
+  const assist = useStore().state.settings.colourAssist;
+  const all = assist ? ASSIST : COLOURS;
+  const palette = all.slice(0, p.colours);
   const [phase, setPhase] = useState<'ready' | 'play' | 'done'>('ready');
   const [trial, setTrial] = useState<Trial | null>(null);
   const [n, setN] = useState(0);
   const [fb, setFb] = useState<Fb>(null);
   useAnswerFeedback(fb, ['right']);
 
-  const s = useRef({ n: 0, cur: null as Trial | null, locked: true, shownAt: 0, correct: 0, rts: [] as number[], clashRts: [] as number[], matchRts: [] as number[], clashN: 0, clashRight: 0, wordSlips: 0, bonus: 0 });
+  const s = useRef({
+    n: 0,
+    cur: null as Trial | null,
+    locked: true,
+    shownAt: 0,
+    correct: 0,
+    rts: [] as number[],
+    clashRts: [] as number[],
+    matchRts: [] as number[],
+    clashN: 0,
+    clashRight: 0,
+    wordSlips: 0,
+    bonus: 0,
+  });
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
   useEffect(() => () => timers.current.forEach(clearTimeout), []);
   const later = (fn: () => void, ms: number) => timers.current.push(setTimeout(fn, ms));
@@ -95,9 +125,12 @@ export function ColourClash({ level, onFinish, onQuit, untimed }: GameProps & { 
   };
   const answerRef = useRef(answer);
   answerRef.current = answer;
-  useEffect(() => () => {
-    if (deadline.current) clearTimeout(deadline.current);
-  }, []);
+  useEffect(
+    () => () => {
+      if (deadline.current) clearTimeout(deadline.current);
+    },
+    [],
+  );
 
   const keys: Record<string, () => void> = {};
   if (phase === 'play') palette.forEach((_, i) => (keys[String(i + 1)] = () => answer(i)));
@@ -111,27 +144,57 @@ export function ColourClash({ level, onFinish, onQuit, untimed }: GameProps & { 
   const ring = fb === 'right' ? t.good : fb ? t.help : t.border;
 
   return (
-    <GameFrame title="Colour Clash" level={level} progress={phase === 'play' ? n / p.trials : 0} status={phase === 'play' ? `${n + 1} of ${p.trials}` : undefined} onQuit={onQuit}>
+    <GameFrame
+      title="Colour Clash"
+      level={level}
+      progress={phase === 'play' ? n / p.trials : 0}
+      status={phase === 'play' ? `${n + 1} of ${p.trials}` : undefined}
+      onQuit={onQuit}
+    >
       <Text style={{ color: t.muted, fontSize: 16, textAlign: 'center' }}>
         {phase === 'ready' ? 'Tap the colour of the ink. Ignore what the word says.' : 'What colour is the ink?'}
       </Text>
       <View
-        style={{ width: '100%', maxWidth: 340, height: 150, borderRadius: 24, borderWidth: 4, borderColor: ring, backgroundColor: t.surface, alignItems: 'center', justifyContent: 'center' }}
+        style={{
+          width: '100%',
+          maxWidth: 340,
+          height: 150,
+          borderRadius: 24,
+          borderWidth: 4,
+          borderColor: ring,
+          backgroundColor: t.surface,
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
         accessible
         accessibilityLabel={trial ? `The word ${palette[trial.word].name}, written in ${palette[trial.ink].name}` : 'Waiting'}
       >
         {phase === 'ready' ? (
-          <Text style={{ fontSize: 48, fontWeight: '900', color: COLOURS[0].hex, letterSpacing: 2 }}>RED</Text>
+          <Text style={{ fontSize: 48, fontWeight: '900', color: all[0].hex, letterSpacing: 2 }}>{mark(all[0], 'RED')}</Text>
         ) : trial ? (
-          <Text style={{ fontSize: 54, fontWeight: '900', color: palette[trial.ink].hex, letterSpacing: 2 }}>{palette[trial.word].name.toUpperCase()}</Text>
+          <Text style={{ fontSize: assist ? 44 : 54, fontWeight: '900', color: palette[trial.ink].hex, letterSpacing: 2 }}>
+            {mark(palette[trial.ink], palette[trial.word].name.toUpperCase())}
+          </Text>
         ) : null}
       </View>
       <Text style={{ height: 22, fontWeight: '700', color: fb === 'right' ? t.good : t.help }}>
-        {phase === 'ready' ? '' : fb === 'right' ? 'Correct' : fb === 'word' ? 'That was the word, not the ink' : fb === 'wrong' ? 'Not quite' : fb === 'late' ? 'Too slow' : ''}
+        {phase === 'ready'
+          ? ''
+          : fb === 'right'
+            ? 'Correct'
+            : fb === 'word'
+              ? 'That was the word, not the ink'
+              : fb === 'wrong'
+                ? 'Not quite'
+                : fb === 'late'
+                  ? 'Too slow'
+                  : ''}
       </Text>
       {phase === 'ready' ? (
         <>
-          <Text style={{ color: t.muted, textAlign: 'center' }}>Here the right answer is Blue.</Text>
+          <Text style={{ color: t.muted, textAlign: 'center' }}>
+            Here the right answer is Blue.{assist ? ' Colour support is on: the shape beside the word always matches the ink.' : ''}
+          </Text>
           <View style={{ flexDirection: 'row', width: '100%' }}>
             <AnswerButton label="Start" onPress={start} />
           </View>
@@ -139,7 +202,7 @@ export function ColourClash({ level, onFinish, onQuit, untimed }: GameProps & { 
       ) : (
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10, width: '100%', maxWidth: 420, justifyContent: 'center' }}>
           {palette.map((c, i) => (
-            <ColourKey key={c.name} name={c.name} hex={c.hex} n={i + 1} onPress={() => answer(i)} />
+            <ColourKey key={c.name} name={c.name} hex={c.hex} shape={c.shape} n={i + 1} onPress={() => answer(i)} />
           ))}
         </View>
       )}
@@ -147,7 +210,12 @@ export function ColourClash({ level, onFinish, onQuit, untimed }: GameProps & { 
   );
 }
 
-function ColourKey({ name, hex, n, onPress }: { name: string; hex: string; n: number; onPress: () => void }) {
+/** In colour support mode the ink's shape sits before the word. */
+function mark(c: Colour, word: string) {
+  return c.shape ? `${c.shape} ${word}` : word;
+}
+
+function ColourKey({ name, hex, shape, n, onPress }: { name: string; hex: string; shape?: string; n: number; onPress: () => void }) {
   const t = useTheme();
   const last = useRef(0);
   return (
@@ -176,7 +244,11 @@ function ColourKey({ name, hex, n, onPress }: { name: string; hex: string; n: nu
         transform: [{ scale: pressed ? 0.97 : 1 }],
       })}
     >
-      <View style={{ width: 26, height: 26, borderRadius: 13, backgroundColor: hex }} />
+      {shape ? (
+        <Text style={{ width: 26, textAlign: 'center', fontSize: 24, lineHeight: 28, color: hex }}>{shape}</Text>
+      ) : (
+        <View style={{ width: 26, height: 26, borderRadius: 13, backgroundColor: hex }} />
+      )}
       <Text style={{ color: t.text, fontSize: 18, fontWeight: '700', flex: 1 }}>{name}</Text>
       <Text style={{ color: t.muted, fontSize: 12 }}>{n}</Text>
     </Pressable>

@@ -14,7 +14,8 @@ type Fb = 'hit' | 'miss' | 'false' | 'hold' | null;
 
 export function CatchTheLight({ level, onFinish, onQuit, untimed }: GameProps & { onQuit?: () => void }) {
   const t = useTheme();
-  const calm = useStore().state.settings.visuals === 'minimal';
+  const { visuals, colourAssist } = useStore().state.settings;
+  const calm = visuals === 'minimal';
   // Untimed mode keeps each light on twice as long. The task still needs a window to respond in.
   const base = catchParams(level);
   const p = untimed ? { ...base, showMs: base.showMs * 2 } : base;
@@ -24,7 +25,19 @@ export function CatchTheLight({ level, onFinish, onQuit, untimed }: GameProps & 
   const [fb, setFb] = useState<Fb>(null);
   useAnswerFeedback(fb, ['hit', 'hold']);
 
-  const s = useRef({ hits: 0, holds: 0, misses: 0, falseStarts: 0, gos: 0, nogos: 0, rts: [] as number[], trial: 0, responded: false, shownAt: 0, stim: null as Stim });
+  const s = useRef({
+    hits: 0,
+    holds: 0,
+    misses: 0,
+    falseStarts: 0,
+    gos: 0,
+    nogos: 0,
+    rts: [] as number[],
+    trial: 0,
+    responded: false,
+    shownAt: 0,
+    stim: null as Stim,
+  });
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
   useEffect(() => () => timers.current.forEach(clearTimeout), []);
 
@@ -98,16 +111,28 @@ export function CatchTheLight({ level, onFinish, onQuit, untimed }: GameProps & 
   };
 
   // At higher levels the "stop" light is a closer match to the "go" light.
-  const goColor = '#3D7BFF';
-  const noGoColor = p.lookalike ? '#8A4DE0' : '#E5484D';
+  // Colour support uses blue and vermillion, which stay apart with colour blindness, and marks the stop light.
+  const goColor = colourAssist ? '#0072B2' : '#3D7BFF';
+  const noGoColor = colourAssist ? '#D55E00' : p.lookalike ? '#8A4DE0' : '#E5484D';
   const color = stim === 'go' ? goColor : stim === 'nogo' ? noGoColor : t.soft;
 
-  const FB_TEXT: Record<Exclude<Fb, null>, string> = { hit: 'Nice catch', miss: 'Missed', false: 'Hold back on that one', hold: 'Well held' };
+  const FB_TEXT: Record<Exclude<Fb, null>, string> = {
+    hit: 'Nice catch',
+    miss: 'Missed',
+    false: 'Hold back on that one',
+    hold: 'Well held',
+  };
   const fbText = fb ? FB_TEXT[fb] : '';
   const fbColor = fb === 'hit' || fb === 'hold' ? t.good : t.help;
 
   return (
-    <GameFrame title="Catch the Light" level={level} progress={trial / p.trials} status={phase === 'play' ? `${trial + 1} of ${p.trials}` : undefined} onQuit={onQuit}>
+    <GameFrame
+      title="Catch the Light"
+      level={level}
+      progress={trial / p.trials}
+      status={phase === 'play' ? `${trial + 1} of ${p.trials}` : undefined}
+      onQuit={onQuit}
+    >
       {phase === 'ready' ? (
         <View style={{ alignItems: 'center', gap: 14 }}>
           <View style={{ flexDirection: 'row', gap: 28 }}>
@@ -116,7 +141,18 @@ export function CatchTheLight({ level, onFinish, onQuit, untimed }: GameProps & 
               <Text style={{ color: t.text, fontWeight: '700' }}>Tap</Text>
             </View>
             <View style={{ alignItems: 'center', gap: 6 }}>
-              <View style={{ width: 64, height: 64, borderRadius: 32, backgroundColor: noGoColor }} />
+              <View
+                style={{
+                  width: 64,
+                  height: 64,
+                  borderRadius: 32,
+                  backgroundColor: noGoColor,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                {colourAssist ? <StopBar size={64} /> : null}
+              </View>
               <Text style={{ color: t.text, fontWeight: '700' }}>Don't tap</Text>
             </View>
           </View>
@@ -140,8 +176,12 @@ export function CatchTheLight({ level, onFinish, onQuit, untimed }: GameProps & 
           shadowColor: color,
           shadowOpacity: stim && !calm ? 0.7 : 0,
           shadowRadius: 30,
+          alignItems: 'center',
+          justifyContent: 'center',
         }}
-      />
+      >
+        {colourAssist && stim === 'nogo' ? <StopBar size={240} /> : null}
+      </Pressable>
       {phase === 'ready' ? (
         <View style={{ flexDirection: 'row', width: '100%' }}>
           <AnswerButton label="Start" onPress={start} />
@@ -151,4 +191,9 @@ export function CatchTheLight({ level, onFinish, onQuit, untimed }: GameProps & 
       )}
     </GameFrame>
   );
+}
+
+/** A white bar across the stop light, like a no-entry sign, so it never relies on colour alone. */
+function StopBar({ size }: { size: number }) {
+  return <View style={{ width: size * 0.62, height: size * 0.18, borderRadius: size * 0.05, backgroundColor: '#FFFFFF' }} />;
 }

@@ -220,3 +220,27 @@ test('per-game analytics: bests, baseline and game-specific measures', () => {
   assert.equal(empty.sessions, 0);
   assert.equal(empty.rtNow, undefined);
 });
+
+import { buildInsights, dayForm, describeInsight } from '../src/training/insights.ts';
+
+test('insights compare against your own recent form and need enough days', () => {
+  const results = [];
+  const sleepHours: Record<string, number> = {};
+  for (let d = 0; d < 14; d++) {
+    const day = `2026-11-${String(1 + d).padStart(2, '0')}`;
+    const longNight = d % 2 === 0;
+    sleepHours[day] = longNight ? 8 : 5.5;
+    // Same level throughout; accuracy is better after long nights.
+    results.push({ game: 'speed' as const, level: 5, score: 100, accuracy: longNight ? 0.9 : 0.7, at: d, day });
+  }
+  const form = dayForm(results);
+  assert.equal(form['2026-11-01'], undefined); // needs two earlier rounds
+  const [sleep, quality] = buildInsights({ results, sleepHours, sleepQuality: {}, mood: {}, energy: {} });
+  assert.ok(sleep.diff! > 0);
+  assert.match(describeInsight(sleep), /tended to go better after 7 hours or more/);
+  assert.equal(quality.diff, undefined);
+  assert.equal(quality.daysNeeded, 8);
+  // Too few days: no reading at all.
+  const few = buildInsights({ results: results.slice(0, 5), sleepHours, sleepQuality: {}, mood: {}, energy: {} });
+  assert.equal(few[0].diff, undefined);
+});

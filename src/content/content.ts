@@ -116,10 +116,11 @@ export const ARTICLES: Article[] = [
   },
   {
     id: 'brain-health',
-    title: '45% of dementia risk is in your hands',
-    summary: 'The 14 risk factors you can train against.',
+    title: '45% of dementia risk: what that figure means',
+    summary: 'The 14 risk factors you can act on, and how to read the headline number.',
     body: [
-      'The 2024 Lancet Commission estimated that about 45% of dementia cases are linked to 14 risk factors that can be changed over a lifetime.',
+      'The 2024 Lancet Commission estimated that about 45% of dementia cases worldwide are linked to 14 risk factors that can be changed over a lifetime.',
+      'That is a population estimate. It means that if these factors were removed across the whole world, around 45% of cases might be prevented or delayed. It does not mean any one person can lower their own risk by 45%, and nobody can measure an individual’s risk that precisely. Age and genes, which cannot be changed, still matter.',
       'The list: less education in childhood, hearing loss, high LDL cholesterol, depression, head injury, physical inactivity, diabetes, smoking, high blood pressure, obesity, heavy drinking, social isolation, air pollution and untreated vision loss.',
       'Your levers: move, keep learning hard things, stay connected, protect your hearing and eyesight, and look after your heart. Luminary’s daily habits are built from this list.',
     ],

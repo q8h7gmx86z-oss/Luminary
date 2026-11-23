@@ -6,7 +6,17 @@ import { Settings, useStore } from '@/lib/store';
 import { useTheme } from '@/lib/theme';
 import { Goal, GOAL_NAMES } from '@/training/planner';
 
-function Segmented<T extends string | number>({ value, options, onChange, label }: { value: T; options: { value: T; label: string }[]; onChange: (v: T) => void; label: string }) {
+function Segmented<T extends string | number>({
+  value,
+  options,
+  onChange,
+  label,
+}: {
+  value: T;
+  options: { value: T; label: string }[];
+  onChange: (v: T) => void;
+  label: string;
+}) {
   const t = useTheme();
   return (
     <View accessibilityRole="radiogroup" accessibilityLabel={label} style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
@@ -52,7 +62,10 @@ function Row({ title, why, children }: { title: string; why: string; children: R
 export default function Preferences() {
   const { state, setSetting } = useStore();
   const s = state.settings;
-  const set = <K extends keyof Settings>(k: K) => (v: Settings[K]) => setSetting(k, v);
+  const set =
+    <K extends keyof Settings>(k: K) =>
+    (v: Settings[K]) =>
+      setSetting(k, v);
   const soundValue = !s.sound ? 'off' : s.volume;
 
   return (
@@ -60,7 +73,10 @@ export default function Preferences() {
       <Title>Your training</Title>
       <Body muted>Set Luminary up the way your brain works best. Change anything, any time.</Body>
 
-      <Row title="Training goal" why="Your plan puts extra work into this area. Mixed lets Luminary target whichever skill has the most room to grow.">
+      <Row
+        title="Training goal"
+        why="Your plan puts extra work into this area. Mixed lets Luminary target whichever skill has the most room to grow."
+      >
         <Segmented<Goal>
           label="Training goal"
           value={s.goal}
@@ -91,7 +107,10 @@ export default function Preferences() {
         />
       </Row>
 
-      <Row title="Time pressure" why="Untimed removes answer deadlines and slows paced games. Good for learning a game, or on days when the clock gets in the way.">
+      <Row
+        title="Time pressure"
+        why="Untimed removes answer deadlines and slows paced games. Good for learning a game, or on days when the clock gets in the way."
+      >
         <Segmented<'timed' | 'untimed'>
           label="Time pressure"
           value={s.timed ? 'timed' : 'untimed'}
@@ -111,6 +130,21 @@ export default function Preferences() {
           options={[
             { value: 'minimal', label: 'Minimal' },
             { value: 'standard', label: 'Standard' },
+          ]}
+        />
+      </Row>
+
+      <Row
+        title="Colour support"
+        why="Adds a shape to every colour in Colour Clash and a stop sign to the stop light in Catch the Light, and switches to colours that stay distinct with the common kinds of colour blindness."
+      >
+        <Segmented<'on' | 'off'>
+          label="Colour support"
+          value={s.colourAssist ? 'on' : 'off'}
+          onChange={(v) => setSetting('colourAssist', v === 'on')}
+          options={[
+            { value: 'off', label: 'Standard colours' },
+            { value: 'on', label: 'Shapes and safe colours' },
           ]}
         />
       </Row>

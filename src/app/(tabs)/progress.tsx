@@ -10,6 +10,7 @@ import { GAMES, SKILLS } from '@/training/catalog';
 import { GameId, Skill } from '@/training/engine';
 import { savedScore } from '@/iq/items';
 import { SharpnessCard } from '@/training/SharpnessCard';
+import { InsightsCard } from '@/training/InsightsCard';
 import { Metric } from '@/training/Metric';
 import { Spark } from '@/training/Spark';
 import { skillSummaries, workoutsThisWeek } from '@/training/stats';
@@ -81,6 +82,8 @@ export default function Progress() {
           the plan.
         </Body>
       </Card>
+
+      <InsightsCard />
 
       {summaries.map((s) => {
         const sk = SKILLS[s.skill];
