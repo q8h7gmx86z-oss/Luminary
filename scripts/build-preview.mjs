@@ -15,14 +15,14 @@ const inlineJs = scripts
   .map((js) => `<script>${js}</script>`)
   .join('\n');
 
-// Images from the export are referenced by absolute path, which the preview host
+// Images and sounds from the export are referenced by absolute path, which the preview host
 // cannot serve. Swap each one for a data URI.
 function inlineAssets(js) {
-  return js.replace(/"(\/assets\/[^"]+\.(png|jpg|jpeg|gif))"/g, (whole, url, ext) => {
+  return js.replace(/"(\/assets\/[^"]+\.(png|jpg|jpeg|gif|wav))"/g, (whole, url, ext) => {
     const file = path.join(dist, decodeURIComponent(url));
     if (!fs.existsSync(file)) return whole;
-    const mime = ext === 'jpg' ? 'jpeg' : ext;
-    return JSON.stringify(`data:image/${mime};base64,${fs.readFileSync(file).toString('base64')}`);
+    const mime = ext === 'wav' ? 'audio/wav' : `image/${ext === 'jpg' ? 'jpeg' : ext}`;
+    return JSON.stringify(`data:${mime};base64,${fs.readFileSync(file).toString('base64')}`);
   });
 }
 

@@ -1,7 +1,10 @@
-import React, { useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
+import { useStore } from '@/lib/store';
 import { useTheme } from '@/lib/theme';
+
+import { preloadCues } from './feedback';
 
 export type RoundOutcome = { score: number; accuracy: number; rtMs?: number };
 export type GameProps = { level: number; onFinish: (o: RoundOutcome) => void };
@@ -32,6 +35,7 @@ export function GameFrame({
             {[level !== undefined ? `Level ${level}` : null, status].filter(Boolean).join('  ·  ')}
           </Text>
         </View>
+        <SoundToggle />
         {onQuit ? (
           <Pressable accessibilityRole="button" onPress={onQuit} hitSlop={10} style={[styles.quit, { backgroundColor: t.soft }]}>
             <Text style={{ color: t.text, fontWeight: '600' }}>Stop</Text>
@@ -43,6 +47,28 @@ export function GameFrame({
       </View>
       <View style={styles.stage}>{children}</View>
     </View>
+  );
+}
+
+/** Quick mute in every game. The same switch lives in Settings. */
+function SoundToggle() {
+  const t = useTheme();
+  const { state, setSetting } = useStore();
+  const on = state.settings.sound;
+  useEffect(() => {
+    if (on) preloadCues();
+  }, [on]);
+  return (
+    <Pressable
+      accessibilityRole="switch"
+      accessibilityLabel="Game sounds"
+      accessibilityState={{ checked: on }}
+      onPress={() => setSetting('sound', !on)}
+      hitSlop={10}
+      style={[styles.quit, { backgroundColor: t.soft, marginRight: 8 }]}
+    >
+      <Text style={{ color: t.text, fontWeight: '600' }}>{on ? '🔊 Sound' : '🔇 Muted'}</Text>
+    </Pressable>
   );
 }
 

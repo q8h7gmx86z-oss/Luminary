@@ -5,7 +5,7 @@ import { useTheme } from '@/lib/theme';
 
 import { gridParams } from '../engine';
 import { AnswerButton, GameFrame, GameProps } from '../GameFrame';
-import { useAnswerHaptics } from '../haptics';
+import { useAnswerFeedback } from '../feedback';
 
 type Phase = 'ready' | 'show' | 'input' | 'right' | 'wrong' | 'done';
 
@@ -25,7 +25,7 @@ export function MemoryGrid({ level, onFinish, onQuit }: GameProps & { onQuit?: (
 
   const [trial, setTrial] = useState(0);
   const [phase, setPhase] = useState<Phase>('ready');
-  useAnswerHaptics(phase === 'right' || phase === 'wrong' ? phase : null, ['right']);
+  useAnswerFeedback(phase === 'right' || phase === 'wrong' ? phase : null, ['right']);
   const [seq, setSeq] = useState<number[]>([]);
   const [lit, setLit] = useState<number | null>(null);
   const [taps, setTaps] = useState<number[]>([]);

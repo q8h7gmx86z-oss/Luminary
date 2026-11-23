@@ -8,6 +8,7 @@ import { useTheme } from '@/lib/theme';
 
 import { GAMES, SKILLS } from './catalog';
 import { GameId, GameResult, nextLevel } from './engine';
+import { useCue } from './feedback';
 import { AnswerButton, RoundOutcome } from './GameFrame';
 import { CatchTheLight } from './games/CatchTheLight';
 import { ColourClash } from './games/ColourClash';
@@ -46,6 +47,7 @@ export function GameRunner({
 }) {
   const { state, recordResult } = useStore();
   const t = useTheme();
+  const cue = useCue();
   const info = GAMES[id];
   const level = state.training.levels[id] ?? 1;
   const [stage, setStage] = useState<'intro' | 'play' | 'result'>('intro');
@@ -66,6 +68,7 @@ export function GameRunner({
         onFinish={(o: RoundOutcome) => {
           const r: GameResult = { game: id, level, score: o.score, accuracy: o.accuracy, rtMs: o.rtMs, at: Date.now(), day: dayKey() };
           recordResult(r);
+          cue('complete');
           setResult(r);
           setStage('result');
         }}

@@ -3,6 +3,7 @@ import { AccessibilityInfo, Animated, Easing, Text, View } from 'react-native';
 
 import { useTheme } from '@/lib/theme';
 
+import { useCue } from './feedback';
 import { AnswerButton, GameFrame } from './GameFrame';
 
 const IN_MS = 5000;
@@ -12,6 +13,7 @@ const CYCLES = 6; // one minute at six breaths a minute
 /** Paced breathing at about six breaths a minute, the rate used in HRV biofeedback studies. */
 export function Breathing({ onFinish, onQuit }: { onFinish: () => void; onQuit?: () => void }) {
   const t = useTheme();
+  const cue = useCue();
   const scale = useRef(new Animated.Value(0.55)).current;
   const [phase, setPhase] = useState<'ready' | 'in' | 'out' | 'done'>('ready');
   const [cycle, setCycle] = useState(0);
@@ -37,6 +39,7 @@ export function Breathing({ onFinish, onQuit }: { onFinish: () => void; onQuit?:
     }
     setCycle(n);
     setPhase('in');
+    cue('breathe-in');
     Animated.timing(scale, {
       toValue: 1,
       duration: IN_MS,
@@ -45,6 +48,7 @@ export function Breathing({ onFinish, onQuit }: { onFinish: () => void; onQuit?:
     }).start(() => {
       if (!alive.current) return;
       setPhase('out');
+      cue('breathe-out');
       Animated.timing(scale, {
         toValue: 0.55,
         duration: OUT_MS,

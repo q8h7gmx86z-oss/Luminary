@@ -31,7 +31,7 @@ export type State = {
   habits: Record<string, string[]>;
   tasks: Task[];
   plans: IfThenPlan[];
-  settings: { calmMode: boolean };
+  settings: { calmMode: boolean; sound: boolean; vibration: boolean };
   training: {
     levels: Partial<Record<GameId, number>>;
     results: GameResult[];
@@ -56,7 +56,7 @@ function defaultState(): State {
     habits: {},
     tasks: [],
     plans: [],
-    settings: { calmMode: false },
+    settings: { calmMode: false, sound: true, vibration: true },
     training: { levels: {}, results: [], workouts: [] },
   };
 }
@@ -66,6 +66,7 @@ type Actions = {
   setRegion: (r: Region) => void;
   setAgeGroup: (a: AgeGroup) => void;
   setCalmMode: (on: boolean) => void;
+  setSetting: (key: 'sound' | 'vibration', on: boolean) => void;
   saveMood: (e: Omit<MoodEntry, 'at'>) => void;
   saveSleep: (e: Omit<SleepEntry, 'at'>) => void;
   toggleHabit: (habitId: string) => void;
@@ -122,6 +123,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       setRegion: (region) => update((s) => ({ ...s, region })),
       setAgeGroup: (ageGroup) => update((s) => ({ ...s, ageGroup })),
       setCalmMode: (calmMode) => update((s) => ({ ...s, settings: { ...s.settings, calmMode } })),
+      setSetting: (key, on) => update((s) => ({ ...s, settings: { ...s.settings, [key]: on } })),
       saveMood: (e) => update((s) => ({ ...s, moods: { ...s.moods, [dayKey()]: { ...e, at: Date.now() } } })),
       saveSleep: (e) => update((s) => ({ ...s, sleeps: { ...s.sleeps, [dayKey()]: { ...e, at: Date.now() } } })),
       toggleHabit: (habitId) =>

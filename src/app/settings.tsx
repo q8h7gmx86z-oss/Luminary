@@ -2,7 +2,7 @@ import { router } from 'expo-router';
 import React, { useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 
-import { Body, Button, Card, Heading, Screen } from '@/components/ui';
+import { Body, Button, Card, Checkbox, Heading, Screen } from '@/components/ui';
 import { REGION_NAMES, Region } from '@/lib/crisis';
 import { useStore } from '@/lib/store';
 import { useTheme } from '@/lib/theme';
@@ -30,7 +30,7 @@ function Option({ label, on, onPress }: { label: string; on: boolean; onPress: (
 }
 
 export default function Settings() {
-  const { state, setRegion, setAgeGroup, deleteEverything } = useStore();
+  const { state, setRegion, setAgeGroup, setSetting, deleteEverything } = useStore();
   const [confirming, setConfirming] = useState(false);
 
   return (
@@ -61,6 +61,13 @@ export default function Settings() {
           <Option label="Under 18" on={state.ageGroup === 'under18'} onPress={() => setAgeGroup('under18')} />
           <Option label="18 or over" on={state.ageGroup === 'adult'} onPress={() => setAgeGroup('adult')} />
         </View>
+      </Card>
+
+      <Card>
+        <Heading>Sound and vibration</Heading>
+        <Body muted>Gentle sounds and a light buzz tell you how you did in games. Turn either off if you find them distracting.</Body>
+        <Checkbox checked={state.settings.sound} label="Game sounds" onPress={() => setSetting('sound', !state.settings.sound)} />
+        <Checkbox checked={state.settings.vibration} label="Vibration (phones only)" onPress={() => setSetting('vibration', !state.settings.vibration)} />
       </Card>
 
       <Card>

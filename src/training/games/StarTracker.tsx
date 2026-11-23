@@ -5,7 +5,7 @@ import { useTheme } from '@/lib/theme';
 
 import { balancedAccuracy, mean, nbackParams, nbackSequence } from '../engine';
 import { AnswerButton, GameFrame, GameProps } from '../GameFrame';
-import { useAnswerHaptics } from '../haptics';
+import { useAnswerFeedback } from '../feedback';
 import { useKeys } from '../useKeys';
 
 // Eight positions around a 3x3 board; the centre cell stays empty as a resting point for the eyes.
@@ -22,7 +22,7 @@ export function StarTracker({ level, onFinish, onQuit }: GameProps & { onQuit?: 
   const [pos, setPos] = useState<number | null>(null);
   const [idx, setIdx] = useState(0);
   const [fb, setFb] = useState<Fb>(null);
-  useAnswerHaptics(fb, ['hit']);
+  useAnswerFeedback(fb, ['hit']);
 
   const s = useRef({ seq: [] as number[], i: -1, responded: false, shownAt: 0, hits: 0, fa: 0, cr: 0, targets: 0, rts: [] as number[] });
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
