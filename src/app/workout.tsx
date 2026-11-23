@@ -1,4 +1,4 @@
-import { router, Stack } from 'expo-router';
+import { router, Stack, useLocalSearchParams } from 'expo-router';
 import React, { useMemo, useState } from 'react';
 import { ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -9,7 +9,7 @@ import { useStore } from '@/lib/store';
 import { useTheme } from '@/lib/theme';
 import { Breathing } from '@/training/Breathing';
 import { AVAILABLE, GAMES, SKILLS } from '@/training/catalog';
-import { dailyGames, GameResult } from '@/training/engine';
+import { dailyGames, focusGames, GameResult } from '@/training/engine';
 import { AnswerButton } from '@/training/GameFrame';
 import { GameRunner } from '@/training/GameRunner';
 
@@ -18,7 +18,9 @@ export default function Workout() {
   const t = useTheme();
   const { completeWorkout } = useStore();
   const today = dayKey();
-  const games = useMemo(() => dailyGames(today, AVAILABLE), [today]);
+  const { track } = useLocalSearchParams<{ track?: string }>();
+  const focus = track === 'focus';
+  const games = useMemo(() => (focus ? focusGames : dailyGames)(today, AVAILABLE), [today, focus]);
   const [step, setStep] = useState(0); // 0 = breathing, 1..n = games, n+1 = summary
   const [results, setResults] = useState<GameResult[]>([]);
 
@@ -46,7 +48,7 @@ export default function Workout() {
     body = (
       <ScrollView style={{ backgroundColor: t.bg }} contentContainerStyle={{ padding: 20, gap: 16, alignItems: 'center', flexGrow: 1, justifyContent: 'center' }}>
         <LogoMark size={72} />
-        <Text style={{ fontSize: 28, fontWeight: '800', color: t.text, textAlign: 'center' }}>Workout complete</Text>
+        <Text style={{ fontSize: 28, fontWeight: '800', color: t.text, textAlign: 'center' }}>{focus ? 'Focus track complete' : 'Workout complete'}</Text>
         <Text style={{ color: t.muted, fontSize: 16, textAlign: 'center', maxWidth: 420 }}>
           You trained {new Set(results.map((r) => GAMES[r.game].skill)).size} skills today. Regular, spaced practice matters more than any
           single score.

@@ -6,6 +6,7 @@ import { Body, Screen, Title } from '@/components/ui';
 import { useStore } from '@/lib/store';
 import { useTheme } from '@/lib/theme';
 import { AVAILABLE, GAMES, SKILLS } from '@/training/catalog';
+import { FocusTrackCard } from '@/training/FocusTrackCard';
 import { GameId, Skill } from '@/training/engine';
 
 export default function Train() {
@@ -17,6 +18,7 @@ export default function Train() {
     <Screen>
       <Title>Brain games</Title>
       <Body muted>Play any game on its own. Each one adapts to you, getting harder as you improve.</Body>
+      <FocusTrackCard />
       {(Object.keys(SKILLS) as Skill[]).map((skill) => {
         const games = all.filter((g) => GAMES[g].skill === skill);
         return (

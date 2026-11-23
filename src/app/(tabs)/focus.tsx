@@ -5,6 +5,7 @@ import { Body, Button, Card, Checkbox, Field, Heading, Screen } from '@/componen
 import { formatClock, secondsLeft } from '@/lib/logic';
 import { useStore } from '@/lib/store';
 import { useTheme } from '@/lib/theme';
+import { FocusTrackCard } from '@/training/FocusTrackCard';
 
 const PRESETS = [5, 10, 15, 25];
 
@@ -192,6 +193,7 @@ function IfThenPlans() {
 export default function Focus() {
   return (
     <Screen>
+      <FocusTrackCard />
       <VisualTimer />
       <TaskBreakdown />
       <IfThenPlans />

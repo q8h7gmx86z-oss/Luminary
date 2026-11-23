@@ -5,6 +5,7 @@ import { useTheme } from '@/lib/theme';
 
 import { mean, speedParams } from '../engine';
 import { AnswerButton, GameFrame, GameProps } from '../GameFrame';
+import { useAnswerHaptics } from '../haptics';
 import { useKeys } from '../useKeys';
 
 const SYMBOLS = [
@@ -31,6 +32,7 @@ export function SpeedMatch({ level, onFinish, onQuit }: GameProps & { onQuit?: (
   const [current, setCurrent] = useState(() => Math.floor(Math.random() * pool.length));
   const [phase, setPhase] = useState<'memorise' | 'play' | 'done'>('memorise');
   const [feedback, setFeedback] = useState<Feedback>(null);
+  useAnswerHaptics(feedback, ['right']);
   const [elapsed, setElapsed] = useState(0);
 
   const stats = useRef({ correct: 0, answered: 0, rts: [] as number[], bonus: 0 });

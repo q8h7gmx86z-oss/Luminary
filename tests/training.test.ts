@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 
-import { balancedAccuracy, catchParams, clashParams, dailyGames, gridParams, nbackParams, nbackSequence, nextLevel, speedParams, switchParams } from '../src/training/engine.ts';
+import { balancedAccuracy, catchParams, clashParams, dailyGames, focusGames, gridParams, nbackParams, nbackSequence, nextLevel, speedParams, switchParams } from '../src/training/engine.ts';
 import { skillSummaries, workoutsThisWeek } from '../src/training/stats.ts';
 
 test('levels go up on strong rounds, down on weak ones, and stay in range', () => {
@@ -77,4 +77,14 @@ test('daily plan works with all six games', () => {
     g.forEach((x) => seen.add(x));
   }
   assert.equal(seen.size, 6);
+});
+
+test('focus track always starts with Catch the Light and has three different games', () => {
+  const all = ['speed', 'grid', 'catch', 'nback', 'clash', 'switch'] as const;
+  for (let d = 1; d <= 6; d++) {
+    const g = focusGames(`2026-12-0${d}`, [...all]);
+    assert.equal(g[0], 'catch');
+    assert.equal(new Set(g).size, 3);
+    assert.ok(!g.includes('speed'));
+  }
 });

@@ -5,6 +5,7 @@ import { useTheme } from '@/lib/theme';
 
 import { mean, switchParams } from '../engine';
 import { AnswerButton, GameFrame, GameProps } from '../GameFrame';
+import { useAnswerHaptics } from '../haptics';
 import { useKeys } from '../useKeys';
 
 type Rule = 'parity' | 'size';
@@ -30,6 +31,7 @@ export function SwitchIt({ level, onFinish, onQuit }: GameProps & { onQuit?: () 
   const [trial, setTrial] = useState<Trial | null>(null);
   const [n, setN] = useState(0);
   const [fb, setFb] = useState<Fb>(null);
+  useAnswerHaptics(fb, ['right']);
 
   const s = useRef({ n: 0, cur: null as Trial | null, rule: 'parity' as Rule, locked: true, shownAt: 0, correct: 0, rts: [] as number[], bonus: 0 });
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);

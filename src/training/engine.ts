@@ -150,3 +150,15 @@ export function nbackSequence(length: number, n: number, positions: number, targ
   }
   return seq;
 }
+
+/**
+ * Focus track: a shorter set aimed at the skills ADHD makes harder. Catch the Light (holding back)
+ * every time, then two of Colour Clash, Star Tracker and Switch It in rotation.
+ */
+export function focusGames(day: string, available: GameId[]): GameId[] {
+  const pool = (['clash', 'nback', 'switch'] as GameId[]).filter((g) => available.includes(g));
+  const i = dayIndex(day);
+  const picks: GameId[] = available.includes('catch') ? ['catch'] : [];
+  for (let k = 0; picks.length < 3 && k < pool.length; k++) picks.push(pool[(i + k) % pool.length]);
+  return picks;
+}

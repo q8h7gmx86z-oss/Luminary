@@ -5,6 +5,7 @@ import { useTheme } from '@/lib/theme';
 
 import { catchParams, goNoGoAccuracy, mean } from '../engine';
 import { AnswerButton, GameFrame, GameProps, useTap } from '../GameFrame';
+import { useAnswerHaptics } from '../haptics';
 import { useKeys } from '../useKeys';
 
 type Stim = 'go' | 'nogo' | null;
@@ -17,6 +18,7 @@ export function CatchTheLight({ level, onFinish, onQuit }: GameProps & { onQuit?
   const [stim, setStim] = useState<Stim>(null);
   const [trial, setTrial] = useState(0);
   const [fb, setFb] = useState<Fb>(null);
+  useAnswerHaptics(fb, ['hit', 'hold']);
 
   const s = useRef({ hits: 0, holds: 0, rts: [] as number[], trial: 0, responded: false, shownAt: 0, stim: null as Stim });
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
