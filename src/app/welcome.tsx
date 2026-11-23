@@ -38,7 +38,7 @@ export default function Welcome() {
   return (
     <Screen>
       <View style={{ height: 24 }} />
-      <LogoMark size={72} />
+      <LogoMark size={96} />
       <Title>Welcome to Luminary</Title>
       <Body>
         Everyday tools for focus, mood, sleep and long-term brain health. Made for every kind of brain, including ADHD and
