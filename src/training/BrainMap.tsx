@@ -112,7 +112,7 @@ export function litShare(index: number) {
  * A network brain that lights up as skills improve. Each colour is one skill; more lit
  * connections mean a higher score on that skill.
  */
-export function BrainMap({ bySkill, size = 300 }: { bySkill: Record<Skill, number>; size?: number }) {
+export function BrainMap({ bySkill, size = 300, calm }: { bySkill: Record<Skill, number>; size?: number; calm?: boolean }) {
   const lit = GEO.nodes.map((n) => n.rank < litShare(bySkill[n.skill] ?? 0));
   return (
     <Svg width={size} height={(size * 230) / 300} viewBox="0 0 300 230" accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
@@ -144,7 +144,7 @@ export function BrainMap({ bySkill, size = 300 }: { bySkill: Record<Skill, numbe
       {GEO.nodes.map((n, i) =>
         lit[i] ? (
           <React.Fragment key={i}>
-            <Circle cx={n.x} cy={n.y} r={8} fill={GLOW[n.skill]} fillOpacity={0.22} />
+            {calm ? null : <Circle cx={n.x} cy={n.y} r={8} fill={GLOW[n.skill]} fillOpacity={0.22} />}
             <Circle cx={n.x} cy={n.y} r={3.4} fill={GLOW[n.skill]} />
           </React.Fragment>
         ) : (

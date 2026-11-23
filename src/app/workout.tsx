@@ -9,7 +9,8 @@ import { useStore } from '@/lib/store';
 import { useTheme } from '@/lib/theme';
 import { Breathing } from '@/training/Breathing';
 import { AVAILABLE, GAMES, SKILLS } from '@/training/catalog';
-import { dailyGames, focusGames, GameResult } from '@/training/engine';
+import { focusGames, GameResult } from '@/training/engine';
+import { useTodayPlan } from '@/training/usePlan';
 import { AnswerButton } from '@/training/GameFrame';
 import { GameRunner } from '@/training/GameRunner';
 import { MAX_SHARPNESS, sharpnessOf } from '@/training/sharpness';
@@ -26,14 +27,18 @@ export default function Workout() {
   const today = dayKey();
   const { track } = useLocalSearchParams<{ track?: string }>();
   const focus = track === 'focus';
-  const games = useMemo(() => (focus ? focusGames : dailyGames)(today, AVAILABLE), [today, focus]);
+  const plan = useTodayPlan();
+  const [games] = useState(() => (focus ? focusGames(today, AVAILABLE) : plan.map((p) => p.game)));
   const [step, setStep] = useState(0); // 0 = breathing, 1..n = games, n+1 = summary
+  const [resting, setResting] = useState(false);
   const [results, setResults] = useState<GameResult[]>([]);
 
   const quit = () => (router.canGoBack() ? router.back() : router.replace('/'));
 
   let body: React.ReactNode;
-  if (step === 0) {
+  if (resting) {
+    body = <BreakCard next={GAMES[games[step - 1]].name} onContinue={() => setResting(false)} />;
+  } else if (step === 0) {
     body = <Breathing onFinish={() => setStep(1)} onQuit={quit} />;
   } else if (step <= games.length) {
     const id = games[step - 1];
@@ -46,6 +51,7 @@ export default function Workout() {
         onDone={(r) => {
           if (r) setResults((rs) => [...rs, r]);
           if (step === games.length) completeWorkout(today);
+          else if (state.settings.breaks) setResting(true);
           setStep(step + 1);
         }}
       />
@@ -54,7 +60,7 @@ export default function Workout() {
     body = (
       <ScrollView style={{ backgroundColor: t.bg }} contentContainerStyle={{ padding: 20, gap: 16, alignItems: 'center', flexGrow: 1, justifyContent: 'center' }}>
         <LogoMark size={72} />
-        <Text style={{ fontSize: 28, fontWeight: '800', color: t.text, textAlign: 'center' }}>{focus ? 'Focus track complete' : 'Workout complete'}</Text>
+        <Text style={{ fontSize: 28, fontWeight: '800', color: t.text, textAlign: 'center' }}>{focus ? 'Focus session complete' : 'Workout complete'}</Text>
         <Text style={{ color: t.muted, fontSize: 16, textAlign: 'center', maxWidth: 420 }}>
           {new Set(results.map((r) => GAMES[r.game].skill)).size} skills trained. Spaced sessions, about three a week, build skill faster
           than cramming.
@@ -103,5 +109,23 @@ export default function Workout() {
       <Stack.Screen options={{ headerShown: false }} />
       {body}
     </SafeAreaView>
+  );
+}
+
+/** Optional pause between games, for people who want a moment to reset. */
+function BreakCard({ next, onContinue }: { next: string; onContinue: () => void }) {
+  const t = useTheme();
+  return (
+    <View style={{ flex: 1, padding: 24, gap: 16, alignItems: 'center', justifyContent: 'center', backgroundColor: t.bg }}>
+      <Text style={{ color: t.primary, fontWeight: '800', letterSpacing: 1 }}>BREATHER</Text>
+      <Text style={{ color: t.text, fontSize: 28, fontWeight: '900', textAlign: 'center' }}>Reset before {next}</Text>
+      <Text style={{ color: t.muted, fontSize: 16, textAlign: 'center', maxWidth: 380, lineHeight: 23 }}>
+        Look away from the screen, roll your shoulders and take three slow breaths. A short pause clears the last game so you start the next one
+        fresh. Take as long as you like.
+      </Text>
+      <View style={{ flexDirection: 'row', width: '100%', maxWidth: 420 }}>
+        <AnswerButton label="I'm ready" onPress={onContinue} />
+      </View>
+    </View>
   );
 }

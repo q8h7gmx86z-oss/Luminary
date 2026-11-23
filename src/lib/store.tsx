@@ -2,7 +2,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getLocales } from 'expo-localization';
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 
-import { GameId, GameResult, nextLevel } from '@/training/engine';
+import { Challenge, GameId, GameResult, nextLevel } from '@/training/engine';
+import type { Goal } from '@/training/planner';
 
 import { Region, regionFromCode } from './crisis';
 import { dayKey, uid } from './logic';
@@ -31,15 +32,44 @@ export type State = {
   habits: Record<string, string[]>;
   tasks: Task[];
   plans: IfThenPlan[];
-  settings: { calmMode: boolean; sound: boolean; vibration: boolean };
+  /** Rafi Programme risk factors the person has marked as covered. */
+  rafi?: string[];
+  settings: Settings;
   training: {
     levels: Partial<Record<GameId, number>>;
     results: GameResult[];
     /** Days on which the full daily workout was finished. */
     workouts: string[];
     /** Reasoning test attempts. */
-    tests?: { at: number; estimate: number; percent: number }[];
+    tests?: { at: number; percent: number; score?: number }[];
   };
+};
+
+export type Settings = {
+  calmMode: boolean;
+  /** Game sounds on or off. The quick mute in games flips this. */
+  sound: boolean;
+  volume: 'gentle' | 'standard';
+  vibration: boolean;
+  sessionMinutes: 3 | 5 | 10 | 15;
+  /** Untimed mode removes answer deadlines and slows paced games. */
+  timed: boolean;
+  visuals: 'minimal' | 'standard';
+  breaks: boolean;
+  goal: Goal;
+  challenge: Challenge;
+};
+export const DEFAULT_SETTINGS: Settings = {
+  calmMode: false,
+  sound: true,
+  volume: 'gentle',
+  vibration: true,
+  sessionMinutes: 10,
+  timed: true,
+  visuals: 'standard',
+  breaks: false,
+  goal: 'mixed',
+  challenge: 'balanced',
 };
 
 function defaultState(): State {
@@ -58,7 +88,7 @@ function defaultState(): State {
     habits: {},
     tasks: [],
     plans: [],
-    settings: { calmMode: false, sound: true, vibration: true },
+    settings: DEFAULT_SETTINGS,
     training: { levels: {}, results: [], workouts: [] },
   };
 }
@@ -68,18 +98,20 @@ type Actions = {
   setRegion: (r: Region) => void;
   setAgeGroup: (a: AgeGroup) => void;
   setCalmMode: (on: boolean) => void;
-  setSetting: (key: 'sound' | 'vibration', on: boolean) => void;
-  recordTest: (t: { at: number; estimate: number; percent: number }) => void;
+  setSetting: <K extends keyof Settings>(key: K, value: Settings[K]) => void;
+  recordTest: (t: { at: number; percent: number; score: number }) => void;
   saveMood: (e: Omit<MoodEntry, 'at'>) => void;
   saveSleep: (e: Omit<SleepEntry, 'at'>) => void;
   toggleHabit: (habitId: string) => void;
+  toggleRafi: (id: string) => void;
   addTask: (title: string, steps: string[]) => void;
   toggleStep: (taskId: string, stepId: string) => void;
   removeTask: (taskId: string) => void;
   addPlan: (when: string, then: string) => void;
   removePlan: (id: string) => void;
   /** Saves a round and adjusts that game's level for next time. */
-  recordResult: (r: GameResult) => void;
+  /** Saves a round. A challenge round can raise the game's level but never lowers it. */
+  recordResult: (r: GameResult, opts?: { challenge?: boolean }) => void;
   completeWorkout: (day: string) => void;
   deleteEverything: () => Promise<void>;
 };
@@ -127,9 +159,14 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       setAgeGroup: (ageGroup) => update((s) => ({ ...s, ageGroup })),
       setCalmMode: (calmMode) => update((s) => ({ ...s, settings: { ...s.settings, calmMode } })),
       recordTest: (rec) => update((s) => ({ ...s, training: { ...s.training, tests: [...(s.training.tests ?? []), rec].slice(-50) } })),
-      setSetting: (key, on) => update((s) => ({ ...s, settings: { ...s.settings, [key]: on } })),
+      setSetting: (key, value) => update((s) => ({ ...s, settings: { ...s.settings, [key]: value } })),
       saveMood: (e) => update((s) => ({ ...s, moods: { ...s.moods, [dayKey()]: { ...e, at: Date.now() } } })),
       saveSleep: (e) => update((s) => ({ ...s, sleeps: { ...s.sleeps, [dayKey()]: { ...e, at: Date.now() } } })),
+      toggleRafi: (id) =>
+        update((s) => {
+          const cur = s.rafi ?? [];
+          return { ...s, rafi: cur.includes(id) ? cur.filter((x) => x !== id) : [...cur, id] };
+        }),
       toggleHabit: (habitId) =>
         update((s) => {
           const k = dayKey();
@@ -140,10 +177,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       addTask: (title, steps) =>
         update((s) => ({
           ...s,
-          tasks: [
-            { id: uid(), title, createdAt: Date.now(), steps: steps.map((text) => ({ id: uid(), text, done: false })) },
-            ...s.tasks,
-          ],
+          tasks: [{ id: uid(), title, createdAt: Date.now(), steps: steps.map((text) => ({ id: uid(), text, done: false })) }, ...s.tasks],
         })),
       toggleStep: (taskId, stepId) =>
         update((s) => ({
@@ -155,16 +189,21 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       removeTask: (taskId) => update((s) => ({ ...s, tasks: s.tasks.filter((t) => t.id !== taskId) })),
       addPlan: (when, then) => update((s) => ({ ...s, plans: [...s.plans, { id: uid(), when, then }] })),
       removePlan: (id) => update((s) => ({ ...s, plans: s.plans.filter((p) => p.id !== id) })),
-      recordResult: (r) =>
-        update((s) => ({
-          ...s,
-          training: {
-            ...s.training,
-            levels: { ...s.training.levels, [r.game]: nextLevel(r.level, r.accuracy) },
-            // Keep the most recent 2,000 rounds, which is years of daily use.
-            results: [...s.training.results, r].slice(-2000),
-          },
-        })),
+      recordResult: (r, opts) =>
+        update((s) => {
+          const current = s.training.levels[r.game] ?? 1;
+          const next = nextLevel(r.level, r.accuracy, s.settings.challenge);
+          const level = opts?.challenge ? Math.max(current, next > r.level ? next : current) : next;
+          return {
+            ...s,
+            training: {
+              ...s.training,
+              levels: { ...s.training.levels, [r.game]: level },
+              // Keep the most recent 2,000 rounds, which is years of daily use.
+              results: [...s.training.results, r].slice(-2000),
+            },
+          };
+        }),
       completeWorkout: (day) =>
         update((s) =>
           s.training.workouts.includes(day) ? s : { ...s, training: { ...s.training, workouts: [...s.training.workouts, day] } },

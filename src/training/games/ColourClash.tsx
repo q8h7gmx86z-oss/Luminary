@@ -20,7 +20,7 @@ type Trial = { word: number; ink: number };
 type Fb = 'right' | 'wrong' | 'word' | 'late' | null;
 
 /** Stroop task: name the ink colour and ignore what the word says. */
-export function ColourClash({ level, onFinish, onQuit }: GameProps & { onQuit?: () => void }) {
+export function ColourClash({ level, onFinish, onQuit, untimed }: GameProps & { onQuit?: () => void }) {
   const t = useTheme();
   const p = clashParams(level);
   const palette = COLOURS.slice(0, p.colours);
@@ -59,7 +59,7 @@ export function ColourClash({ level, onFinish, onQuit }: GameProps & { onQuit?: 
     setN(i);
     setTrial(tr);
     setFb(null);
-    deadline.current = setTimeout(() => answerRef.current(null), p.deadlineMs);
+    if (!untimed) deadline.current = setTimeout(() => answerRef.current(null), p.deadlineMs);
   };
 
   const answer = (choice: number | null) => {

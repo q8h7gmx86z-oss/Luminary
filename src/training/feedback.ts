@@ -37,10 +37,11 @@ export function preloadCues() {
   (Object.keys(SOURCES) as Cue[]).forEach(player);
 }
 
-function playCue(cue: Cue) {
+function playCue(cue: Cue, volume: number) {
   const p = player(cue);
   if (!p) return;
   try {
+    p.volume = volume;
     Promise.resolve(p.seekTo(0))
       .catch(() => {})
       .finally(() => p.play());
@@ -52,15 +53,15 @@ function playCue(cue: Cue) {
 /** Sound and vibration for a moment in a game, following the person's settings. */
 export function useCue() {
   const { state } = useStore();
-  const { sound, vibration } = state.settings;
+  const { sound, vibration, volume } = state.settings;
   return useCallback(
     (cue: Cue) => {
-      if (sound) playCue(cue);
+      if (sound) playCue(cue, volume === 'standard' ? 1 : 0.45);
       if (vibration && Platform.OS !== 'web' && (cue === 'right' || cue === 'wrong')) {
         (cue === 'right' ? Haptics.selectionAsync() : Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning)).catch(() => {});
       }
     },
-    [sound, vibration],
+    [sound, vibration, volume],
   );
 }
 

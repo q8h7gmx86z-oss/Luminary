@@ -31,6 +31,7 @@ function Choice({ label, on, onPress }: { label: string; on: boolean; onPress: (
 
 export default function Welcome() {
   const { state, finishOnboarding } = useStore();
+  const t = useTheme();
   const [age, setAge] = useState<AgeGroup | null>(null);
 
   return (
@@ -42,6 +43,7 @@ export default function Welcome() {
         Your brain trainer. Daily workouts that adapt to you, a Sharpness score that shows your progress, and tactics built for every
         kind of brain, including ADHD.
       </Body>
+      <Text style={{ color: t.muted, fontStyle: 'italic', textAlign: 'center', fontSize: 14 }}>In loving memory of Rafi (Rafaela), 1947–2025</Text>
 
       <Card>
         <Heading>Before you start</Heading>

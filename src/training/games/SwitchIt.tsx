@@ -24,7 +24,7 @@ function rightIsCorrect(tr: Trial) {
 }
 
 /** Task switching: the colour of the card tells you which question to answer. */
-export function SwitchIt({ level, onFinish, onQuit }: GameProps & { onQuit?: () => void }) {
+export function SwitchIt({ level, onFinish, onQuit, untimed }: GameProps & { onQuit?: () => void }) {
   const t = useTheme();
   const p = switchParams(level);
   const [phase, setPhase] = useState<'ready' | 'play' | 'done'>('ready');
@@ -65,7 +65,7 @@ export function SwitchIt({ level, onFinish, onQuit }: GameProps & { onQuit?: () 
     setN(i);
     setTrial(tr);
     setFb(null);
-    deadline.current = setTimeout(() => answerRef.current(null), p.deadlineMs);
+    if (!untimed) deadline.current = setTimeout(() => answerRef.current(null), p.deadlineMs);
   };
 
   const answer = (right: boolean | null) => {

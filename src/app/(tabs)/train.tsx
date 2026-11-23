@@ -6,7 +6,7 @@ import { Body, Screen, Title } from '@/components/ui';
 import { useStore } from '@/lib/store';
 import { useTheme } from '@/lib/theme';
 import { AVAILABLE, GAMES, SKILLS } from '@/training/catalog';
-import { FocusTrackCard } from '@/training/FocusTrackCard';
+import { savedScore } from '@/iq/items';
 import { GameId, Skill } from '@/training/engine';
 
 export default function Train() {
@@ -23,14 +23,16 @@ export default function Train() {
         onPress={() => router.push('/iq')}
         style={({ pressed }) => ({ backgroundColor: '#0B1640', borderRadius: 20, padding: 18, gap: 6, opacity: pressed ? 0.92 : 1 })}
       >
-        <Text style={{ color: '#F2C14E', fontWeight: '800', letterSpacing: 1, fontSize: 12 }}>REASONING TEST · IQ-STYLE</Text>
-        <Text style={{ color: '#FFFFFF', fontSize: 22, fontWeight: '900' }}>Test your reasoning</Text>
+        <Text style={{ color: '#F2C14E', fontWeight: '800', letterSpacing: 1, fontSize: 12 }}>REASONING ASSESSMENT</Text>
+        <Text style={{ color: '#FFFFFF', fontSize: 22, fontWeight: '900' }}>Put your reasoning to the test</Text>
         <Text style={{ color: '#D7DCF5', fontSize: 15 }}>
           20 timed questions on patterns, numbers and words.{' '}
-          {state.training.tests?.length ? `Last score ${state.training.tests[state.training.tests.length - 1].estimate}.` : 'About 13 minutes.'}
+          {state.training.tests?.length ? `Last score ${savedScore(state.training.tests[state.training.tests.length - 1])} / 100.` : 'About 13 minutes.'}
         </Text>
       </Pressable>
-      <FocusTrackCard />
+      <Pressable accessibilityRole="link" onPress={() => router.push('/preferences')} hitSlop={8}>
+        <Text style={{ color: t.primary, fontWeight: '700' }}>Set your goal, pace, untimed mode and more →</Text>
+      </Pressable>
       {(Object.keys(SKILLS) as Skill[]).map((skill) => {
         const games = all.filter((g) => GAMES[g].skill === skill);
         return (

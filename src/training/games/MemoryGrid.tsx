@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 
+import { useStore } from '@/lib/store';
 import { useTheme } from '@/lib/theme';
 
 import { gridParams } from '../engine';
@@ -20,6 +21,7 @@ function makeSequence(span: number, cells: number): number[] {
 
 export function MemoryGrid({ level, onFinish, onQuit }: GameProps & { onQuit?: () => void }) {
   const t = useTheme();
+  const calm = useStore().state.settings.visuals === 'minimal';
   const p = gridParams(level);
   const cells = p.size * p.size;
 
@@ -140,7 +142,7 @@ export function MemoryGrid({ level, onFinish, onQuit }: GameProps & { onQuit?: (
                 borderWidth: 2,
                 borderColor: on ? t.primary : t.border,
                 shadowColor: t.primary,
-                shadowOpacity: on ? 0.6 : 0,
+                shadowOpacity: on && !calm ? 0.6 : 0,
                 shadowRadius: on ? 16 : 0,
               }}
             />

@@ -23,10 +23,18 @@ export const MAX_LEVEL = 20;
  * Adaptive difficulty. Aim for roughly 75 to 85% accuracy, the zone where
  * practice is challenging but not discouraging.
  */
-export function nextLevel(level: number, accuracy: number): number {
+export type Challenge = 'steady' | 'balanced' | 'push';
+const THRESHOLDS: Record<Challenge, { up: number; down: number }> = {
+  steady: { up: 0.9, down: 0.65 },
+  balanced: { up: 0.85, down: 0.6 },
+  push: { up: 0.8, down: 0.55 },
+};
+
+export function nextLevel(level: number, accuracy: number, challenge: Challenge = 'balanced'): number {
+  const th = THRESHOLDS[challenge];
   let next = level;
-  if (accuracy >= 0.85) next = level + 1;
-  else if (accuracy < 0.6) next = level - 1;
+  if (accuracy >= th.up) next = level + 1;
+  else if (accuracy < th.down) next = level - 1;
   return Math.min(MAX_LEVEL, Math.max(MIN_LEVEL, next));
 }
 
@@ -152,7 +160,7 @@ export function nbackSequence(length: number, n: number, positions: number, targ
 }
 
 /**
- * Focus track: a shorter set aimed at the skills ADHD makes harder. Catch the Light (holding back)
+ * Focus session: a shorter set of attention and memory drills. Catch the Light (holding back)
  * every time, then two of Colour Clash, Star Tracker and Switch It in rotation.
  */
 export function focusGames(day: string, available: GameId[]): GameId[] {

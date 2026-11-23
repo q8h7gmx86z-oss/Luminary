@@ -8,8 +8,10 @@ import { dayKey, daysShownUp } from '@/lib/logic';
 import { useStore } from '@/lib/store';
 import { useTheme } from '@/lib/theme';
 import { SharpnessCard } from '@/training/SharpnessCard';
-import { AVAILABLE, GAMES, SKILLS } from '@/training/catalog';
-import { dailyGames } from '@/training/engine';
+import { GAMES, SKILLS } from '@/training/catalog';
+import { ChallengesCard } from '@/training/ChallengesCard';
+import { GOAL_NAMES } from '@/training/planner';
+import { useTodayPlan } from '@/training/usePlan';
 
 function greeting(): string {
   const h = new Date().getHours();
@@ -26,7 +28,8 @@ export default function Today() {
   const mood = state.moods[today];
   const sleep = state.sleeps[today];
 
-  const plan = dailyGames(today, AVAILABLE);
+  const plan = useTodayPlan();
+  const prefs = state.settings;
   const workedOut = state.training.workouts.includes(today);
 
   const activeDays = new Set<string>([
@@ -47,17 +50,20 @@ export default function Today() {
 
       <View style={{ backgroundColor: t.primary, borderRadius: 20, padding: 20, gap: 14 }}>
         <Text style={{ color: t.primaryText, opacity: 0.85, fontWeight: '700', letterSpacing: 0.6, fontSize: 13 }}>
-          {workedOut ? 'DONE FOR TODAY' : "TODAY'S BRAIN WORKOUT"}
+          {workedOut ? 'DONE FOR TODAY' : `YOUR PLAN · ${prefs.sessionMinutes} MIN · ${GOAL_NAMES[prefs.goal].toUpperCase()}`}
         </Text>
         <Text style={{ color: t.primaryText, fontSize: 24, fontWeight: '800' }}>
-          {workedOut ? 'Session banked. Come back tomorrow, or go again.' : 'Three games. About 8 minutes.'}
+          {workedOut ? 'Session banked. Come back tomorrow, or go again.' : `Built from your last sessions`}
         </Text>
-        <View style={{ gap: 8 }}>
+        <View style={{ gap: 10 }}>
           <Text style={{ color: t.primaryText, fontSize: 15 }}>◌  1-minute breathing warm-up</Text>
-          {plan.map((g) => (
-            <Text key={g} style={{ color: t.primaryText, fontSize: 15 }}>
-              {GAMES[g].glyph}  {GAMES[g].name} · {SKILLS[GAMES[g].skill].name}
-            </Text>
+          {plan.map((p) => (
+            <View key={p.game} style={{ gap: 2 }}>
+              <Text style={{ color: t.primaryText, fontSize: 16, fontWeight: '700' }}>
+                {GAMES[p.game].glyph}  {GAMES[p.game].name} · {SKILLS[GAMES[p.game].skill].name}
+              </Text>
+              <Text style={{ color: t.primaryText, opacity: 0.8, fontSize: 13, marginLeft: 26 }}>{p.reason}</Text>
+            </View>
           ))}
         </View>
         <Pressable
@@ -74,7 +80,12 @@ export default function Today() {
         >
           <Text style={{ color: t.primary, fontSize: 17, fontWeight: '800' }}>{workedOut ? 'Train again' : 'Start workout'}</Text>
         </Pressable>
+        <Pressable accessibilityRole="link" onPress={() => router.push('/preferences')} hitSlop={8}>
+          <Text style={{ color: t.primaryText, fontWeight: '700', textAlign: 'center', textDecorationLine: 'underline' }}>Change length, goal or pace</Text>
+        </Pressable>
       </View>
+
+      <ChallengesCard />
 
       <SharpnessCard compact />
 
@@ -120,8 +131,8 @@ export default function Today() {
             <Text style={{ color: t.muted, fontSize: 13, marginLeft: 38 }}>{h.why}</Text>
           </View>
         ))}
-        <Link href="/article/brain-health" style={{ color: t.primary, fontWeight: '600', fontSize: 15 }}>
-          The science behind these
+        <Link href="/rafi" style={{ color: t.primary, fontWeight: '600', fontSize: 15 }}>
+          Your full brain health plan: the Rafi Programme
         </Link>
       </Card>
 

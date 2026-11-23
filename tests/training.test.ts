@@ -103,3 +103,75 @@ test('sharpness rises with level and accuracy, and counts every skill', () => {
   assert.equal(hist.length, 3);
   assert.ok(hist[2].value > hist[0].value);
 });
+
+import { challengeDone, dailyChallenge, forgivingStreak, gamesForMinutes, planWorkout, slotKinds, weekOf, weeklyQuest } from '../src/training/planner.ts';
+
+const SK = { speed: 'speed', grid: 'memory', nback: 'memory', catch: 'attention', clash: 'attention', switch: 'flexibility' } as const;
+const ALL = ['speed', 'grid', 'catch', 'nback', 'clash', 'switch'] as any[];
+const NAMES = { speed: 'Processing speed', memory: 'Working memory', attention: 'Attention control', flexibility: 'Flexibility' } as const;
+const skillOf = (g: string) => (SK as any)[g];
+const SKILLS = ['speed', 'memory', 'attention', 'flexibility'] as any[];
+const round = (game: string, level: number, accuracy: number, day: string, at = 0) => ({ game, level, accuracy, score: level * 10, at, day }) as any;
+
+test('session length sets the number of games', () => {
+  assert.deepEqual([3, 5, 10, 15].map(gamesForMinutes), [1, 2, 3, 4]);
+});
+
+test('slot mix is roughly 60/25/15 and always starts targeted', () => {
+  let s = 1;
+  const rand = () => ((s = (s * 16807) % 2147483647) / 2147483647);
+  const counts = { targeted: 0, varied: 0, familiar: 0 } as any;
+  for (let i = 0; i < 4000; i++) {
+    const k = slotKinds(4, rand);
+    assert.equal(k[0], 'targeted');
+    k.slice(1).forEach((x) => counts[x]++);
+  }
+  const total = 4000 * 3;
+  assert.ok(Math.abs(counts.targeted / total - 0.6) < 0.03);
+  assert.ok(Math.abs(counts.varied / total - 0.25) < 0.03);
+});
+
+test('new players get untried games first, then targeted practice on the weakest skill', () => {
+  const base = { available: ALL, skillOf, skills: SKILLS, skillNames: NAMES, minutes: 10, goal: 'mixed' as const };
+  const fresh = planWorkout({ ...base, day: '2026-11-23', results: [] });
+  assert.equal(fresh.length, 3);
+  assert.ok(fresh.every((p) => p.kind === 'baseline'));
+  const results = ALL.map((g, k) => round(g, g === 'grid' || g === 'nback' ? 1 : 8, 0.8, '2026-11-20', k));
+  const plan = planWorkout({ ...base, day: '2026-11-23', results });
+  assert.equal(plan[0].kind, 'targeted');
+  assert.equal(skillOf(plan[0].game), 'memory');
+  assert.equal(new Set(plan.map((p) => p.game)).size, plan.length);
+  const goal = planWorkout({ ...base, day: '2026-11-23', results, goal: 'focus' });
+  assert.equal(skillOf(goal[0].game), 'attention');
+});
+
+test('daily challenge is one level up and clears at 80%', () => {
+  const c = dailyChallenge('2026-11-23', ALL, { [ALL[0]]: 3 } as any);
+  assert.equal(c.level, (c.game === ALL[0] ? 3 : 1) + 1);
+  assert.equal(challengeDone(c, '2026-11-23', [round(c.game, c.level, 0.8, '2026-11-23')]), true);
+  assert.equal(challengeDone(c, '2026-11-23', [round(c.game, c.level - 1, 1, '2026-11-23')]), false);
+});
+
+test('weeks run Monday to Sunday and quests measure progress', () => {
+  assert.deepEqual([weekOf('2026-11-23')[0], weekOf('2026-11-29')[6]], ['2026-11-23', '2026-11-29']);
+  const q = weeklyQuest('2026-11-25', [], ['2026-11-23', '2026-11-24'], skillOf, SKILLS);
+  assert.ok(q.target > 0 && q.progress >= 0);
+});
+
+test('streaks survive up to two rest days in a row', () => {
+  const days = new Set(['2026-11-23', '2026-11-20', '2026-11-19', '2026-11-15']);
+  assert.equal(forgivingStreak(days, '2026-11-23'), 3);
+  assert.equal(forgivingStreak(days, '2026-11-25'), 3);
+  assert.equal(forgivingStreak(days, '2026-11-26'), 0);
+});
+
+test('skill analytics compare recent rounds with your own baseline', () => {
+  const skillOf = (g: string) => (g === 'speed' ? 'speed' : 'memory') as any;
+  const rs = [1, 1, 1, 3, 4, 5].map((lv, k) => ({ game: 'speed', level: lv, accuracy: 0.8, score: 0, at: k, day: `2026-11-0${k + 1}`, rtMs: 900 - k * 50 })) as any;
+  const [sp] = skillSummaries(rs, { speed: 5 }, skillOf, ['speed']);
+  assert.ok(sp.vsBaseline! > 10);
+  assert.equal(sp.direction, 'improving');
+  assert.equal(sp.consistency, 'High');
+  assert.ok(sp.rtNow! < sp.rtBaseline!);
+  assert.ok(sp.skillScore > 0 && sp.skillScore <= 100);
+});

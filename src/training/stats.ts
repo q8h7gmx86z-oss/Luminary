@@ -10,6 +10,23 @@ export type SkillSummary = {
   recentAccuracy?: number;
   /** Mean score per day for the last 14 days with play, oldest first. */
   trend: { day: string; value: number }[];
+  /** Skill score from 0 to 100: level and accuracy over recent rounds. */
+  skillScore: number;
+  /** How steady recent accuracy is. Needs at least 4 rounds. */
+  consistency?: 'High' | 'Medium' | 'Variable';
+  /** Skill score now minus skill score over your first three rounds, in points out of 100. Needs 6 rounds. */
+  vsBaseline?: number;
+  direction?: 'improving' | 'steady' | 'dipping';
+  /** Average response time, recent rounds and first rounds, where the games measure it. */
+  rtNow?: number;
+  rtBaseline?: number;
+};
+
+const perf = (r: GameResult) => Math.max(0, Math.min(1, (r.level - 1 + r.accuracy) / 16));
+const avg = (xs: number[]) => xs.reduce((a, b) => a + b, 0) / xs.length;
+const sd = (xs: number[]) => {
+  const m = avg(xs);
+  return Math.sqrt(avg(xs.map((x) => (x - m) ** 2)));
 };
 
 export function skillSummaries(
@@ -32,8 +49,31 @@ export function skillSummaries(
       .sort(([a], [b]) => (a < b ? -1 : 1))
       .slice(-14)
       .map(([day, vs]) => ({ day, value: Math.round(vs.reduce((a, b) => a + b, 0) / vs.length) }));
+    const recentPerf = rs.slice(-3).map(perf);
+    const skillScore = recentPerf.length ? Math.round(avg(recentPerf) * 100) : 0;
+    const last8 = rs.slice(-8).map((r) => r.accuracy);
+    const spread = last8.length >= 4 ? sd(last8) : undefined;
+    const consistency = spread === undefined ? undefined : spread < 0.08 ? 'High' : spread < 0.15 ? 'Medium' : 'Variable';
+    let vsBaseline: number | undefined;
+    let direction: SkillSummary['direction'];
+    if (rs.length >= 6) {
+      const base = avg(rs.slice(0, 3).map(perf));
+      const now = avg(recentPerf);
+      vsBaseline = Math.round((now - base) * 100);
+      const prev = avg(rs.slice(-6, -3).map(perf));
+      direction = now - prev > 0.01 ? 'improving' : now - prev < -0.01 ? 'dipping' : 'steady';
+    }
+    const timed = rs.filter((r) => r.rtMs);
+    const rtNow = timed.length ? Math.round(avg(timed.slice(-3).map((r) => r.rtMs!))) : undefined;
+    const rtBaseline = timed.length >= 6 ? Math.round(avg(timed.slice(0, 3).map((r) => r.rtMs!))) : undefined;
     return {
       skill,
+      skillScore,
+      consistency,
+      vsBaseline,
+      direction,
+      rtNow,
+      rtBaseline,
       rounds: rs.length,
       level: gameLevels.length ? Math.max(...gameLevels) : 1,
       recentAccuracy: recent.length ? recent.reduce((a, r) => a + r.accuracy, 0) / recent.length : undefined,

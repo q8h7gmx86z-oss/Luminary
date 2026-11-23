@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 
+import { useStore } from '@/lib/store';
 import { useTheme } from '@/lib/theme';
 
 import { catchParams, goNoGoAccuracy, mean } from '../engine';
@@ -11,9 +12,12 @@ import { useKeys } from '../useKeys';
 type Stim = 'go' | 'nogo' | null;
 type Fb = 'hit' | 'miss' | 'false' | 'hold' | null;
 
-export function CatchTheLight({ level, onFinish, onQuit }: GameProps & { onQuit?: () => void }) {
+export function CatchTheLight({ level, onFinish, onQuit, untimed }: GameProps & { onQuit?: () => void }) {
   const t = useTheme();
-  const p = catchParams(level);
+  const calm = useStore().state.settings.visuals === 'minimal';
+  // Untimed mode keeps each light on twice as long. The task still needs a window to respond in.
+  const base = catchParams(level);
+  const p = untimed ? { ...base, showMs: base.showMs * 2 } : base;
   const [phase, setPhase] = useState<'ready' | 'play' | 'done'>('ready');
   const [stim, setStim] = useState<Stim>(null);
   const [trial, setTrial] = useState(0);
@@ -122,7 +126,7 @@ export function CatchTheLight({ level, onFinish, onQuit }: GameProps & { onQuit?
           borderWidth: 6,
           borderColor: stim ? color : t.border,
           shadowColor: color,
-          shadowOpacity: stim ? 0.7 : 0,
+          shadowOpacity: stim && !calm ? 0.7 : 0,
           shadowRadius: 30,
         }}
       />

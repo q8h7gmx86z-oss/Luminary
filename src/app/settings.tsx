@@ -55,10 +55,18 @@ export default function Settings() {
       </Card>
 
       <Card>
-        <Heading>Sound and vibration</Heading>
-        <Body muted>Gentle sounds and a light buzz tell you how you did in games. Turn either off if you find them distracting.</Body>
-        <Checkbox checked={state.settings.sound} label="Game sounds" onPress={() => setSetting('sound', !state.settings.sound)} />
-        <Checkbox checked={state.settings.vibration} label="Vibration (phones only)" onPress={() => setSetting('vibration', !state.settings.vibration)} />
+        <Heading>Training preferences</Heading>
+        <Body muted>Session length, goal, challenge level, untimed mode, visuals, sound and breaks.</Body>
+        <Button kind="secondary" label="Open training preferences" onPress={() => router.push('/preferences')} />
+      </Card>
+
+      <Card>
+        <Heading>Dedication</Heading>
+        <Body>
+          Luminary is dedicated to my mum, Rafaela, known to everyone as Rafi (1947–2025). She lived with dementia, and this app exists so that
+          more people can look after their brains for longer.
+        </Body>
+        <Body muted>Sandra, founder</Body>
       </Card>
 
       <Card>

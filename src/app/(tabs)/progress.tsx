@@ -7,6 +7,7 @@ import { useStore } from '@/lib/store';
 import { useTheme } from '@/lib/theme';
 import { GAMES, SKILLS } from '@/training/catalog';
 import { GameId, Skill } from '@/training/engine';
+import { savedScore } from '@/iq/items';
 import { SharpnessCard } from '@/training/SharpnessCard';
 import { Spark } from '@/training/Spark';
 import { skillSummaries, workoutsThisWeek } from '@/training/stats';
@@ -28,14 +29,14 @@ export default function Progress() {
 
       {state.training.tests?.length ? (
         <Card>
-          <Heading>Reasoning test</Heading>
+          <Heading>Reasoning Assessment</Heading>
           <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 10 }}>
-            <Text style={{ color: t.text, fontSize: 36, fontWeight: '900' }}>{state.training.tests[state.training.tests.length - 1].estimate}</Text>
+            <Text style={{ color: t.text, fontSize: 36, fontWeight: '900' }}>{savedScore(state.training.tests[state.training.tests.length - 1])}</Text>
             <Text style={{ color: t.muted }}>
-              latest estimate · {state.training.tests.length} attempt{state.training.tests.length === 1 ? '' : 's'}
+              / 100 latest · {state.training.tests.length} attempt{state.training.tests.length === 1 ? '' : 's'}
             </Text>
           </View>
-          <Body muted>IQ-style scale, average 100. Retest monthly for a fair comparison.</Body>
+          <Body muted>Experimental score for tracking your own reasoning over time. Not an IQ score. Retest monthly for a fair comparison.</Body>
         </Card>
       ) : null}
 
@@ -86,9 +87,36 @@ export default function Progress() {
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
               <View style={{ width: 12, height: 12, borderRadius: 6, backgroundColor: sk.color }} />
               <Text style={{ color: t.text, fontSize: 18, fontWeight: '700', flex: 1 }}>{sk.name}</Text>
-              <Text style={{ color: t.text, fontWeight: '800' }}>Level {s.level}</Text>
+              <Text style={{ color: t.text, fontWeight: '900', fontSize: 18 }}>
+                {s.skillScore}
+                <Text style={{ color: t.muted, fontSize: 13, fontWeight: '700' }}>/100</Text>
+              </Text>
             </View>
             <Body muted>{sk.description}</Body>
+            {s.rounds > 0 ? (
+              <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+                <Metric label="Top level" value={`${s.level}`} />
+                {s.recentAccuracy !== undefined ? <Metric label="Accuracy" value={`${Math.round(s.recentAccuracy * 100)}%`} hint="last 5 rounds" /> : null}
+                {s.consistency ? <Metric label="Consistency" value={s.consistency} hint="accuracy spread" /> : null}
+                {s.vsBaseline !== undefined ? (
+                  <Metric
+                    label="Vs your baseline"
+                    value={`${s.vsBaseline > 0 ? '+' : ''}${s.vsBaseline} pts`}
+                    hint={s.direction === 'improving' ? 'still climbing' : s.direction === 'dipping' ? 'recent dip' : 'holding steady'}
+                    tone={s.vsBaseline > 0 ? 'good' : undefined}
+                  />
+                ) : (
+                  <Metric label="Vs your baseline" value="—" hint="after 6 rounds" />
+                )}
+                {s.rtNow ? (
+                  <Metric
+                    label="Response time"
+                    value={`${s.rtNow} ms`}
+                    hint={s.rtBaseline ? `${s.rtNow <= s.rtBaseline ? '−' : '+'}${Math.abs(s.rtNow - s.rtBaseline)} ms vs start` : 'recent rounds'}
+                  />
+                ) : null}
+              </View>
+            ) : null}
             <Spark values={s.trend.map((p) => p.value)} color={sk.color} label={`${sk.name} skill score by day`} />
             <View style={{ gap: 6 }}>
               {(Object.keys(GAMES) as GameId[])
@@ -109,18 +137,29 @@ export default function Progress() {
                 })}
             </View>
             <Text style={{ color: t.muted, fontSize: 13 }}>
-              {s.rounds === 0
-                ? 'No rounds yet.'
-                : `${s.rounds} round${s.rounds === 1 ? '' : 's'} played${s.recentAccuracy !== undefined ? ` · recent accuracy ${Math.round(s.recentAccuracy * 100)}%` : ''}`}
+              {s.rounds === 0 ? 'No rounds yet.' : `${s.rounds} round${s.rounds === 1 ? '' : 's'} played`}
             </Text>
           </Card>
         );
       })}
 
       <Body muted>
-        Skill score is your accuracy weighted by level, averaged per day. {totalRounds > 0 ? '' : 'Finish a workout to see it grow.'} Scores show
-        how you do on these games. They are not a medical measure of your brain.
+        How to read your numbers. Skill score (out of 100): your level and accuracy over your last three rounds of that skill. Vs your
+        baseline: your skill score now minus your skill score over your first three rounds. Consistency: how much your accuracy varies between rounds. The bar
+        chart shows your daily average. {totalRounds > 0 ? '' : 'Finish a workout to see them fill in. '}These numbers describe how you perform
+        on Luminary’s games. They are not clinical measurements and they do not compare you with anyone else.
       </Body>
     </Screen>
+  );
+}
+
+function Metric({ label, value, hint, tone }: { label: string; value: string; hint?: string; tone?: 'good' }) {
+  const t = useTheme();
+  return (
+    <View style={{ flexBasis: '30%', flexGrow: 1, padding: 10, borderRadius: 12, backgroundColor: t.bg, gap: 2 }}>
+      <Text style={{ color: t.muted, fontSize: 12 }}>{label}</Text>
+      <Text style={{ color: tone === 'good' ? t.good : t.text, fontSize: 17, fontWeight: '800', fontVariant: ['tabular-nums'] }}>{value}</Text>
+      {hint ? <Text style={{ color: t.muted, fontSize: 11 }}>{hint}</Text> : null}
+    </View>
   );
 }

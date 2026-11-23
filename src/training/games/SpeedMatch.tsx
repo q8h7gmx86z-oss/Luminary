@@ -21,9 +21,12 @@ const SYMBOLS = [
   { glyph: '■', color: '#7A5AE0' },
 ];
 
+/** Untimed mode ends after a set number of answers instead of after 45 seconds. */
+const UNTIMED_TRIALS = 30;
+
 type Feedback = 'right' | 'wrong' | 'late' | null;
 
-export function SpeedMatch({ level, onFinish, onQuit }: GameProps & { onQuit?: () => void }) {
+export function SpeedMatch({ level, onFinish, onQuit, untimed }: GameProps & { onQuit?: () => void }) {
   const t = useTheme();
   const p = speedParams(level);
   const pool = SYMBOLS.slice(0, p.symbolCount);
@@ -57,7 +60,7 @@ export function SpeedMatch({ level, onFinish, onQuit }: GameProps & { onQuit?: (
 
   const nextTrial = useCallback(
     (from: number) => {
-      if (Date.now() - startAt.current >= p.durationMs) {
+      if (untimed ? stats.current.answered >= UNTIMED_TRIALS : Date.now() - startAt.current >= p.durationMs) {
         finish();
         return;
       }
@@ -73,9 +76,9 @@ export function SpeedMatch({ level, onFinish, onQuit }: GameProps & { onQuit?: (
       locked.current = false;
       shownAt.current = Date.now();
       if (deadline.current) clearTimeout(deadline.current);
-      deadline.current = setTimeout(() => respondRef.current(null), p.deadlineMs);
+      if (!untimed) deadline.current = setTimeout(() => respondRef.current(null), p.deadlineMs);
     },
-    [finish, p.deadlineMs, p.durationMs, pool.length],
+    [finish, p.deadlineMs, p.durationMs, pool.length, untimed],
   );
 
   const currentRef = useRef(current);
@@ -139,7 +142,7 @@ export function SpeedMatch({ level, onFinish, onQuit }: GameProps & { onQuit?: (
     <GameFrame
       title="Speed Match"
       level={level}
-      progress={phase === 'play' ? elapsed / p.durationMs : 0}
+      progress={phase === 'play' ? (untimed ? stats.current.answered / UNTIMED_TRIALS : elapsed / p.durationMs) : 0}
       status={phase === 'play' ? `${stats.current.correct} correct` : undefined}
       onQuit={onQuit}
     >

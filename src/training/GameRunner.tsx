@@ -37,8 +37,11 @@ export function GameRunner({
   onQuit,
   doneLabel = 'Continue',
   onExit,
+  challengeLevel,
 }: {
   id: GameId;
+  /** Daily challenge: play at this level and aim for 80%. */
+  challengeLevel?: number;
   /** Shows a secondary Done button on the result card. */
   onExit?: () => void;
   onDone: (r: GameResult | null) => void;
@@ -49,7 +52,8 @@ export function GameRunner({
   const t = useTheme();
   const cue = useCue();
   const info = GAMES[id];
-  const level = state.training.levels[id] ?? 1;
+  const [level] = useState(() => challengeLevel ?? state.training.levels[id] ?? 1);
+  const untimed = !state.settings.timed;
   const [stage, setStage] = useState<'intro' | 'play' | 'result'>('intro');
   const [result, setResult] = useState<GameResult | null>(null);
   const [showScience, setShowScience] = useState(false);
@@ -64,10 +68,11 @@ export function GameRunner({
     return (
       <Game
         level={level}
+        untimed={untimed}
         onQuit={onQuit}
         onFinish={(o: RoundOutcome) => {
           const r: GameResult = { game: id, level, score: o.score, accuracy: o.accuracy, rtMs: o.rtMs, at: Date.now(), day: dayKey() };
-          recordResult(r);
+          recordResult(r, { challenge: challengeLevel !== undefined });
           cue('complete');
           setResult(r);
           setStage('result');
@@ -79,13 +84,17 @@ export function GameRunner({
   const skill = SKILLS[info.skill];
 
   if (stage === 'result' && result) {
-    const newLevel = nextLevel(result.level, result.accuracy);
+    const newLevel = challengeLevel !== undefined ? Math.max(state.training.levels[id] ?? 1, level) : nextLevel(result.level, result.accuracy, state.settings.challenge);
+    const cleared = challengeLevel !== undefined && result.accuracy >= 0.8;
     const isBest = result.score > best;
     return (
       <ScrollView contentContainerStyle={{ padding: 20, gap: 16, alignItems: 'center', flexGrow: 1, justifyContent: 'center' }} style={{ backgroundColor: t.bg }}>
         <Text style={{ fontSize: 15, color: skill.color, fontWeight: '700', letterSpacing: 0.5 }}>{skill.name.toUpperCase()}</Text>
         <Text style={{ fontSize: 26, fontWeight: '800', color: t.text }}>{info.name}</Text>
         <Text style={{ fontSize: 64, fontWeight: '800', color: t.primary, fontVariant: ['tabular-nums'] }}>{result.score}</Text>
+        {challengeLevel !== undefined ? (
+          <Text style={{ color: cleared ? t.good : t.muted, fontWeight: '800', fontSize: 18 }}>{cleared ? 'Challenge cleared!' : 'Not this time. The challenge resets tomorrow.'}</Text>
+        ) : null}
         {isBest ? <Text style={{ color: t.good, fontWeight: '700', fontSize: 16 }}>New personal best!</Text> : <Text style={{ color: t.muted }}>Personal best: {best}</Text>}
         <View style={{ flexDirection: 'row', gap: 12, width: '100%', maxWidth: 420 }}>
           <Stat label="Accuracy" value={`${Math.round(result.accuracy * 100)}%`} />
@@ -123,7 +132,10 @@ export function GameRunner({
             {i + 1}. {h}
           </Text>
         ))}
-        <Text style={{ color: t.muted, fontSize: 14 }}>Your level: {level}</Text>
+        <Text style={{ color: t.muted, fontSize: 14 }}>
+          {challengeLevel !== undefined ? `Challenge: level ${level}, one above yours. Hit 80% to clear it.` : `Your level: ${level}`}
+          {untimed ? ' · Untimed mode' : ''}
+        </Text>
       </View>
       <Pressable accessibilityRole="button" onPress={() => setShowScience((v) => !v)} hitSlop={8}>
         <Text style={{ color: t.primary, fontWeight: '700', fontSize: 15 }}>{showScience ? 'Hide the science' : 'What does the science say?'}</Text>

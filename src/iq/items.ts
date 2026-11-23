@@ -230,12 +230,12 @@ export function itemWeight(item: Item): number {
   return item.kind === 'word' ? item.difficulty * (4 / 3) : item.difficulty;
 }
 
-export type TestScore = { estimate: number; percent: number; sections: Record<Section['id'], { right: number; total: number }> };
+export type TestScore = { score: number; percent: number; sections: Record<Section['id'], { right: number; total: number }> };
 
 /**
- * Turns answers into an estimate on an IQ-style scale (average 100, spread 15).
- * The mapping assumes an average adult gets about half the weighted points, with a spread of
- * about 17 points. It is provisional until it is checked against a large group of people.
+ * Experimental reasoning score: the share of weighted points earned, from 0 to 100.
+ * Harder questions are worth more. It is not an IQ score: it has not been validated
+ * against established tests or compared with a large group of people.
  */
 export function scoreTest(sections: Section[], answers: (number | null)[][]): TestScore {
   let earned = 0;
@@ -254,13 +254,10 @@ export function scoreTest(sections: Section[], answers: (number | null)[][]): Te
     per[s.id] = { right, total: s.items.length };
   });
   const percent = max ? earned / max : 0;
-  const estimate = Math.round(Math.max(70, Math.min(145, 100 + (15 * (percent - 0.5)) / 0.17)));
-  return { estimate, percent, sections: per };
+  return { score: Math.round(percent * 100), percent, sections: per };
 }
 
-export function band(estimate: number): string {
-  if (estimate >= 130) return 'Very high';
-  if (estimate >= 115) return 'Above average';
-  if (estimate >= 85) return 'Average range';
-  return 'Below average';
+/** Score from a saved attempt, including attempts saved before the score was renamed. */
+export function savedScore(t: { percent: number; score?: number }): number {
+  return t.score ?? Math.round(t.percent * 100);
 }

@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { AccessibilityInfo, Animated, Easing, Text, View } from 'react-native';
 
+import { useStore } from '@/lib/store';
 import { useTheme } from '@/lib/theme';
 
 import { useCue } from './feedback';
@@ -17,7 +18,8 @@ export function Breathing({ onFinish, onQuit }: { onFinish: () => void; onQuit?:
   const scale = useRef(new Animated.Value(0.55)).current;
   const [phase, setPhase] = useState<'ready' | 'in' | 'out' | 'done'>('ready');
   const [cycle, setCycle] = useState(0);
-  const [reduceMotion, setReduceMotion] = useState(false);
+  const [systemReduce, setReduceMotion] = useState(false);
+  const reduceMotion = systemReduce || useStore().state.settings.visuals === 'minimal';
   const alive = useRef(true);
 
   useEffect(() => {

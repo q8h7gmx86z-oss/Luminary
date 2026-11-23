@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 
-import { ATTRS, band, buildTest, makeMatrix, makeSeries, scoreTest, seeded } from '../src/iq/items.ts';
+import { ATTRS, buildTest, makeMatrix, makeSeries, scoreTest, seeded } from '../src/iq/items.ts';
 
 test('matrix items have one right answer among six distinct options', () => {
   const rand = seeded(7);
@@ -25,12 +25,11 @@ test('series items show five terms and include the right answer once', () => {
   }
 });
 
-test('scores map to an IQ-style scale', () => {
+test('reasoning score is the weighted share of points out of 100', () => {
   const test1 = buildTest(42);
   const all = test1.map((s) => s.items.map((it) => it.answer));
   const none = test1.map((s) => s.items.map(() => null));
-  assert.equal(scoreTest(test1, all).estimate, 144);
-  assert.equal(scoreTest(test1, none).estimate, 70);
-  assert.equal(band(100), 'Average range');
+  assert.equal(scoreTest(test1, all).score, 100);
+  assert.equal(scoreTest(test1, none).score, 0);
   assert.equal(test1.reduce((a, s) => a + s.items.length, 0), 20);
 });

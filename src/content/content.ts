@@ -96,7 +96,8 @@ export const ARTICLES: Article[] = [
     body: [
       'ADHD is a difference in how the brain regulates attention, activity and impulses. It is common, strongly genetic and lasts into adulthood for many people.',
       'An international expert panel reviewed the large studies and agreed 208 evidence-based conclusions. ADHD is not caused by bad parenting or laziness, and trained clinicians can identify it reliably.',
-      'Training angle: holding back (Catch the Light), ignoring distraction (Colour Clash) and keeping track (Star Tracker) are the skills ADHD makes harder, so that is what the focus track trains.',
+      'ADHD brains are not broken brains. Many people with ADHD bring real strengths, including creativity, energy and deep focus on what interests them.',
+      'Training angle: the focus session trains holding back (Catch the Light), filtering out distraction (Colour Clash) and keeping track (Star Tracker). Treat it as getting to know and stretch your own attention, not as fixing it.',
       'Only a qualified professional can assess ADHD. If you think you or your child has it, start with your GP.',
     ],
     sources: [{ label: 'Faraone et al. 2021, World Federation of ADHD Consensus Statement', url: 'https://doi.org/10.1016/j.neubiorev.2021.01.022' }],
@@ -108,7 +109,7 @@ export const ARTICLES: Article[] = [
     body: [
       'Medication has the most consistent evidence for adult ADHD. CBT skills and learning about ADHD also reduce symptoms in trials. These tactics work alongside your prescriber’s advice, never instead of it.',
       'Shrink the first step. "Write the essay" stalls. "Open the document and write one sentence" starts. Getting started is the hard part, so make it tiny.',
-      'Make time visible. ADHD makes time feel abstract; a timer you can see turns it into something concrete. Use the visual timer in Focus.',
+      'Make time visible. Many ADHD brains experience time as now or not now; a timer you can see turns it into something concrete. Use the visual timer in Focus.',
       'Use "when X, then Y" plans. Tying an action to a cue moves it from memory to habit, which takes the load off working memory.',
     ],
     sources: [{ label: 'Ostinelli et al. 2025, Lancet Psychiatry network meta-analysis', url: 'https://doi.org/10.1016/S2215-0366(24)00360-2' }],

@@ -73,7 +73,7 @@ export const GAMES: Record<GameId, GameInfo> = {
       'Do not tap when you see a red light. Holding back is the real skill.',
     ],
     science:
-      'This is a go/no-go task, used in research to measure response inhibition, which is often harder for people with ADHD. Training improves performance on tasks like this. In ADHD, effects on everyday symptoms are small when rated by people who do not know who trained, so this is practice, not treatment.',
+      'This is a go/no-go task, used in research to measure response inhibition: the brake that stops an automatic response. Training improves performance on tasks like this. In ADHD, effects on everyday symptoms are small when rated by people who do not know who trained, so this is practice, not treatment.',
     sources: [CORTESE],
   },
   nback: {

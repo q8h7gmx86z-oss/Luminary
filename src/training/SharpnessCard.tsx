@@ -25,6 +25,7 @@ export function useSharpness() {
 
 /** The headline motivator: one score and a brain that lights up as it rises. */
 export function SharpnessCard({ compact }: { compact?: boolean }) {
+  const { state } = useStore();
   const { now, history, first } = useSharpness();
   const gain = first !== undefined && history.length > 1 ? now.total - first : 0;
   const empty = history.length === 0;
@@ -46,7 +47,7 @@ export function SharpnessCard({ compact }: { compact?: boolean }) {
         ) : null}
       </View>
       <View style={{ alignItems: 'center' }}>
-        <BrainMap bySkill={now.bySkill} size={compact ? 230 : 300} />
+        <BrainMap bySkill={now.bySkill} size={compact ? 230 : 300} calm={state.settings.visuals === 'minimal'} />
       </View>
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
         {SKILL_LIST.map((s) => (
@@ -70,7 +71,7 @@ export function SharpnessCard({ compact }: { compact?: boolean }) {
           ? 'Every node lights up as you level up. Finish your first workout to switch it on.'
           : compact
             ? 'Each skill is worth 250. Level up in all four to light the whole brain.'
-            : 'Built from your level and accuracy in every game, averaged over your last three rounds of each. Each skill is worth 250. It tracks how you perform on Luminary’s training, so it is a training score, not a medical test.'}
+            : 'What it measures: your four skill scores added together, each worth up to 250, from your level and accuracy over your last three rounds of each game. What it does not measure: intelligence, brain health or brain age. It is not a medical test and it does not compare you with other people. It shows how your own training is going.'}
       </Text>
     </View>
   );

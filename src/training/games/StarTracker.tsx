@@ -15,9 +15,11 @@ type Fb = 'hit' | 'false' | 'miss' | null;
 const STAR = '#C9A227';
 
 /** Spatial n-back: tap Match when the star is where it was n steps ago. */
-export function StarTracker({ level, onFinish, onQuit }: GameProps & { onQuit?: () => void }) {
+export function StarTracker({ level, onFinish, onQuit, untimed }: GameProps & { onQuit?: () => void }) {
   const t = useTheme();
-  const p = nbackParams(level);
+  const base = nbackParams(level);
+  // Untimed mode slows the pace by half again.
+  const p = untimed ? { ...base, showMs: Math.round(base.showMs * 1.3), isiMs: Math.round(base.isiMs * 1.5) } : base;
   const [phase, setPhase] = useState<'ready' | 'play' | 'done'>('ready');
   const [pos, setPos] = useState<number | null>(null);
   const [idx, setIdx] = useState(0);

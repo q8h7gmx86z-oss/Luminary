@@ -8,7 +8,7 @@ import { GameRunner, isPlayable } from '@/training/GameRunner';
 
 /** Free play of a single game from the Train tab. */
 export default function Play() {
-  const { game } = useLocalSearchParams<{ game: string }>();
+  const { game, challenge } = useLocalSearchParams<{ game: string; challenge?: string }>();
   const t = useTheme();
   const [round, setRound] = useState(0);
   const id = game as GameId;
@@ -18,7 +18,11 @@ export default function Play() {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: t.bg }}>
       <Stack.Screen options={{ headerShown: false }} />
-      <GameRunner key={round} id={id} onQuit={quit} doneLabel="Play again" onExit={quit} onDone={() => setRound((r) => r + 1)} />
+      {challenge ? (
+        <GameRunner id={id} onQuit={quit} doneLabel="Done" challengeLevel={Number(challenge)} onDone={quit} />
+      ) : (
+        <GameRunner key={round} id={id} onQuit={quit} doneLabel="Play again" onExit={quit} onDone={() => setRound((r) => r + 1)} />
+      )}
     </SafeAreaView>
   );
 }

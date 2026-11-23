@@ -7,7 +7,7 @@ import { formatClock } from '@/lib/logic';
 import { useStore } from '@/lib/store';
 import { useTheme } from '@/lib/theme';
 import { describeCell, MatrixCell } from '@/iq/MatrixCell';
-import { band, buildTest, Item, scoreTest, Section, TestScore } from '@/iq/items';
+import { buildTest, Item, savedScore, scoreTest, Section, TestScore } from '@/iq/items';
 import { AnswerButton } from '@/training/GameFrame';
 
 const NAVY = '#0B1640';
@@ -21,7 +21,7 @@ const SECTION_INTRO: Record<Section['id'], string> = {
 
 type Stage = { kind: 'intro' } | { kind: 'section'; s: number } | { kind: 'item'; s: number; i: number } | { kind: 'result'; score: TestScore; seconds: number };
 
-/** Timed reasoning test in three sections, with an estimated score on an IQ-style scale. */
+/** Reasoning Assessment: three timed sections and an experimental reasoning score out of 100. */
 export default function ReasoningTest() {
   const t = useTheme();
   const { state, recordTest } = useStore();
@@ -38,7 +38,7 @@ export default function ReasoningTest() {
   const finish = () => {
     const score = scoreTest(sections, answers.current);
     const seconds = Math.round((Date.now() - started.current) / 1000);
-    recordTest({ at: Date.now(), estimate: score.estimate, percent: score.percent });
+    recordTest({ at: Date.now(), score: score.score, percent: score.percent });
     setStage({ kind: 'result', score, seconds });
   };
 
@@ -73,12 +73,12 @@ export default function ReasoningTest() {
     body = (
       <ScrollView contentContainerStyle={{ padding: 20, gap: 16, flexGrow: 1, justifyContent: 'center', maxWidth: 560, width: '100%', alignSelf: 'center' }}>
         <View style={{ backgroundColor: NAVY, borderRadius: 22, padding: 22, gap: 10 }}>
-          <Text style={{ color: GOLD, fontWeight: '800', letterSpacing: 1, fontSize: 12 }}>REASONING TEST</Text>
-          <Text style={{ color: '#FFFFFF', fontSize: 30, fontWeight: '900' }}>How sharp is your reasoning?</Text>
+          <Text style={{ color: GOLD, fontWeight: '800', letterSpacing: 1, fontSize: 12 }}>REASONING ASSESSMENT</Text>
+          <Text style={{ color: '#FFFFFF', fontSize: 30, fontWeight: '900' }}>Put your reasoning to the test</Text>
           <Text style={{ color: '#D7DCF5', fontSize: 16, lineHeight: 23 }}>
             20 questions in three timed sections: patterns, numbers and words. About 13 minutes. Questions get harder as you go.
           </Text>
-          {last ? <Text style={{ color: GOLD, fontWeight: '700' }}>Your last score: {last.estimate}</Text> : null}
+          {last ? <Text style={{ color: GOLD, fontWeight: '700' }}>Your last score: {savedScore(last)} / 100</Text> : null}
         </View>
         {[
           ['Patterns', '8 questions · 6 minutes'],
@@ -162,9 +162,18 @@ export default function ReasoningTest() {
     body = (
       <ScrollView contentContainerStyle={{ padding: 20, gap: 16, maxWidth: 560, width: '100%', alignSelf: 'center' }}>
         <View style={{ backgroundColor: NAVY, borderRadius: 22, padding: 22, gap: 6, alignItems: 'center' }}>
-          <Text style={{ color: GOLD, fontWeight: '800', letterSpacing: 1, fontSize: 12 }}>ESTIMATED SCORE</Text>
-          <Text style={{ color: '#FFFFFF', fontSize: 72, fontWeight: '900', fontVariant: ['tabular-nums'] }}>{score.estimate}</Text>
-          <Text style={{ color: GOLD, fontSize: 18, fontWeight: '800' }}>{band(score.estimate)}</Text>
+          <Text style={{ color: GOLD, fontWeight: '800', letterSpacing: 1, fontSize: 12 }}>EXPERIMENTAL REASONING SCORE</Text>
+          <Text style={{ color: '#FFFFFF', fontSize: 72, fontWeight: '900', fontVariant: ['tabular-nums'] }}>{score.score}</Text>
+          <Text style={{ color: '#8C97C9', fontSize: 16, fontWeight: '700' }}>out of 100</Text>
+          {previous.length > 1 ? (
+            <Text style={{ color: GOLD, fontSize: 16, fontWeight: '800' }}>
+              {(() => {
+                const before = savedScore(previous[previous.length - 2]);
+                const diff = score.score - before;
+                return diff > 0 ? `Up ${diff} on last time (${before})` : diff < 0 ? `Down ${-diff} on last time (${before})` : `Same as last time (${before})`;
+              })()}
+            </Text>
+          ) : null}
           <Text style={{ color: '#D7DCF5' }}>
             {Math.round(score.percent * 100)}% of weighted points · {formatClock(seconds)}
           </Text>
@@ -186,10 +195,11 @@ export default function ReasoningTest() {
           );
         })}
         <Text style={{ color: t.muted, fontSize: 14, lineHeight: 20 }}>
-          This is an estimate on an IQ-style scale, where 100 is average and most people score between 85 and 115. It is not a clinical IQ
-          test: those take an hour or more with a trained psychologist. Our scale is provisional and has not yet been checked against a large
-          group of people, so treat it as a guide. Scores also rise with practice, so for a fair comparison wait about a month between
-          attempts.
+          What it measures: the share of points you earned on timed pattern, number and word problems, with harder questions worth more.
+          It reflects reasoning under time pressure on this assessment.{'\n\n'}What it does not measure: this is not an IQ score and cannot
+          be compared with one. The score is experimental. It has not been validated against established tests or compared with a large
+          group of people, so it cannot say how you rank against others.{'\n\n'}Best use: track your own reasoning over time. Practice
+          lifts scores, so leave about a month between attempts for a fair comparison.
         </Text>
         <View style={{ flexDirection: 'row', gap: 12 }}>
           <AnswerButton label="Done" onPress={() => router.replace('/progress')} />
