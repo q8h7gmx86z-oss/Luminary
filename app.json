@@ -8,7 +8,7 @@
     "userInterfaceStyle": "automatic",
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "app.luminary.mobile"
+      "bundleIdentifier": "com.mimiriosgroup.luminary"
     },
     "android": {
       "adaptiveIcon": {
@@ -18,7 +18,7 @@
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false,
-      "package": "app.luminary.mobile"
+      "package": "com.mimiriosgroup.luminary"
     },
     "web": {
       "favicon": "./assets/favicon.png",
