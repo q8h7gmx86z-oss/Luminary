@@ -1,4 +1,5 @@
 import * as Linking from 'expo-linking';
+import { router } from 'expo-router';
 import React from 'react';
 import { Platform, View } from 'react-native';
 
@@ -56,6 +57,11 @@ export default function Help() {
         Showing support for {REGION_NAMES[state.region]}. You can change your region in Settings. Luminary cannot see or
         respond to what you write, so it cannot send help to you.
       </Body>
+      <Button
+        kind="secondary"
+        label={state.onboarded ? 'Back to Luminary' : 'Back'}
+        onPress={() => (router.canGoBack() ? router.back() : router.replace(state.onboarded ? '/' : '/welcome'))}
+      />
     </Screen>
   );
 }

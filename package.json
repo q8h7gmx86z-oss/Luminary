@@ -27,7 +27,8 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "typecheck": "tsc --noEmit",
-    "test": "node --test tests/*.test.ts"
+    "test": "node --test tests/*.test.ts",
+    "build:preview": "EXPO_OFFLINE=1 expo export --platform web && node scripts/build-preview.mjs"
   },
   "private": true
 }

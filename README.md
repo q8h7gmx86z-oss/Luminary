@@ -36,3 +36,7 @@ npm run typecheck
 - Ostinelli et al. 2025, adult ADHD treatments network meta-analysis: https://doi.org/10.1016/S2215-0366(24)00360-2
 - Alimoradi et al. 2022, CBT-I meta-analysis: https://doi.org/10.1016/j.smrv.2022.101646
 - Hill et al. 2017, computerised cognitive training meta-analysis: https://doi.org/10.1176/appi.ajp.2016.16030360
+
+## Live preview
+
+`npm run build:preview` exports the web app and bundles it into one file, `preview/luminary.html` (git-ignored). That file is published as the Luminary preview page and republished after each change.

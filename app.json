@@ -26,7 +26,12 @@
     },
     "scheme": "luminary",
     "plugins": [
-      "expo-router",
+      [
+        "expo-router",
+        {
+          "asyncRoutes": false
+        }
+      ],
       "expo-localization"
     ],
     "experiments": {
