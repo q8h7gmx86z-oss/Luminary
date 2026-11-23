@@ -97,3 +97,56 @@ export function goNoGoAccuracy(hits: number, correctRejections: number, trials: 
 export function mean(xs: number[]): number | undefined {
   return xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : undefined;
 }
+
+/** Star Tracker (spatial n-back): how far back to compare, timing and trial count. */
+export function nbackParams(level: number) {
+  const n = level <= 4 ? 1 : level <= 10 ? 2 : 3;
+  return {
+    n,
+    showMs: 600,
+    isiMs: Math.max(1600, 2600 - level * 50),
+    trials: 20 + n * 2,
+    targetRate: 0.3,
+  };
+}
+
+/** Colour Clash (Stroop): share of clashing words, answer deadline, trial count. */
+export function clashParams(level: number) {
+  return {
+    clashRate: Math.min(0.3 + level * 0.03, 0.75),
+    deadlineMs: Math.max(1200, 3000 - level * 90),
+    trials: 30,
+    /** From level 6 there is a fifth colour, so the choice is harder. */
+    colours: level >= 6 ? 5 : 4,
+  };
+}
+
+/** Switch It (task switching): how often the rule changes, deadline, trial count. */
+export function switchParams(level: number) {
+  return {
+    switchRate: Math.min(0.25 + level * 0.02, 0.5),
+    deadlineMs: Math.max(1300, 3600 - level * 100),
+    trials: 32,
+  };
+}
+
+/** Balanced accuracy for detection tasks: hit rate and correct-rejection rate weighted equally. */
+export function balancedAccuracy(hits: number, targets: number, correctRejections: number, nonTargets: number): number {
+  const h = targets ? hits / targets : 1;
+  const c = nonTargets ? correctRejections / nonTargets : 1;
+  return (h + c) / 2;
+}
+
+/** Spatial n-back sequence of grid positions with roughly the given share of targets. */
+export function nbackSequence(length: number, n: number, positions: number, targetRate: number, rand: () => number = Math.random): number[] {
+  const seq: number[] = [];
+  for (let i = 0; i < length; i++) {
+    if (i >= n && rand() < targetRate) seq.push(seq[i - n]);
+    else {
+      let p = Math.floor(rand() * positions);
+      if (i >= n) while (p === seq[i - n]) p = Math.floor(rand() * positions);
+      seq.push(p);
+    }
+  }
+  return seq;
+}

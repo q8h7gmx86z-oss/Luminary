@@ -6,7 +6,7 @@ import { lastNDays } from '@/lib/logic';
 import { useStore } from '@/lib/store';
 import { useTheme } from '@/lib/theme';
 import { GAMES, SKILLS } from '@/training/catalog';
-import { Skill } from '@/training/engine';
+import { GameId, Skill } from '@/training/engine';
 import { Spark } from '@/training/Spark';
 import { skillSummaries, workoutsThisWeek } from '@/training/stats';
 
@@ -55,6 +55,10 @@ export default function Progress() {
             : `${done} of ${WEEKLY_GOAL} workouts this week.`}
         </Body>
         <Body muted>
+          All time: {state.training.workouts.length} workout{state.training.workouts.length === 1 ? '' : 's'} and {totalRounds} round
+          {totalRounds === 1 ? '' : 's'} played.
+        </Body>
+        <Body muted>
           Research suggests about three sessions a week works as well as, or better than, training every day, so rest days are part of
           the plan.
         </Body>
@@ -71,6 +75,24 @@ export default function Progress() {
             </View>
             <Body muted>{sk.description}</Body>
             <Spark values={s.trend.map((p) => p.value)} color={sk.color} label={`${sk.name} skill score by day`} />
+            <View style={{ gap: 6 }}>
+              {(Object.keys(GAMES) as GameId[])
+                .filter((g) => GAMES[g].skill === s.skill)
+                .map((g) => {
+                  const rs = state.training.results.filter((r) => r.game === g);
+                  const best = rs.length ? Math.max(...rs.map((r) => r.score)) : 0;
+                  return (
+                    <View key={g} style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                      <Text style={{ color: t.text, flex: 1 }}>
+                        {GAMES[g].glyph} {GAMES[g].name}
+                      </Text>
+                      <Text style={{ color: t.muted, fontSize: 13, fontVariant: ['tabular-nums'] }}>
+                        {rs.length ? `Lv ${state.training.levels[g] ?? 1} · best ${best}` : 'Not played yet'}
+                      </Text>
+                    </View>
+                  );
+                })}
+            </View>
             <Text style={{ color: t.muted, fontSize: 13 }}>
               {s.rounds === 0
                 ? 'No rounds yet.'

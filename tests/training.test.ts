@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 
-import { catchParams, dailyGames, gridParams, nextLevel, speedParams } from '../src/training/engine.ts';
+import { balancedAccuracy, catchParams, clashParams, dailyGames, gridParams, nbackParams, nbackSequence, nextLevel, speedParams, switchParams } from '../src/training/engine.ts';
 import { skillSummaries, workoutsThisWeek } from '../src/training/stats.ts';
 
 test('levels go up on strong rounds, down on weak ones, and stay in range', () => {
@@ -47,4 +47,34 @@ test('skill summaries group rounds by skill and day', () => {
 
 test('workouts this week counts only days in the window', () => {
   assert.equal(workoutsThisWeek(['2026-11-01', '2026-11-22', '2026-11-23'], ['2026-11-22', '2026-11-23']), 2);
+});
+
+test('n-back sequences put targets n steps apart and never fake a near-miss', () => {
+  const seq = nbackSequence(400, 2, 8, 0.3);
+  const targets = seq.filter((p, i) => i >= 2 && p === seq[i - 2]).length;
+  assert.ok(targets > 80 && targets < 160, String(targets));
+  assert.ok(seq.every((p) => p >= 0 && p < 8));
+});
+
+test('balanced accuracy does not reward never pressing', () => {
+  assert.equal(balancedAccuracy(0, 6, 14, 14), 0.5);
+  assert.equal(balancedAccuracy(6, 6, 14, 14), 1);
+});
+
+test('new games get harder with level', () => {
+  assert.ok(nbackParams(12).n > nbackParams(1).n);
+  assert.ok(clashParams(10).clashRate > clashParams(1).clashRate);
+  assert.ok(switchParams(10).switchRate > switchParams(1).switchRate);
+  assert.ok(switchParams(20).deadlineMs >= 1300);
+});
+
+test('daily plan works with all six games', () => {
+  const all = ['speed', 'grid', 'catch', 'nback', 'clash', 'switch'] as const;
+  const seen = new Set<string>();
+  for (let d = 1; d <= 10; d++) {
+    const g = dailyGames(`2026-12-${String(d).padStart(2, '0')}`, [...all]);
+    assert.equal(new Set(g).size, 3);
+    g.forEach((x) => seen.add(x));
+  }
+  assert.equal(seen.size, 6);
 });

@@ -10,13 +10,19 @@ import { GAMES, SKILLS } from './catalog';
 import { GameId, GameResult, nextLevel } from './engine';
 import { AnswerButton, RoundOutcome } from './GameFrame';
 import { CatchTheLight } from './games/CatchTheLight';
+import { ColourClash } from './games/ColourClash';
 import { MemoryGrid } from './games/MemoryGrid';
 import { SpeedMatch } from './games/SpeedMatch';
+import { StarTracker } from './games/StarTracker';
+import { SwitchIt } from './games/SwitchIt';
 
 const COMPONENTS = {
   speed: SpeedMatch,
   grid: MemoryGrid,
   catch: CatchTheLight,
+  nback: StarTracker,
+  clash: ColourClash,
+  switch: SwitchIt,
 } as const;
 
 export function isPlayable(id: GameId): id is keyof typeof COMPONENTS {
