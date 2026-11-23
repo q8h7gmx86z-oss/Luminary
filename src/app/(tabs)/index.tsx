@@ -1,12 +1,14 @@
 import { Link, router } from 'expo-router';
 import React from 'react';
-import { Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 
 import { Body, Button, Card, Checkbox, Heading, Screen, Title } from '@/components/ui';
 import { HABITS } from '@/content/content';
 import { dayKey, daysShownUp } from '@/lib/logic';
 import { useStore } from '@/lib/store';
 import { useTheme } from '@/lib/theme';
+import { AVAILABLE, GAMES, SKILLS } from '@/training/catalog';
+import { dailyGames } from '@/training/engine';
 
 function greeting(): string {
   const h = new Date().getHours();
@@ -23,7 +25,11 @@ export default function Today() {
   const mood = state.moods[today];
   const sleep = state.sleeps[today];
 
+  const plan = dailyGames(today, AVAILABLE);
+  const workedOut = state.training.workouts.includes(today);
+
   const activeDays = new Set<string>([
+    ...state.training.workouts,
     ...Object.keys(state.moods),
     ...Object.keys(state.sleeps),
     ...Object.entries(state.habits)
@@ -38,10 +44,41 @@ export default function Today() {
     <Screen>
       <Title>{greeting()}</Title>
 
+      <View style={{ backgroundColor: t.primary, borderRadius: 20, padding: 20, gap: 14 }}>
+        <Text style={{ color: t.primaryText, opacity: 0.85, fontWeight: '700', letterSpacing: 0.6, fontSize: 13 }}>
+          {workedOut ? 'DONE FOR TODAY' : "TODAY'S BRAIN WORKOUT"}
+        </Text>
+        <Text style={{ color: t.primaryText, fontSize: 24, fontWeight: '800' }}>
+          {workedOut ? 'Great work. Your brain thanks you.' : 'About 10 minutes, three games'}
+        </Text>
+        <View style={{ gap: 8 }}>
+          <Text style={{ color: t.primaryText, fontSize: 15 }}>◌  1 minute of calm breathing</Text>
+          {plan.map((g) => (
+            <Text key={g} style={{ color: t.primaryText, fontSize: 15 }}>
+              {GAMES[g].glyph}  {GAMES[g].name} · {SKILLS[GAMES[g].skill].name}
+            </Text>
+          ))}
+        </View>
+        <Pressable
+          accessibilityRole="button"
+          onPress={() => router.push('/workout')}
+          style={({ pressed }) => ({
+            backgroundColor: t.primaryText,
+            borderRadius: 14,
+            minHeight: 52,
+            alignItems: 'center',
+            justifyContent: 'center',
+            opacity: pressed ? 0.9 : 1,
+          })}
+        >
+          <Text style={{ color: t.primary, fontSize: 17, fontWeight: '800' }}>{workedOut ? 'Train again' : 'Start workout'}</Text>
+        </Pressable>
+      </View>
+
       <Card>
         <Heading>This week</Heading>
         <Body>
-          You checked in on {shownUp} of the last 7 days.
+          You showed up on {shownUp} of the last 7 days.
           {shownUp === 0 ? ' Any small step today counts.' : ' Every day you show up counts, and missed days never undo your progress.'}
         </Body>
       </Card>

@@ -25,9 +25,9 @@ export default function TabsLayout() {
       }}
     >
       <Tabs.Screen name="index" options={{ title: 'Today', headerTitle: () => <Wordmark />, tabBarIcon: ({ color }) => <Icon glyph="☀" color={color} /> }} />
+      <Tabs.Screen name="train" options={{ title: 'Train', tabBarIcon: ({ color }) => <Icon glyph="⚡" color={color} /> }} />
+      <Tabs.Screen name="progress" options={{ title: 'Progress', tabBarIcon: ({ color }) => <Icon glyph="▤" color={color} /> }} />
       <Tabs.Screen name="focus" options={{ title: 'Focus', tabBarIcon: ({ color }) => <Icon glyph="◎" color={color} /> }} />
-      <Tabs.Screen name="mood" options={{ title: 'Mood', tabBarIcon: ({ color }) => <Icon glyph="♡" color={color} /> }} />
-      <Tabs.Screen name="sleep" options={{ title: 'Sleep', tabBarIcon: ({ color }) => <Icon glyph="☾" color={color} /> }} />
       <Tabs.Screen name="learn" options={{ title: 'Learn', tabBarIcon: ({ color }) => <Icon glyph="✦" color={color} /> }} />
     </Tabs>
   );

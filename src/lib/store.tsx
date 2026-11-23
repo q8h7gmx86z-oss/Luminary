@@ -2,6 +2,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getLocales } from 'expo-localization';
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 
+import { GameId, GameResult, nextLevel } from '@/training/engine';
+
 import { Region, regionFromCode } from './crisis';
 import { dayKey, uid } from './logic';
 
@@ -30,6 +32,12 @@ export type State = {
   tasks: Task[];
   plans: IfThenPlan[];
   settings: { calmMode: boolean };
+  training: {
+    levels: Partial<Record<GameId, number>>;
+    results: GameResult[];
+    /** Days on which the full daily workout was finished. */
+    workouts: string[];
+  };
 };
 
 function defaultState(): State {
@@ -49,6 +57,7 @@ function defaultState(): State {
     tasks: [],
     plans: [],
     settings: { calmMode: false },
+    training: { levels: {}, results: [], workouts: [] },
   };
 }
 
@@ -65,6 +74,9 @@ type Actions = {
   removeTask: (taskId: string) => void;
   addPlan: (when: string, then: string) => void;
   removePlan: (id: string) => void;
+  /** Saves a round and adjusts that game's level for next time. */
+  recordResult: (r: GameResult) => void;
+  completeWorkout: (day: string) => void;
   deleteEverything: () => Promise<void>;
 };
 
@@ -82,7 +94,12 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       .then((raw) => {
         if (raw) {
           const saved = JSON.parse(raw) as Partial<State>;
-          setState((s) => ({ ...s, ...saved, settings: { ...s.settings, ...saved.settings } }));
+          setState((s) => ({
+            ...s,
+            ...saved,
+            settings: { ...s.settings, ...saved.settings },
+            training: { ...s.training, ...saved.training },
+          }));
         }
       })
       .catch(() => {})
@@ -132,6 +149,20 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       removeTask: (taskId) => update((s) => ({ ...s, tasks: s.tasks.filter((t) => t.id !== taskId) })),
       addPlan: (when, then) => update((s) => ({ ...s, plans: [...s.plans, { id: uid(), when, then }] })),
       removePlan: (id) => update((s) => ({ ...s, plans: s.plans.filter((p) => p.id !== id) })),
+      recordResult: (r) =>
+        update((s) => ({
+          ...s,
+          training: {
+            ...s.training,
+            levels: { ...s.training.levels, [r.game]: nextLevel(r.level, r.accuracy) },
+            // Keep the most recent 2,000 rounds, which is years of daily use.
+            results: [...s.training.results, r].slice(-2000),
+          },
+        })),
+      completeWorkout: (day) =>
+        update((s) =>
+          s.training.workouts.includes(day) ? s : { ...s, training: { ...s.training, workouts: [...s.training.workouts, day] } },
+        ),
       deleteEverything: async () => {
         await AsyncStorage.removeItem(STORAGE_KEY).catch(() => {});
         setState(defaultState());
