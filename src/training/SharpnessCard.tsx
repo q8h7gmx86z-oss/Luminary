@@ -2,6 +2,7 @@ import { router } from 'expo-router';
 import React, { useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 
+import { GOLD, NAVY } from '@/lib/brand';
 import { useStore } from '@/lib/store';
 
 import { BrainMap, GLOW } from './BrainMap';
@@ -10,8 +11,6 @@ import { Skill } from './engine';
 import { MAX_SHARPNESS, sharpnessHistory, sharpnessOf } from './sharpness';
 import { Spark } from './Spark';
 
-const NAVY = '#0B1640';
-const GOLD = '#F2C14E';
 const SKILL_LIST = Object.keys(SKILLS) as Skill[];
 const skillOf = (g: keyof typeof GAMES) => GAMES[g].skill;
 
@@ -52,14 +51,14 @@ export function SharpnessCard({ compact }: { compact?: boolean }) {
         {gain > 0 ? (
           <View
             style={{
-              backgroundColor: 'rgba(63,211,186,0.16)',
+              backgroundColor: 'rgba(230,172,58,0.16)',
               paddingHorizontal: 10,
               paddingVertical: 6,
               borderRadius: 999,
               marginBottom: 10,
             }}
           >
-            <Text style={{ color: '#3FD3BA', fontWeight: '800' }}>+{gain} since day one</Text>
+            <Text style={{ color: GOLD, fontWeight: '800' }}>+{gain} since day one</Text>
           </View>
         ) : null}
       </View>

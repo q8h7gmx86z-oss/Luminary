@@ -5,11 +5,10 @@ import { Pressable, Text, View } from 'react-native';
 
 import { Body, Card, Heading, Screen } from '@/components/ui';
 import { FACTORS, recordFor, Stage, STAGES, Status, STATUS } from '@/content/rafi';
+import { GOLD, NAVY } from '@/lib/brand';
 import { useStore } from '@/lib/store';
 import { useTheme } from '@/lib/theme';
 
-const NAVY = '#0B1640';
-const GOLD = '#F2C14E';
 
 const READS: { id: string; title: string }[] = [
   { id: 'brain-health', title: '45% of dementia risk: what that figure means' },

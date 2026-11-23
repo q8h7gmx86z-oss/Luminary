@@ -6,6 +6,7 @@ import { Body, Button, Card, Checkbox, Heading, Screen, Title } from '@/componen
 import { HABITS } from '@/content/content';
 import { dayKey, daysShownUp } from '@/lib/logic';
 import { useStore } from '@/lib/store';
+import { GOLD, NAVY, ON_NAVY } from '@/lib/brand';
 import { useTheme } from '@/lib/theme';
 import { SharpnessCard } from '@/training/SharpnessCard';
 import { GAMES, SKILLS } from '@/training/catalog';
@@ -48,21 +49,21 @@ export default function Today() {
     <Screen>
       <Title>{greeting()}</Title>
 
-      <View style={{ backgroundColor: t.primary, borderRadius: 20, padding: 20, gap: 14 }}>
-        <Text style={{ color: t.primaryText, opacity: 0.85, fontWeight: '700', letterSpacing: 0.6, fontSize: 13 }}>
+      <View style={{ backgroundColor: NAVY, borderRadius: 20, padding: 20, gap: 14 }}>
+        <Text style={{ color: GOLD, fontWeight: '800', letterSpacing: 0.6, fontSize: 13 }}>
           {workedOut ? 'DONE FOR TODAY' : `YOUR PLAN · ${prefs.sessionMinutes} MIN · ${GOAL_NAMES[prefs.goal].toUpperCase()}`}
         </Text>
-        <Text style={{ color: t.primaryText, fontSize: 24, fontWeight: '800' }}>
+        <Text style={{ color: ON_NAVY, fontSize: 24, fontWeight: '800' }}>
           {workedOut ? 'Session banked. Come back tomorrow, or go again.' : `Built from your last sessions`}
         </Text>
         <View style={{ gap: 10 }}>
-          <Text style={{ color: t.primaryText, fontSize: 15 }}>◌  1-minute breathing warm-up</Text>
+          <Text style={{ color: ON_NAVY, fontSize: 15 }}>◌  1-minute breathing warm-up</Text>
           {plan.map((p) => (
             <View key={p.game} style={{ gap: 2 }}>
-              <Text style={{ color: t.primaryText, fontSize: 16, fontWeight: '700' }}>
+              <Text style={{ color: ON_NAVY, fontSize: 16, fontWeight: '700' }}>
                 {GAMES[p.game].glyph}  {GAMES[p.game].name} · {SKILLS[GAMES[p.game].skill].name}
               </Text>
-              <Text style={{ color: t.primaryText, opacity: 0.8, fontSize: 13, marginLeft: 26 }}>{p.reason}</Text>
+              <Text style={{ color: ON_NAVY, opacity: 0.8, fontSize: 13, marginLeft: 26 }}>{p.reason}</Text>
             </View>
           ))}
         </View>
@@ -70,7 +71,7 @@ export default function Today() {
           accessibilityRole="button"
           onPress={() => router.push('/workout')}
           style={({ pressed }) => ({
-            backgroundColor: t.primaryText,
+            backgroundColor: '#4B5FD6',
             borderRadius: 14,
             minHeight: 52,
             alignItems: 'center',
@@ -78,10 +79,10 @@ export default function Today() {
             opacity: pressed ? 0.9 : 1,
           })}
         >
-          <Text style={{ color: t.primary, fontSize: 17, fontWeight: '800' }}>{workedOut ? 'Train again' : 'Start workout'}</Text>
+          <Text style={{ color: '#FFFFFF', fontSize: 17, fontWeight: '800' }}>{workedOut ? 'Train again' : 'Start workout'}</Text>
         </Pressable>
         <Pressable accessibilityRole="link" onPress={() => router.push('/preferences')} hitSlop={8}>
-          <Text style={{ color: t.primaryText, fontWeight: '700', textAlign: 'center', textDecorationLine: 'underline' }}>Change length, goal or pace</Text>
+          <Text style={{ color: ON_NAVY, fontWeight: '700', textAlign: 'center', textDecorationLine: 'underline' }}>Change length, goal or pace</Text>
         </Pressable>
       </View>
 

@@ -6,6 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { LogoMark } from '@/components/Logo';
 import { dayKey } from '@/lib/logic';
 import { useStore } from '@/lib/store';
+import { GOLD } from '@/lib/brand';
 import { useTheme } from '@/lib/theme';
 import { Breathing } from '@/training/Breathing';
 import { AVAILABLE, GAMES, SKILLS } from '@/training/catalog';
@@ -67,12 +68,12 @@ export default function Workout() {
           than cramming.
         </Text>
         <View style={{ backgroundColor: '#0B1640', borderRadius: 18, padding: 16, width: '100%', maxWidth: 440, alignItems: 'center', gap: 4 }}>
-          <Text style={{ color: '#F2C14E', fontWeight: '800', letterSpacing: 1, fontSize: 12 }}>BRAIN SHARPNESS</Text>
+          <Text style={{ color: GOLD, fontWeight: '800', letterSpacing: 1, fontSize: 12 }}>BRAIN SHARPNESS</Text>
           <Text style={{ color: '#FFFFFF', fontSize: 40, fontWeight: '900', fontVariant: ['tabular-nums'] }}>
             {after}
             <Text style={{ color: '#8C97C9', fontSize: 15 }}> / {MAX_SHARPNESS}</Text>
           </Text>
-          <Text style={{ color: after > before ? '#3FD3BA' : '#D7DCF5', fontWeight: '700' }}>
+          <Text style={{ color: after > before ? GOLD : '#D7DCF5', fontWeight: '700' }}>
             {firstTime ? 'Baseline set. Every workout from here is measured against it.' : after > before ? `Up ${after - before} from ${before} this session` : after < before ? 'A dip is normal on harder levels. Keep the streak.' : 'Holding steady. Consistency is how scores climb.'}
           </Text>
         </View>

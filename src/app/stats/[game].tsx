@@ -77,7 +77,7 @@ export default function GameStats() {
           <Metric label="Current level" value={`${a.level}`} hint="out of 20" />
           <Metric label="Highest level" value={`${a.topLevel}`} />
           <Metric label="Rounds played" value={`${a.sessions}`} />
-          {a.bestScore !== undefined ? <Metric label="Best score" value={`${a.bestScore}`} hint="personal best" tone="good" /> : null}
+          {a.bestScore !== undefined ? <Metric label="Best score" value={`${a.bestScore}`} hint="personal best" tone="gold" /> : null}
           {a.bestAccuracy !== undefined ? <Metric label="Best accuracy" value={pct(a.bestAccuracy)} /> : null}
           {a.recentAccuracy !== undefined ? <Metric label="Recent accuracy" value={pct(a.recentAccuracy)} hint="last 3 rounds" /> : null}
         </View>

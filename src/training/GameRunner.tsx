@@ -4,8 +4,10 @@ import { Pressable, ScrollView, Text, View } from 'react-native';
 
 import { useStore } from '@/lib/store';
 import { dayKey } from '@/lib/logic';
+import { GOLD, NAVY, NAVY_LINE, NAVY_TILE, ON_NAVY, ON_NAVY_MUTED } from '@/lib/brand';
 import { useTheme } from '@/lib/theme';
 
+import { GLOW } from './BrainMap';
 import { GAMES, SKILLS } from './catalog';
 import { GameId, GameResult, nextLevel } from './engine';
 import { GAME_METRICS } from './stats';
@@ -93,25 +95,25 @@ export function GameRunner({
     const highlight =
       hm && hv !== undefined ? { label: hm.label, value: hm.unit === 'ms' ? `${hv} ms` : hm.unit === 'pct' ? `${Math.round(hv * 100)}%` : `${hv}` } : null;
     return (
-      <ScrollView contentContainerStyle={{ padding: 20, gap: 16, alignItems: 'center', flexGrow: 1, justifyContent: 'center' }} style={{ backgroundColor: t.bg }}>
-        <Text style={{ fontSize: 15, color: skill.color, fontWeight: '700', letterSpacing: 0.5 }}>{skill.name.toUpperCase()}</Text>
-        <Text style={{ fontSize: 26, fontWeight: '800', color: t.text }}>{info.name}</Text>
-        <Text style={{ fontSize: 64, fontWeight: '800', color: t.primary, fontVariant: ['tabular-nums'] }}>{result.score}</Text>
+      <ScrollView contentContainerStyle={{ padding: 20, gap: 16, alignItems: 'center', flexGrow: 1, justifyContent: 'center' }} style={{ backgroundColor: NAVY }}>
+        <Text style={{ fontSize: 15, color: GLOW[info.skill], fontWeight: '800', letterSpacing: 0.5 }}>{skill.name.toUpperCase()}</Text>
+        <Text style={{ fontSize: 26, fontWeight: '800', color: ON_NAVY }}>{info.name}</Text>
+        <Text style={{ fontSize: 64, fontWeight: '800', color: GOLD, fontVariant: ['tabular-nums'] }}>{result.score}</Text>
         {challengeLevel !== undefined ? (
-          <Text style={{ color: cleared ? t.good : t.muted, fontWeight: '800', fontSize: 18 }}>{cleared ? 'Challenge cleared!' : 'Not this time. The challenge resets tomorrow.'}</Text>
+          <Text style={{ color: cleared ? GOLD : ON_NAVY_MUTED, fontWeight: '800', fontSize: 18 }}>{cleared ? 'Challenge cleared!' : 'Not this time. The challenge resets tomorrow.'}</Text>
         ) : null}
-        {isBest ? <Text style={{ color: t.good, fontWeight: '700', fontSize: 16 }}>New personal best!</Text> : <Text style={{ color: t.muted }}>Personal best: {best}</Text>}
+        {isBest ? <Text style={{ color: GOLD, fontWeight: '800', fontSize: 17 }}>★ New personal best!</Text> : <Text style={{ color: ON_NAVY_MUTED }}>Personal best: {best}</Text>}
         <View style={{ flexDirection: 'row', gap: 12, width: '100%', maxWidth: 420 }}>
           <Stat label="Accuracy" value={`${Math.round(result.accuracy * 100)}%`} />
           {result.rtMedian ?? result.rtMs ? <Stat label="Median speed" value={`${Math.round((result.rtMedian ?? result.rtMs)!)} ms`} /> : null}
           <Stat label="Next level" value={`${newLevel}`} hint={newLevel > result.level ? 'Up' : newLevel < result.level ? 'Easier' : 'Same'} />
         </View>
         {highlight ? (
-          <Text style={{ color: t.text, textAlign: 'center', maxWidth: 420, fontWeight: '700' }}>
+          <Text style={{ color: ON_NAVY, textAlign: 'center', maxWidth: 420, fontWeight: '700' }}>
             {highlight.label}: {highlight.value}
           </Text>
         ) : null}
-        <Text style={{ color: t.muted, textAlign: 'center', maxWidth: 420 }}>
+        <Text style={{ color: ON_NAVY_MUTED, textAlign: 'center', maxWidth: 420 }}>
           {newLevel > result.level
             ? 'Strong round. Level up: the next one gets harder.'
             : newLevel < result.level
@@ -168,12 +170,11 @@ export function GameRunner({
 }
 
 function Stat({ label, value, hint }: { label: string; value: string; hint?: string }) {
-  const t = useTheme();
   return (
-    <View style={{ flex: 1, backgroundColor: t.surface, borderRadius: 14, padding: 12, borderWidth: 1, borderColor: t.border, alignItems: 'center' }}>
-      <Text style={{ color: t.muted, fontSize: 12 }}>{label}</Text>
-      <Text style={{ color: t.text, fontSize: 20, fontWeight: '800', fontVariant: ['tabular-nums'] }}>{value}</Text>
-      {hint ? <Text style={{ color: t.muted, fontSize: 12 }}>{hint}</Text> : null}
+    <View style={{ flex: 1, backgroundColor: NAVY_TILE, borderRadius: 14, padding: 12, borderWidth: 1, borderColor: NAVY_LINE, alignItems: 'center' }}>
+      <Text style={{ color: ON_NAVY_MUTED, fontSize: 12 }}>{label}</Text>
+      <Text style={{ color: ON_NAVY, fontSize: 20, fontWeight: '800', fontVariant: ['tabular-nums'] }}>{value}</Text>
+      {hint ? <Text style={{ color: ON_NAVY_MUTED, fontSize: 12 }}>{hint}</Text> : null}
     </View>
   );
 }

@@ -4,6 +4,7 @@ import { Pressable, Text, View } from 'react-native';
 
 import { Body, Screen, Title } from '@/components/ui';
 import { useStore } from '@/lib/store';
+import { GOLD } from '@/lib/brand';
 import { useTheme } from '@/lib/theme';
 import { AVAILABLE, GAMES, SKILLS } from '@/training/catalog';
 import { savedScore } from '@/iq/items';
@@ -23,7 +24,7 @@ export default function Train() {
         onPress={() => router.push('/iq')}
         style={({ pressed }) => ({ backgroundColor: '#0B1640', borderRadius: 20, padding: 18, gap: 6, opacity: pressed ? 0.92 : 1 })}
       >
-        <Text style={{ color: '#F2C14E', fontWeight: '800', letterSpacing: 1, fontSize: 12 }}>REASONING ASSESSMENT</Text>
+        <Text style={{ color: GOLD, fontWeight: '800', letterSpacing: 1, fontSize: 12 }}>REASONING ASSESSMENT</Text>
         <Text style={{ color: '#FFFFFF', fontSize: 22, fontWeight: '900' }}>Put your reasoning to the test</Text>
         <Text style={{ color: '#D7DCF5', fontSize: 15 }}>
           20 timed questions on patterns, numbers and words.{' '}

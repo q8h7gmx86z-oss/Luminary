@@ -4,14 +4,13 @@ import { Pressable, ScrollView, Text, useWindowDimensions, View } from 'react-na
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { formatClock } from '@/lib/logic';
+import { GOLD, NAVY } from '@/lib/brand';
 import { useStore } from '@/lib/store';
 import { useTheme } from '@/lib/theme';
 import { describeCell, MatrixCell } from '@/iq/MatrixCell';
 import { buildTest, Item, savedScore, scoreTest, Section, TestScore } from '@/iq/items';
 import { AnswerButton } from '@/training/GameFrame';
 
-const NAVY = '#0B1640';
-const GOLD = '#F2C14E';
 
 const SECTION_INTRO: Record<Section['id'], string> = {
   patterns: 'Each grid follows rules across its rows and columns. Shape, number, fill and colour can all change. Pick the square that completes it.',

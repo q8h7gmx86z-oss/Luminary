@@ -11,6 +11,8 @@ const light = {
   primaryText: '#FFFFFF',
   soft: '#E9ECFB',
   good: '#2F7D5B',
+  /** Achievement gold, dark enough to read on light backgrounds. */
+  gold: '#8F6212',
   help: '#B3261E',
   helpSoft: '#FCECEA',
 };
@@ -25,6 +27,7 @@ const dark: typeof light = {
   primaryText: '#0E1220',
   soft: '#252B3D',
   good: '#6FCF9F',
+  gold: '#E6AC3A',
   help: '#FF8A80',
   helpSoft: '#3A1F1F',
 };
