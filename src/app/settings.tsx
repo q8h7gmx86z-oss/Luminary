@@ -67,16 +67,14 @@ export default function Settings() {
       </Card>
 
       <Card>
-        <Heading>Dedication</Heading>
-        <Body>
-          Luminary is dedicated to my mum, Rafaela, known to everyone as Rafi (1947–2025). She lived with dementia, and this app exists so that
-          more people can look after their brains for longer.
-        </Body>
-        <Body muted>Sandra, founder</Body>
-      </Card>
-
-      <Card>
         <Heading>About Luminary</Heading>
+        <View style={{ gap: 6, paddingBottom: 10, borderBottomWidth: 1, borderBottomColor: t.border }}>
+          <Text style={{ color: t.text, fontSize: 17, fontWeight: '700', fontStyle: 'italic' }}>In loving memory of Rafi</Text>
+          <Body muted>
+            Created in memory of a life touched by dementia, and inspired by the belief that understanding, protecting and nurturing brain health
+            matters at every age.
+          </Body>
+        </View>
         <Body>
           Luminary is a wellbeing tool. It is not a medical device and does not diagnose, treat or prevent any condition. Always
           follow advice from your own health professionals.
