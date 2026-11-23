@@ -8,6 +8,7 @@ import { useTheme } from '@/lib/theme';
 
 import { GAMES, SKILLS } from './catalog';
 import { GameId, GameResult, nextLevel } from './engine';
+import { GAME_METRICS } from './stats';
 import { useCue } from './feedback';
 import { AnswerButton, RoundOutcome } from './GameFrame';
 import { CatchTheLight } from './games/CatchTheLight';
@@ -71,7 +72,7 @@ export function GameRunner({
         untimed={untimed}
         onQuit={onQuit}
         onFinish={(o: RoundOutcome) => {
-          const r: GameResult = { game: id, level, score: o.score, accuracy: o.accuracy, rtMs: o.rtMs, at: Date.now(), day: dayKey() };
+          const r: GameResult = { game: id, level, score: o.score, accuracy: o.accuracy, rtMs: o.rtMs, rtMedian: o.rtMedian, rtSd: o.rtSd, metrics: o.metrics, at: Date.now(), day: dayKey() };
           recordResult(r, { challenge: challengeLevel !== undefined });
           cue('complete');
           setResult(r);
@@ -87,6 +88,10 @@ export function GameRunner({
     const newLevel = challengeLevel !== undefined ? Math.max(state.training.levels[id] ?? 1, level) : nextLevel(result.level, result.accuracy, state.settings.challenge);
     const cleared = challengeLevel !== undefined && result.accuracy >= 0.8;
     const isBest = result.score > best;
+    const hm = GAME_METRICS[id].find((m) => result.metrics?.[m.key] !== undefined && m.unit !== 'n');
+    const hv = hm ? result.metrics![hm.key] : undefined;
+    const highlight =
+      hm && hv !== undefined ? { label: hm.label, value: hm.unit === 'ms' ? `${hv} ms` : hm.unit === 'pct' ? `${Math.round(hv * 100)}%` : `${hv}` } : null;
     return (
       <ScrollView contentContainerStyle={{ padding: 20, gap: 16, alignItems: 'center', flexGrow: 1, justifyContent: 'center' }} style={{ backgroundColor: t.bg }}>
         <Text style={{ fontSize: 15, color: skill.color, fontWeight: '700', letterSpacing: 0.5 }}>{skill.name.toUpperCase()}</Text>
@@ -98,9 +103,14 @@ export function GameRunner({
         {isBest ? <Text style={{ color: t.good, fontWeight: '700', fontSize: 16 }}>New personal best!</Text> : <Text style={{ color: t.muted }}>Personal best: {best}</Text>}
         <View style={{ flexDirection: 'row', gap: 12, width: '100%', maxWidth: 420 }}>
           <Stat label="Accuracy" value={`${Math.round(result.accuracy * 100)}%`} />
-          {result.rtMs ? <Stat label="Avg. speed" value={`${Math.round(result.rtMs)} ms`} /> : null}
+          {result.rtMedian ?? result.rtMs ? <Stat label="Median speed" value={`${Math.round((result.rtMedian ?? result.rtMs)!)} ms`} /> : null}
           <Stat label="Next level" value={`${newLevel}`} hint={newLevel > result.level ? 'Up' : newLevel < result.level ? 'Easier' : 'Same'} />
         </View>
+        {highlight ? (
+          <Text style={{ color: t.text, textAlign: 'center', maxWidth: 420, fontWeight: '700' }}>
+            {highlight.label}: {highlight.value}
+          </Text>
+        ) : null}
         <Text style={{ color: t.muted, textAlign: 'center', maxWidth: 420 }}>
           {newLevel > result.level
             ? 'Strong round. Level up: the next one gets harder.'

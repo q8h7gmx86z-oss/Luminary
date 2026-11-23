@@ -23,6 +23,7 @@ export default function Workout() {
   const t = useTheme();
   const { state, completeWorkout } = useStore();
   const [before] = useState(() => sharpnessOf(state.training.results, (g) => GAMES[g].skill, SKILL_LIST).total);
+  const [firstTime] = useState(() => state.training.results.length === 0);
   const after = sharpnessOf(state.training.results, (g) => GAMES[g].skill, SKILL_LIST).total;
   const today = dayKey();
   const { track } = useLocalSearchParams<{ track?: string }>();
@@ -72,7 +73,7 @@ export default function Workout() {
             <Text style={{ color: '#8C97C9', fontSize: 15 }}> / {MAX_SHARPNESS}</Text>
           </Text>
           <Text style={{ color: after > before ? '#3FD3BA' : '#D7DCF5', fontWeight: '700' }}>
-            {after > before ? `Up ${after - before} from ${before} this session` : after < before ? 'A dip is normal on harder levels. Keep the streak.' : 'Holding steady. Consistency is how scores climb.'}
+            {firstTime ? 'Baseline set. Every workout from here is measured against it.' : after > before ? `Up ${after - before} from ${before} this session` : after < before ? 'A dip is normal on harder levels. Keep the streak.' : 'Holding steady. Consistency is how scores climb.'}
           </Text>
         </View>
         <View style={{ gap: 10, width: '100%', maxWidth: 440 }}>

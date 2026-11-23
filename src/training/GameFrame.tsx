@@ -6,7 +6,7 @@ import { useTheme } from '@/lib/theme';
 
 import { preloadCues } from './feedback';
 
-export type RoundOutcome = { score: number; accuracy: number; rtMs?: number };
+export type RoundOutcome = { score: number; accuracy: number; rtMs?: number; rtMedian?: number; rtSd?: number; metrics?: Record<string, number> };
 export type GameProps = { level: number; onFinish: (o: RoundOutcome) => void; /** No answer deadlines, slower pacing. */ untimed?: boolean };
 
 /** Shared chrome for every game: title, level, progress bar and a way out. */

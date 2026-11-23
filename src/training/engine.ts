@@ -12,6 +12,12 @@ export type GameResult = {
   accuracy: number;
   /** Mean correct response time in ms, when the game measures it. */
   rtMs?: number;
+  /** Median correct response time in ms. Less thrown by one slow answer than the mean. */
+  rtMedian?: number;
+  /** Standard deviation of correct response times in ms: how even your pace was. */
+  rtSd?: number;
+  /** Game-specific measures, such as switch cost or false starts. Keys are listed in the catalog. */
+  metrics?: Record<string, number>;
   at: number;
   day: string;
 };
@@ -104,6 +110,39 @@ export function goNoGoAccuracy(hits: number, correctRejections: number, trials: 
 
 export function mean(xs: number[]): number | undefined {
   return xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : undefined;
+}
+
+export function median(xs: number[]): number | undefined {
+  if (!xs.length) return undefined;
+  const s = [...xs].sort((a, b) => a - b);
+  const m = Math.floor(s.length / 2);
+  return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2;
+}
+
+export function sd(xs: number[]): number | undefined {
+  if (xs.length < 2) return undefined;
+  const m = mean(xs)!;
+  return Math.sqrt(xs.reduce((a, x) => a + (x - m) ** 2, 0) / (xs.length - 1));
+}
+
+/** Response-time summary for a round, rounded to whole milliseconds. */
+export function rtStats(rts: number[]): { rtMs?: number; rtMedian?: number; rtSd?: number } {
+  const r = (x: number | undefined) => (x === undefined ? undefined : Math.round(x));
+  return { rtMs: r(mean(rts)), rtMedian: r(median(rts)), rtSd: r(sd(rts)) };
+}
+
+/** Difference in median time between two kinds of trial, such as switch minus repeat. */
+export function costMs(hard: number[], easy: number[]): number | undefined {
+  const a = median(hard);
+  const b = median(easy);
+  return a === undefined || b === undefined ? undefined : Math.round(a - b);
+}
+
+/** Drops undefined values so a metrics object only holds what was measured. */
+export function defined(o: Record<string, number | undefined>): Record<string, number> {
+  const out: Record<string, number> = {};
+  for (const [k, v] of Object.entries(o)) if (v !== undefined && Number.isFinite(v)) out[k] = v;
+  return out;
 }
 
 /** Star Tracker (spatial n-back): how far back to compare, timing and trial count. */

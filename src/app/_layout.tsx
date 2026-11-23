@@ -38,6 +38,8 @@ function Gate() {
       <Stack.Screen name="preferences" options={{ title: 'Training preferences' }} />
       <Stack.Screen name="rafi" options={{ title: 'The Rafi Programme' }} />
       <Stack.Screen name="article/[id]" options={{ title: 'Learn' }} />
+      <Stack.Screen name="backup" options={{ title: 'Backup and move' }} />
+      <Stack.Screen name="stats/[game]" options={{ title: 'Game details' }} />
       <Stack.Screen name="mood" options={{ title: 'Mood check-in' }} />
       <Stack.Screen name="sleep" options={{ title: 'Sleep' }} />
       <Stack.Screen name="workout" options={{ headerShown: false, gestureEnabled: false }} />

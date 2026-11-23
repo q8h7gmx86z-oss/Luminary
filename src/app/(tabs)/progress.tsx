@@ -1,5 +1,6 @@
 import React from 'react';
-import { Text, View } from 'react-native';
+import { router } from 'expo-router';
+import { Pressable, Text, View } from 'react-native';
 
 import { Body, Card, Heading, Screen, Title } from '@/components/ui';
 import { lastNDays } from '@/lib/logic';
@@ -9,6 +10,7 @@ import { GAMES, SKILLS } from '@/training/catalog';
 import { GameId, Skill } from '@/training/engine';
 import { savedScore } from '@/iq/items';
 import { SharpnessCard } from '@/training/SharpnessCard';
+import { Metric } from '@/training/Metric';
 import { Spark } from '@/training/Spark';
 import { skillSummaries, workoutsThisWeek } from '@/training/stats';
 
@@ -125,14 +127,21 @@ export default function Progress() {
                   const rs = state.training.results.filter((r) => r.game === g);
                   const best = rs.length ? Math.max(...rs.map((r) => r.score)) : 0;
                   return (
-                    <View key={g} style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                      <Text style={{ color: t.text, flex: 1 }}>
+                    <Pressable
+                      key={g}
+                      accessibilityRole="button"
+                      accessibilityLabel={`${GAMES[g].name} details`}
+                      onPress={() => router.push(`/stats/${g}`)}
+                      style={{ flexDirection: 'row', alignItems: 'center', gap: 8, minHeight: 40, paddingHorizontal: 10, borderRadius: 10, backgroundColor: t.bg }}
+                    >
+                      <Text style={{ color: t.text, flex: 1, fontWeight: '600' }}>
                         {GAMES[g].glyph} {GAMES[g].name}
                       </Text>
                       <Text style={{ color: t.muted, fontSize: 13, fontVariant: ['tabular-nums'] }}>
                         {rs.length ? `Lv ${state.training.levels[g] ?? 1} · best ${best}` : 'Not played yet'}
                       </Text>
-                    </View>
+                      <Text style={{ color: t.primary, fontWeight: '800' }}>›</Text>
+                    </Pressable>
                   );
                 })}
             </View>
@@ -150,16 +159,5 @@ export default function Progress() {
         on Luminary’s games. They are not clinical measurements and they do not compare you with anyone else.
       </Body>
     </Screen>
-  );
-}
-
-function Metric({ label, value, hint, tone }: { label: string; value: string; hint?: string; tone?: 'good' }) {
-  const t = useTheme();
-  return (
-    <View style={{ flexBasis: '30%', flexGrow: 1, padding: 10, borderRadius: 12, backgroundColor: t.bg, gap: 2 }}>
-      <Text style={{ color: t.muted, fontSize: 12 }}>{label}</Text>
-      <Text style={{ color: tone === 'good' ? t.good : t.text, fontSize: 17, fontWeight: '800', fontVariant: ['tabular-nums'] }}>{value}</Text>
-      {hint ? <Text style={{ color: t.muted, fontSize: 11 }}>{hint}</Text> : null}
-    </View>
   );
 }

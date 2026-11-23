@@ -114,11 +114,17 @@ type Actions = {
   recordResult: (r: GameResult, opts?: { challenge?: boolean }) => void;
   completeWorkout: (day: string) => void;
   deleteEverything: () => Promise<void>;
+  /** Replaces everything on this device with a restored backup. */
+  restoreAll: (saved: Partial<State>) => void;
 };
 
 type Ctx = { state: State; ready: boolean } & Actions;
 
 const StoreContext = createContext<Ctx | null>(null);
+
+function mergeSaved(base: State, saved: Partial<State>): State {
+  return { ...base, ...saved, settings: { ...base.settings, ...saved.settings }, training: { ...base.training, ...saved.training } };
+}
 
 export function StoreProvider({ children }: { children: React.ReactNode }) {
   const [state, setState] = useState<State>(defaultState);
@@ -129,13 +135,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     AsyncStorage.getItem(STORAGE_KEY)
       .then((raw) => {
         if (raw) {
-          const saved = JSON.parse(raw) as Partial<State>;
-          setState((s) => ({
-            ...s,
-            ...saved,
-            settings: { ...s.settings, ...saved.settings },
-            training: { ...s.training, ...saved.training },
-          }));
+          setState((s) => mergeSaved(s, JSON.parse(raw) as Partial<State>));
         }
       })
       .catch(() => {})
@@ -208,6 +208,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         update((s) =>
           s.training.workouts.includes(day) ? s : { ...s, training: { ...s.training, workouts: [...s.training.workouts, day] } },
         ),
+      restoreAll: (saved) => update(() => mergeSaved(defaultState(), saved)),
       deleteEverything: async () => {
         await AsyncStorage.removeItem(STORAGE_KEY).catch(() => {});
         setState(defaultState());

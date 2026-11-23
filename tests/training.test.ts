@@ -175,3 +175,48 @@ test('skill analytics compare recent rounds with your own baseline', () => {
   assert.ok(sp.rtNow! < sp.rtBaseline!);
   assert.ok(sp.skillScore > 0 && sp.skillScore <= 100);
 });
+
+import { costMs, median, rtStats } from '../src/training/engine.ts';
+import { gameAnalytics } from '../src/training/stats.ts';
+
+test('response time helpers', () => {
+  assert.equal(median([3, 1, 2]), 2);
+  assert.equal(median([1, 2, 3, 4]), 2.5);
+  assert.equal(median([]), undefined);
+  assert.deepEqual(rtStats([400, 500, 600]), { rtMs: 500, rtMedian: 500, rtSd: 100 });
+  assert.equal(costMs([700, 800, 900], [500, 600]), 250);
+  assert.equal(costMs([], [500]), undefined);
+});
+
+test('per-game analytics: bests, baseline and game-specific measures', () => {
+  const mk = (i: number, rt: number, cost: number) => ({
+    game: 'switch' as const,
+    level: 1 + i,
+    score: 100 + i * 10,
+    accuracy: 0.7 + i * 0.03,
+    rtMs: rt,
+    rtMedian: rt,
+    rtSd: rt / 5,
+    metrics: { switchCost: cost },
+    at: i,
+    day: `2026-11-${String(10 + i).padStart(2, '0')}`,
+  });
+  const rs = [0, 1, 2, 3, 4, 5].map((i) => mk(i, 900 - i * 50, 300 - i * 30));
+  const a = gameAnalytics(rs, 'switch', 7);
+  assert.equal(a.sessions, 6);
+  assert.equal(a.daysPlayed, 6);
+  assert.equal(a.topLevel, 7);
+  assert.equal(a.bestScore, 150);
+  assert.equal(a.rtBest, 650);
+  assert.equal(a.rtNow, 700);
+  assert.equal(a.rtFirst, 850);
+  assert.ok(Math.abs(a.variability! - 0.2) < 1e-9);
+  const sc = a.metrics.find((m) => m.key === 'switchCost')!;
+  assert.equal(sc.best, 150);
+  assert.equal(sc.now, 180);
+  assert.equal(sc.first, 270);
+  // Nothing played yet: no numbers, no crash.
+  const empty = gameAnalytics([], 'catch');
+  assert.equal(empty.sessions, 0);
+  assert.equal(empty.rtNow, undefined);
+});

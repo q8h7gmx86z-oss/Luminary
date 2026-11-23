@@ -3,7 +3,7 @@ import { Text, View } from 'react-native';
 
 import { useTheme } from '@/lib/theme';
 
-import { mean, switchParams } from '../engine';
+import { costMs, defined, rtStats, switchParams } from '../engine';
 import { AnswerButton, GameFrame, GameProps } from '../GameFrame';
 import { useAnswerFeedback } from '../feedback';
 import { useKeys } from '../useKeys';
@@ -33,7 +33,7 @@ export function SwitchIt({ level, onFinish, onQuit, untimed }: GameProps & { onQ
   const [fb, setFb] = useState<Fb>(null);
   useAnswerFeedback(fb, ['right']);
 
-  const s = useRef({ n: 0, cur: null as Trial | null, rule: 'parity' as Rule, locked: true, shownAt: 0, correct: 0, rts: [] as number[], bonus: 0 });
+  const s = useRef({ n: 0, cur: null as Trial | null, rule: 'parity' as Rule, locked: true, shownAt: 0, correct: 0, rts: [] as number[], switchRts: [] as number[], repeatRts: [] as number[], switchN: 0, switchRight: 0, repeatN: 0, repeatRight: 0, bonus: 0 });
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
   const deadline = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(
@@ -50,7 +50,16 @@ export function SwitchIt({ level, onFinish, onQuit, untimed }: GameProps & { onQ
     if (i >= p.trials) {
       setPhase('done');
       setTrial(null);
-      onFinish({ score: Math.round(st.correct * (10 + level * 2) + st.bonus), accuracy: st.correct / p.trials, rtMs: mean(st.rts) });
+      onFinish({
+        score: Math.round(st.correct * (10 + level * 2) + st.bonus),
+        accuracy: st.correct / p.trials,
+        ...rtStats(st.rts),
+        metrics: defined({
+          switchCost: costMs(st.switchRts, st.repeatRts),
+          switchAccuracy: st.switchN ? st.switchRight / st.switchN : undefined,
+          repeatAccuracy: st.repeatN ? st.repeatRight / st.repeatN : undefined,
+        }),
+      });
       return;
     }
     const switched = i > 0 && Math.random() < p.switchRate;
@@ -74,12 +83,23 @@ export function SwitchIt({ level, onFinish, onQuit, untimed }: GameProps & { onQ
     st.locked = true;
     if (deadline.current) clearTimeout(deadline.current);
     const rt = Date.now() - st.shownAt;
+    // The first card has no rule before it, so it counts as neither kind.
+    const kind = st.n === 0 ? null : st.cur.switched ? 'switch' : 'repeat';
+    if (kind === 'switch') st.switchN += 1;
+    if (kind === 'repeat') st.repeatN += 1;
     let f: Fb;
     if (right === null) f = 'late';
     else if (right === rightIsCorrect(st.cur)) {
       f = 'right';
       st.correct += 1;
       st.rts.push(rt);
+      if (kind === 'switch') {
+        st.switchRight += 1;
+        st.switchRts.push(rt);
+      } else if (kind === 'repeat') {
+        st.repeatRight += 1;
+        st.repeatRts.push(rt);
+      }
       // Switch trials are the hard ones, so they earn more.
       st.bonus += Math.max(0, ((p.deadlineMs - rt) / p.deadlineMs) * (st.cur.switched ? 10 : 4));
     } else f = 'wrong';

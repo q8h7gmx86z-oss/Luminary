@@ -87,3 +87,157 @@ export function workoutsThisWeek(workouts: string[], last7: string[]): number {
   const set = new Set(workouts);
   return last7.filter((d) => set.has(d)).length;
 }
+
+// --- Per-game analytics -------------------------------------------------------------
+
+export type MetricDef = {
+  key: string;
+  label: string;
+  /** How to show the number. */
+  unit: 'ms' | 'pct' | 'count' | 'n';
+  better: 'lower' | 'higher' | 'neither';
+  explain: string;
+};
+
+/** The extra measures each game records, and how to read them. */
+export const GAME_METRICS: Record<GameId, MetricDef[]> = {
+  speed: [],
+  grid: [
+    { key: 'span', label: 'Sequence length', unit: 'n', better: 'higher', explain: 'How many tiles you were asked to remember.' },
+    { key: 'perfect', label: 'Perfect sequences', unit: 'count', better: 'higher', explain: 'Sequences you repeated without a slip.' },
+  ],
+  catch: [
+    {
+      key: 'falseStarts',
+      label: 'False starts',
+      unit: 'count',
+      better: 'lower',
+      explain: 'Taps on a stop light. This is the inhibition measure: holding back an automatic response.',
+    },
+    { key: 'misses', label: 'Missed go lights', unit: 'count', better: 'lower', explain: 'Go lights that went out before you tapped.' },
+    { key: 'stopRate', label: 'Stops held', unit: 'pct', better: 'higher', explain: 'Share of stop lights you let pass.' },
+  ],
+  nback: [
+    {
+      key: 'n',
+      label: 'Stars back',
+      unit: 'n',
+      better: 'higher',
+      explain: 'How far back you were comparing: the main difficulty setting.',
+    },
+    { key: 'hitRate', label: 'Matches caught', unit: 'pct', better: 'higher', explain: 'Share of real matches you tapped.' },
+    { key: 'falseAlarms', label: 'False alarms', unit: 'count', better: 'lower', explain: 'Taps when there was no match.' },
+  ],
+  clash: [
+    {
+      key: 'interference',
+      label: 'Interference cost',
+      unit: 'ms',
+      better: 'lower',
+      explain: 'How much slower you are when the word and ink clash than when they match. This is the classic Stroop effect.',
+    },
+    {
+      key: 'clashAccuracy',
+      label: 'Clash accuracy',
+      unit: 'pct',
+      better: 'higher',
+      explain: 'Accuracy on the hard cards, where the word and ink disagree.',
+    },
+    {
+      key: 'wordSlips',
+      label: 'Read the word',
+      unit: 'count',
+      better: 'lower',
+      explain: 'Times you answered with the word instead of the ink.',
+    },
+  ],
+  switch: [
+    {
+      key: 'switchCost',
+      label: 'Switch cost',
+      unit: 'ms',
+      better: 'lower',
+      explain: 'How much slower you are just after the rule changes than when it stays the same. Smaller means you shift gears faster.',
+    },
+    {
+      key: 'switchAccuracy',
+      label: 'Accuracy after a switch',
+      unit: 'pct',
+      better: 'higher',
+      explain: 'Accuracy on cards where the rule had just changed.',
+    },
+    {
+      key: 'repeatAccuracy',
+      label: 'Accuracy, same rule',
+      unit: 'pct',
+      better: 'higher',
+      explain: 'Accuracy on cards where the rule stayed the same.',
+    },
+  ],
+};
+
+export type MetricSummary = MetricDef & { now?: number; first?: number; best?: number };
+
+export type GameAnalytics = {
+  game: GameId;
+  sessions: number;
+  daysPlayed: number;
+  level: number;
+  topLevel: number;
+  bestScore?: number;
+  bestAccuracy?: number;
+  recentAccuracy?: number;
+  /** Median response time, averaged over the last 3 rounds and the first 3. Needs 6 rounds for a baseline. */
+  rtNow?: number;
+  rtFirst?: number;
+  rtBest?: number;
+  /** Spread of response times as a share of the median (coefficient of variation), recent rounds. Lower is steadier. */
+  variability?: number;
+  metrics: MetricSummary[];
+  /** Level after each round, oldest first, up to 30. */
+  levelTrend: number[];
+  /** Median response time per round, oldest first, up to 30. */
+  rtTrend: number[];
+};
+
+const rtOf = (r: GameResult) => r.rtMedian ?? r.rtMs;
+
+export function gameAnalytics(results: GameResult[], game: GameId, currentLevel = 1): GameAnalytics {
+  const rs = results.filter((r) => r.game === game);
+  const avgOf = (xs: (number | undefined)[]) => {
+    const v = xs.filter((x): x is number => x !== undefined);
+    return v.length ? avg(v) : undefined;
+  };
+  const timed = rs.filter((r) => rtOf(r) !== undefined);
+  const withSd = timed.filter((r) => r.rtSd !== undefined).slice(-3);
+  const metrics = GAME_METRICS[game].map((def) => {
+    const vals = rs.filter((r) => r.metrics?.[def.key] !== undefined);
+    const xs = vals.map((r) => r.metrics![def.key]);
+    const best = !xs.length || def.better === 'neither' ? undefined : def.better === 'lower' ? Math.min(...xs) : Math.max(...xs);
+    return {
+      ...def,
+      now: avgOf(xs.slice(-3)),
+      first: xs.length >= 6 ? avgOf(xs.slice(0, 3)) : undefined,
+      best,
+    };
+  });
+  return {
+    game,
+    sessions: rs.length,
+    daysPlayed: new Set(rs.map((r) => r.day)).size,
+    level: currentLevel,
+    topLevel: rs.length ? Math.max(currentLevel, ...rs.map((r) => r.level)) : currentLevel,
+    bestScore: rs.length ? Math.max(...rs.map((r) => r.score)) : undefined,
+    bestAccuracy: rs.length ? Math.max(...rs.map((r) => r.accuracy)) : undefined,
+    recentAccuracy: avgOf(rs.slice(-3).map((r) => r.accuracy)),
+    rtNow: round(avgOf(timed.slice(-3).map(rtOf))),
+    rtFirst: timed.length >= 6 ? round(avgOf(timed.slice(0, 3).map(rtOf))) : undefined,
+    rtBest: timed.length ? Math.min(...timed.map((r) => rtOf(r)!)) : undefined,
+    variability: withSd.length ? avg(withSd.map((r) => r.rtSd! / rtOf(r)!)) : undefined,
+    metrics,
+    levelTrend: rs.slice(-30).map((r) => r.level),
+    rtTrend: timed.slice(-30).map((r) => rtOf(r)!),
+  };
+}
+
+const round = (x: number | undefined) => (x === undefined ? undefined : Math.round(x));

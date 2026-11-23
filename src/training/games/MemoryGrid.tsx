@@ -67,7 +67,7 @@ export function MemoryGrid({ level, onFinish, onQuit }: GameProps & { onQuit?: (
         if (trial + 1 >= p.trials) {
           setPhase('done');
           const s = stats.current;
-          onFinish({ score: s.correctTiles * (6 + level), accuracy: s.correctTrials / p.trials });
+          onFinish({ score: s.correctTiles * (6 + level), accuracy: s.correctTrials / p.trials, metrics: { span: p.span, perfect: s.correctTrials, trials: p.trials } });
         } else {
           play(trial + 1);
         }

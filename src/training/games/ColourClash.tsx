@@ -3,7 +3,7 @@ import { Pressable, Text, View } from 'react-native';
 
 import { useTheme } from '@/lib/theme';
 
-import { clashParams, mean } from '../engine';
+import { clashParams, costMs, defined, rtStats } from '../engine';
 import { AnswerButton, GameFrame, GameProps } from '../GameFrame';
 import { useAnswerFeedback } from '../feedback';
 import { useKeys } from '../useKeys';
@@ -30,7 +30,7 @@ export function ColourClash({ level, onFinish, onQuit, untimed }: GameProps & { 
   const [fb, setFb] = useState<Fb>(null);
   useAnswerFeedback(fb, ['right']);
 
-  const s = useRef({ n: 0, cur: null as Trial | null, locked: true, shownAt: 0, correct: 0, rts: [] as number[], clashRts: [] as number[], bonus: 0 });
+  const s = useRef({ n: 0, cur: null as Trial | null, locked: true, shownAt: 0, correct: 0, rts: [] as number[], clashRts: [] as number[], matchRts: [] as number[], clashN: 0, clashRight: 0, wordSlips: 0, bonus: 0 });
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
   useEffect(() => () => timers.current.forEach(clearTimeout), []);
   const later = (fn: () => void, ms: number) => timers.current.push(setTimeout(fn, ms));
@@ -44,7 +44,12 @@ export function ColourClash({ level, onFinish, onQuit, untimed }: GameProps & { 
       onFinish({
         score: Math.round(st.correct * (10 + level * 2) + st.bonus),
         accuracy: st.correct / p.trials,
-        rtMs: mean(st.rts),
+        ...rtStats(st.rts),
+        metrics: defined({
+          interference: costMs(st.clashRts, st.matchRts),
+          clashAccuracy: st.clashN ? st.clashRight / st.clashN : undefined,
+          wordSlips: st.wordSlips,
+        }),
       });
       return;
     }
@@ -68,16 +73,22 @@ export function ColourClash({ level, onFinish, onQuit, untimed }: GameProps & { 
     st.locked = true;
     if (deadline.current) clearTimeout(deadline.current);
     const rt = Date.now() - st.shownAt;
+    const clash = st.cur.word !== st.cur.ink;
+    if (clash) st.clashN += 1;
     let f: Fb;
     if (choice === null) f = 'late';
     else if (choice === st.cur.ink) {
       f = 'right';
       st.correct += 1;
       st.rts.push(rt);
-      if (st.cur.word !== st.cur.ink) st.clashRts.push(rt);
+      if (clash) {
+        st.clashRts.push(rt);
+        st.clashRight += 1;
+      } else st.matchRts.push(rt);
       // Clashing words are harder, so they earn a little more.
       st.bonus += Math.max(0, ((p.deadlineMs - rt) / p.deadlineMs) * (st.cur.word !== st.cur.ink ? 8 : 4));
     } else f = choice === st.cur.word ? 'word' : 'wrong';
+    if (f === 'word') st.wordSlips += 1;
     setFb(f);
     const i = st.n;
     later(() => next(i + 1), f === 'right' ? 220 : 520);

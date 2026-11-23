@@ -4,7 +4,7 @@ import { Pressable, Text, View } from 'react-native';
 import { useStore } from '@/lib/store';
 import { useTheme } from '@/lib/theme';
 
-import { catchParams, goNoGoAccuracy, mean } from '../engine';
+import { catchParams, goNoGoAccuracy, mean, defined, rtStats } from '../engine';
 import { AnswerButton, GameFrame, GameProps, useTap } from '../GameFrame';
 import { useAnswerFeedback } from '../feedback';
 import { useKeys } from '../useKeys';
@@ -24,7 +24,7 @@ export function CatchTheLight({ level, onFinish, onQuit, untimed }: GameProps & 
   const [fb, setFb] = useState<Fb>(null);
   useAnswerFeedback(fb, ['hit', 'hold']);
 
-  const s = useRef({ hits: 0, holds: 0, rts: [] as number[], trial: 0, responded: false, shownAt: 0, stim: null as Stim });
+  const s = useRef({ hits: 0, holds: 0, misses: 0, falseStarts: 0, gos: 0, nogos: 0, rts: [] as number[], trial: 0, responded: false, shownAt: 0, stim: null as Stim });
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
   useEffect(() => () => timers.current.forEach(clearTimeout), []);
 
@@ -38,7 +38,13 @@ export function CatchTheLight({ level, onFinish, onQuit, untimed }: GameProps & 
       onFinish({
         score: Math.round((st.hits + st.holds) * (8 + level * 2) + (mean(st.rts) ? Math.max(0, 600 - mean(st.rts)!) / 10 : 0)),
         accuracy: goNoGoAccuracy(st.hits, st.holds, p.trials),
-        rtMs: mean(st.rts),
+        ...rtStats(st.rts),
+        metrics: defined({
+          falseStarts: st.falseStarts,
+          misses: st.misses,
+          stopRate: st.nogos ? st.holds / st.nogos : undefined,
+          goRate: st.gos ? st.hits / st.gos : undefined,
+        }),
       });
       return;
     }
@@ -47,6 +53,8 @@ export function CatchTheLight({ level, onFinish, onQuit, untimed }: GameProps & 
     st.trial = n;
     st.responded = false;
     st.stim = kind;
+    if (kind === 'go') st.gos += 1;
+    else st.nogos += 1;
     st.shownAt = Date.now();
     setTrial(n);
     setFb(null);
@@ -57,7 +65,10 @@ export function CatchTheLight({ level, onFinish, onQuit, untimed }: GameProps & 
         if (kind === 'nogo') {
           st.holds += 1;
           setFb('hold');
-        } else setFb('miss');
+        } else {
+          st.misses += 1;
+          setFb('miss');
+        }
       }
       setStim(null);
       later(() => runTrial(n + 1), p.gapMs + Math.random() * 300);
@@ -73,6 +84,7 @@ export function CatchTheLight({ level, onFinish, onQuit, untimed }: GameProps & 
       st.rts.push(Date.now() - st.shownAt);
       setFb('hit');
     } else {
+      st.falseStarts += 1;
       setFb('false');
     }
   };

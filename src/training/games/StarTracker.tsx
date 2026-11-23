@@ -3,7 +3,7 @@ import { Text, View } from 'react-native';
 
 import { useTheme } from '@/lib/theme';
 
-import { balancedAccuracy, mean, nbackParams, nbackSequence } from '../engine';
+import { balancedAccuracy, mean, nbackParams, nbackSequence, defined, rtStats } from '../engine';
 import { AnswerButton, GameFrame, GameProps } from '../GameFrame';
 import { useAnswerFeedback } from '../feedback';
 import { useKeys } from '../useKeys';
@@ -49,7 +49,13 @@ export function StarTracker({ level, onFinish, onQuit, untimed }: GameProps & { 
       onFinish({
         score: Math.max(0, Math.round((st.hits * 3 + st.cr - st.fa) * (4 + level))),
         accuracy: balancedAccuracy(st.hits, st.targets, st.cr, nonTargets),
-        rtMs: mean(st.rts),
+        ...rtStats(st.rts),
+        metrics: defined({
+          n: p.n,
+          hitRate: st.targets ? st.hits / st.targets : undefined,
+          falseAlarms: st.fa,
+          misses: st.targets - st.hits,
+        }),
       });
       return;
     }

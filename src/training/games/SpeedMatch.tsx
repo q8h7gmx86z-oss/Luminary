@@ -3,7 +3,7 @@ import { Text, View } from 'react-native';
 
 import { useTheme } from '@/lib/theme';
 
-import { mean, speedParams } from '../engine';
+import { rtStats, speedParams } from '../engine';
 import { AnswerButton, GameFrame, GameProps } from '../GameFrame';
 import { useAnswerFeedback } from '../feedback';
 import { useKeys } from '../useKeys';
@@ -54,7 +54,8 @@ export function SpeedMatch({ level, onFinish, onQuit, untimed }: GameProps & { o
     onFinish({
       score: Math.round(s.correct * (10 + level * 2) + s.bonus),
       accuracy,
-      rtMs: mean(s.rts),
+      ...rtStats(s.rts),
+      metrics: { answered: s.answered },
     });
   }, [level, onFinish]);
 

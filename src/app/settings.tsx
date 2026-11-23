@@ -42,8 +42,14 @@ export default function Settings() {
           nobody else can see your check-ins, not even us.
         </Body>
         <Body muted>
-          If you delete the app or clear your browser data, your entries are deleted too.
+          If you delete the app or clear your browser data, your entries are deleted too, unless you have made a backup.
         </Body>
+      </Card>
+
+      <Card>
+        <Heading>Backup and move to a new device</Heading>
+        <Body muted>Make an encrypted copy of your data that only your passphrase can open. Use it to restore, or to move to a new phone. No account needed.</Body>
+        <Button kind="secondary" label="Backup and restore" onPress={() => router.push('/backup')} />
       </Card>
 
       <Card>
@@ -84,7 +90,11 @@ export default function Settings() {
         <Heading>Delete all my data</Heading>
         {confirming ? (
           <>
-            <Body>This permanently removes every check-in, task and plan from this device. It cannot be undone.</Body>
+            <Body>
+              This permanently removes your training history, levels, check-ins, tasks and plans from this device. It cannot be undone, and
+              Luminary has no copy to recover.
+            </Body>
+            <Button kind="secondary" label="Make a backup first" onPress={() => router.push('/backup')} />
             <Button
               kind="help"
               label="Yes, delete everything"
