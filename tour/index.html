@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Luminary tour</title>
+<meta name="description" content="A static tour of Luminary, a personal cognitive training app: screenshots of every main screen and game, with descriptions. No JavaScript needed.">
+<link rel="icon" href="img/icon.png">
+<style>
+  :root { --navy:#0B1640; --blue:#4A5FD9; --gold:#E8B84A; --bg:#F5F4F0; --card:#fff; --text:#1d2233; --muted:#5b6175; --line:#e3e1da; }
+  * { box-sizing:border-box; }
+  body { margin:0; font:16px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; color:var(--text); background:var(--bg); }
+  header { background:var(--navy); color:#fff; padding:40px 16px 32px; }
+  .wrap { max-width:1080px; margin:0 auto; padding:0 16px; }
+  header .wrap { padding:0; display:flex; gap:18px; align-items:center; flex-wrap:wrap; }
+  header img { width:72px; height:72px; border-radius:16px; }
+  h1 { margin:0; font-size:32px; }
+  header p { margin:6px 0 0; color:#c9cff0; max-width:640px; }
+  header a { color:var(--gold); }
+  h2 { font-size:24px; margin:44px 0 6px; color:var(--navy); }
+  .lead { color:var(--muted); margin:0 0 18px; max-width:760px; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(230px, 1fr)); gap:20px; }
+  figure { margin:0; background:var(--card); border:1px solid var(--line); border-radius:16px; padding:12px; }
+  figure img { width:100%; height:auto; display:block; border-radius:10px; border:1px solid var(--line); }
+  figcaption { margin-top:10px; font-size:14.5px; color:var(--text); }
+  figcaption b { display:block; color:var(--navy); font-size:15.5px; }
+  .pair { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  ul.features { background:var(--card); border:1px solid var(--line); border-radius:16px; padding:18px 18px 18px 36px; margin:0; }
+  ul.features li { margin:6px 0; }
+  .note { font-size:14px; color:var(--muted); margin-top:40px; padding:24px 0 48px; border-top:1px solid var(--line); }
+  @media (max-width:520px) { h1 { font-size:26px; } .grid { grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <img src="img/icon.png" alt="Luminary logo: a head in profile with a glowing gold star, on navy">
+    <div>
+      <h1>Luminary: a tour</h1>
+      <p>Luminary is a personal cognitive training system. It builds a short daily workout from adaptive brain games, tracks a Brain Sharpness score, and explains the science behind every exercise. It is built for every kind of brain, including ADHD. This page is a static tour with real screenshots, so it works without JavaScript. The live app is at <a href="/">the home page of this site</a>.</p>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <h2>What Luminary does</h2>
+  <ul class="features">
+    <li><b>Personalised daily workout.</b> About 10 minutes, built from your last sessions: roughly 60% targets your weakest skill, 25% adds variety and 15% is familiar. Each pick shows the reason for it.</li>
+    <li><b>Six adaptive games</b> across four skills: processing speed, working memory, attention control and mental flexibility. Every game levels up or down from your accuracy and speed.</li>
+    <li><b>Brain Sharpness score</b> out of 1000, built from level and accuracy across the four skills, with a brain network that lights up as it rises. Progress is compared with your own baseline, never with other people. No leaderboards.</li>
+    <li><b>Daily challenge and weekly quest</b>, with a forgiving streak: rest days count as part of training.</li>
+    <li><b>Focus track for ADHD</b>: attention drills before focused work, plus a visual countdown timer.</li>
+    <li><b>Reasoning Assessment</b>: 20 timed questions on patterns, numbers and words, with an experimental score. It is not an IQ test and is labelled that way.</li>
+    <li><b>The Rafi Programme</b>: the 14 changeable dementia risk factors from the 2024 Lancet Commission, turned into a personal protection plan. Named for Rafaela "Rafi", 1947 to 2025.</li>
+    <li><b>Sleep and mood logs</b>, with CBT-I sleep techniques and a quick mood, energy and focus check-in.</li>
+    <li><b>Learn</b>: short, sourced explainers on why each exercise works.</li>
+    <li><b>Training preferences</b>: goal, session length, challenge level, untimed mode, visuals, sound and breaks.</li>
+    <li><b>Private by design</b>: no account, no server, no ads, no analytics. Everything stays on the device and can be deleted in Settings. Under-18s get extra privacy protections.</li>
+  </ul>
+
+  <h2>Main screens</h2>
+  <p class="lead">Screenshots from the web version on a phone-sized screen. Scores show zero because these were taken on a fresh install.</p>
+  <div class="grid">
+    <figure><img src="img/00-welcome.jpg" alt="Welcome screen" loading="lazy" width="780" height="1688"><figcaption><b>Welcome</b>Introduces Luminary as a brain trainer, carries the dedication to Rafi, states it is not a medical device, and asks for an age group so under-18s get stronger privacy defaults.</figcaption></figure>
+    <figure><img src="img/01-today.jpg" alt="Today screen" loading="lazy" width="780" height="1688"><figcaption><b>Today</b>Your plan for the day: a 10-minute mixed workout built from your last sessions, with the reason for each game, plus the daily challenge and the weekly quest.</figcaption></figure>
+    <figure><img src="img/06-workout.jpg" alt="Workout warm-up" loading="lazy" width="780" height="1688"><figcaption><b>Workout warm-up</b>Each workout opens with one minute of breathing at six breaths a minute, to steady the heart rate before training. It can be skipped.</figcaption></figure>
+    <figure><img src="img/02-train.jpg" alt="Train screen" loading="lazy" width="780" height="1688"><figcaption><b>Train</b>All six games grouped by skill, each with its current level, plus the Reasoning Assessment and a link to training preferences.</figcaption></figure>
+    <figure><img src="img/03-focus.jpg" alt="Focus screen" loading="lazy" width="780" height="1688"><figcaption><b>Focus</b>A focus session of short attention and memory drills before work, and a visual timer that shrinks as time passes, which helps when ADHD makes time feel invisible.</figcaption></figure>
+    <figure><img src="img/05-progress.jpg" alt="Progress screen" loading="lazy" width="780" height="1688"><figcaption><b>Progress</b>The Brain Sharpness score out of 1000, a brain network that lights up by skill, and a week view of workouts.</figcaption></figure>
+    <figure><img src="img/04-learn.jpg" alt="Learn screen" loading="lazy" width="780" height="1688"><figcaption><b>Learn</b>The Rafi Programme and short, sourced reads on the science behind the training.</figcaption></figure>
+    <figure><img src="img/13-article.jpg" alt="Article" loading="lazy" width="780" height="1688"><figcaption><b>An article</b>Each explainer is short, direct and ends with its research source.</figcaption></figure>
+    <figure><img src="img/08-rafi.jpg" alt="The Rafi Programme" loading="lazy" width="780" height="1688"><figcaption><b>The Rafi Programme</b>A checklist of the 14 changeable dementia risk factors, each with the reason it matters.</figcaption></figure>
+    <figure><img src="img/07-reasoning.jpg" alt="Reasoning Assessment" loading="lazy" width="780" height="1688"><figcaption><b>Reasoning Assessment</b>20 questions in three timed sections: patterns, numbers and words. About 13 minutes.</figcaption></figure>
+    <figure><img src="img/09-sleep.jpg" alt="Sleep screen" loading="lazy" width="780" height="1688"><figcaption><b>Sleep</b>Log bedtime, wake time and sleep quality, see a weekly average, and learn the CBT-I playbook.</figcaption></figure>
+    <figure><img src="img/10-mood.jpg" alt="Mood check-in" loading="lazy" width="780" height="1688"><figcaption><b>Mood check-in</b>Ten seconds to rate mood, energy and focus, plus a one-minute breathing reset.</figcaption></figure>
+    <figure><img src="img/11-preferences.jpg" alt="Training preferences" loading="lazy" width="780" height="1688"><figcaption><b>Training preferences</b>Set the training goal, session length and challenge level, and turn on untimed mode, calmer visuals, sound and breaks.</figcaption></figure>
+    <figure><img src="img/12-settings.jpg" alt="Settings and privacy" loading="lazy" width="780" height="1688"><figcaption><b>Settings and privacy</b>Explains that all data stays on the device, lets you change age group and preferences, and carries the dedication.</figcaption></figure>
+  </div>
+
+  <h2>The six games</h2>
+  <p class="lead">Each game opens with a short how-to and a link to the science, then runs a timed round. Left: the intro. Right: the game in play.</p>
+  <div class="grid">
+    <figure><div class="pair"><img src="img/20-speed-intro.jpg" alt="Speed Match intro" loading="lazy" width="780" height="1688"><img src="img/21-speed-play.jpg" alt="Speed Match in play" loading="lazy" width="780" height="1688"></div><figcaption><b>Speed Match (processing speed)</b>Is this symbol the same as the last one? Answer Same or Different as fast as you can while staying accurate. The time limit shrinks as you improve.</figcaption></figure>
+    <figure><div class="pair"><img src="img/22-grid-intro.jpg" alt="Memory Grid intro" loading="lazy" width="780" height="1688"><img src="img/23-grid-play.jpg" alt="Memory Grid in play" loading="lazy" width="780" height="1688"></div><figcaption><b>Memory Grid (working memory)</b>Tiles light up one at a time. Repeat the pattern in order. Get it right and the sequence grows.</figcaption></figure>
+    <figure><div class="pair"><img src="img/26-nback-intro.jpg" alt="Star Tracker intro" loading="lazy" width="780" height="1688"><img src="img/27-nback-play.jpg" alt="Star Tracker in play" loading="lazy" width="780" height="1688"></div><figcaption><b>Star Tracker (working memory)</b>A star lands in one of eight squares. Tap Match when it lands where it was one step back. Higher levels go two or three steps back.</figcaption></figure>
+    <figure><div class="pair"><img src="img/24-catch-intro.jpg" alt="Catch the Light intro" loading="lazy" width="780" height="1688"><img src="img/25-catch-play.jpg" alt="Catch the Light in play" loading="lazy" width="780" height="1688"></div><figcaption><b>Catch the Light (attention control)</b>Tap fast on blue lights and hold back on red ones. Holding back is the real skill.</figcaption></figure>
+    <figure><div class="pair"><img src="img/28-clash-intro.jpg" alt="Colour Clash intro" loading="lazy" width="780" height="1688"><img src="img/29-clash-play.jpg" alt="Colour Clash in play" loading="lazy" width="780" height="1688"></div><figcaption><b>Colour Clash (attention control)</b>A colour word appears in a different ink. Name the ink, not the word. More words clash as you level up.</figcaption></figure>
+    <figure><div class="pair"><img src="img/30-switch-intro.jpg" alt="Switch It intro" loading="lazy" width="780" height="1688"><img src="img/31-switch-play.jpg" alt="Switch It in play" loading="lazy" width="780" height="1688"></div><figcaption><b>Switch It (mental flexibility)</b>A number on a coloured card. Green asks odd or even, orange asks less or more than 5, and the rule can switch at any moment.</figcaption></figure>
+  </div>
+
+  <p class="note">Luminary is a training tool, not a medical device. It does not diagnose or treat any condition. Screenshots were taken on 23 November 2026 from the current build.</p>
+</main>
+</body>
+</html>
