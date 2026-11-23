@@ -38,7 +38,7 @@ function VisualTimer() {
   return (
     <Card>
       <Heading>Visual timer</Heading>
-      <Body muted>Seeing time pass makes it easier to start and to stop. The bar shrinks as time runs out.</Body>
+      <Body muted>ADHD can make time feel invisible. A shrinking bar makes it concrete, so starting and stopping get easier.</Body>
       <View style={{ flexDirection: 'row', gap: 8 }}>
         {PRESETS.map((m) => (
           <Pressable
@@ -76,7 +76,7 @@ function VisualTimer() {
       <View style={{ height: 18, borderRadius: 9, backgroundColor: t.soft, overflow: 'hidden' }}>
         <View style={{ width: `${fraction * 100}%`, height: '100%', backgroundColor: t.primary }} />
       </View>
-      {finished ? <Body>Time's up. Nice work. Take a short break before the next block.</Body> : null}
+      {finished ? <Body>Block done. Take five minutes off, then go again. Short breaks keep attention fresh for the next block.</Body> : null}
       {endAt ? (
         <Button kind="secondary" label="Stop" onPress={() => setEndAt(null)} />
       ) : (
@@ -108,8 +108,8 @@ function TaskBreakdown() {
     <Card>
       <Heading>Break it down</Heading>
       <Body muted>
-        Big tasks are hard to start. Write the task, then list tiny steps, one per line. Make the first step so small it feels
-        almost silly.
+        Starting is the hardest part. Split the task into steps, one per line, and make the first step so small you cannot fail it.
+        Momentum does the rest.
       </Body>
       <Field label="Task" value={title} onChangeText={setTitle} placeholder="For example: tidy my room" />
       <Field
@@ -161,7 +161,7 @@ function IfThenPlans() {
   return (
     <Card>
       <Heading>When... then... plans</Heading>
-      <Body muted>Link a habit to something you already do, so you rely less on remembering.</Body>
+      <Body muted>Tie an action to a cue you already hit every day. Across 94 studies, plans like this clearly improved follow-through, because the cue does the remembering.</Body>
       <Field label="When I..." value={when} onChangeText={setWhen} placeholder="finish breakfast" />
       <Field label="Then I will..." value={then} onChangeText={setThen} placeholder="check today's plan" />
       <Button

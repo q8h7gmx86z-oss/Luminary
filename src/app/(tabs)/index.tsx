@@ -7,6 +7,7 @@ import { HABITS } from '@/content/content';
 import { dayKey, daysShownUp } from '@/lib/logic';
 import { useStore } from '@/lib/store';
 import { useTheme } from '@/lib/theme';
+import { SharpnessCard } from '@/training/SharpnessCard';
 import { AVAILABLE, GAMES, SKILLS } from '@/training/catalog';
 import { dailyGames } from '@/training/engine';
 
@@ -49,10 +50,10 @@ export default function Today() {
           {workedOut ? 'DONE FOR TODAY' : "TODAY'S BRAIN WORKOUT"}
         </Text>
         <Text style={{ color: t.primaryText, fontSize: 24, fontWeight: '800' }}>
-          {workedOut ? 'Great work. Your brain thanks you.' : 'About 10 minutes, three games'}
+          {workedOut ? 'Session banked. Come back tomorrow, or go again.' : 'Three games. About 8 minutes.'}
         </Text>
         <View style={{ gap: 8 }}>
-          <Text style={{ color: t.primaryText, fontSize: 15 }}>◌  1 minute of calm breathing</Text>
+          <Text style={{ color: t.primaryText, fontSize: 15 }}>◌  1-minute breathing warm-up</Text>
           {plan.map((g) => (
             <Text key={g} style={{ color: t.primaryText, fontSize: 15 }}>
               {GAMES[g].glyph}  {GAMES[g].name} · {SKILLS[GAMES[g].skill].name}
@@ -75,11 +76,13 @@ export default function Today() {
         </Pressable>
       </View>
 
+      <SharpnessCard compact />
+
       <Card>
         <Heading>This week</Heading>
         <Body>
-          You showed up on {shownUp} of the last 7 days.
-          {shownUp === 0 ? ' Any small step today counts.' : ' Every day you show up counts, and missed days never undo your progress.'}
+          Active on {shownUp} of the last 7 days.
+          {shownUp === 0 ? ' Start today: one workout gets the week going.' : ' A missed day never wipes your gains. Consistency over weeks is what moves the score.'}
         </Body>
       </Card>
 
@@ -88,12 +91,12 @@ export default function Today() {
         <View style={{ gap: 8 }}>
           <Button
             kind={mood ? 'secondary' : 'primary'}
-            label={mood ? 'Mood logged today ✓' : 'How are you feeling?'}
+            label={mood ? 'Mood logged today ✓' : 'Log mood, energy and focus'}
             onPress={() => router.push('/mood')}
           />
           <Button
             kind={sleep ? 'secondary' : 'primary'}
-            label={sleep ? 'Sleep logged today ✓' : 'How did you sleep?'}
+            label={sleep ? 'Sleep logged today ✓' : 'Log last night’s sleep'}
             onPress={() => router.push('/sleep')}
           />
         </View>
@@ -101,7 +104,7 @@ export default function Today() {
 
       {next ? (
         <Card>
-          <Heading>Your next small step</Heading>
+          <Heading>Your next step</Heading>
           <Body muted>{next.task.title}</Body>
           <Body>{next.s.text}</Body>
           <Button kind="secondary" label="Open Focus" onPress={() => router.push('/focus')} />
@@ -109,8 +112,8 @@ export default function Today() {
       ) : null}
 
       <Card>
-        <Heading>Brain-health habits</Heading>
-        <Body muted>Pick any you like. Doing one is better than none.</Body>
+        <Heading>Daily brain habits</Heading>
+        <Body muted>Your training outside the app. Each one is backed by the research below.</Body>
         {HABITS.map((h) => (
           <View key={h.id}>
             <Checkbox checked={done.includes(h.id)} label={h.label} onPress={() => toggleHabit(h.id)} />
@@ -118,7 +121,7 @@ export default function Today() {
           </View>
         ))}
         <Link href="/article/brain-health" style={{ color: t.primary, fontWeight: '600', fontSize: 15 }}>
-          Why these habits?
+          The science behind these
         </Link>
       </Card>
 

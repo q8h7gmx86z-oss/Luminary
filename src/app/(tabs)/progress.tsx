@@ -7,6 +7,7 @@ import { useStore } from '@/lib/store';
 import { useTheme } from '@/lib/theme';
 import { GAMES, SKILLS } from '@/training/catalog';
 import { GameId, Skill } from '@/training/engine';
+import { SharpnessCard } from '@/training/SharpnessCard';
 import { Spark } from '@/training/Spark';
 import { skillSummaries, workoutsThisWeek } from '@/training/stats';
 
@@ -23,6 +24,20 @@ export default function Progress() {
   return (
     <Screen>
       <Title>Your progress</Title>
+      <SharpnessCard />
+
+      {state.training.tests?.length ? (
+        <Card>
+          <Heading>Reasoning test</Heading>
+          <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 10 }}>
+            <Text style={{ color: t.text, fontSize: 36, fontWeight: '900' }}>{state.training.tests[state.training.tests.length - 1].estimate}</Text>
+            <Text style={{ color: t.muted }}>
+              latest estimate · {state.training.tests.length} attempt{state.training.tests.length === 1 ? '' : 's'}
+            </Text>
+          </View>
+          <Body muted>IQ-style scale, average 100. Retest monthly for a fair comparison.</Body>
+        </Card>
+      ) : null}
 
       <Card>
         <Heading>This week</Heading>

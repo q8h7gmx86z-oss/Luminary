@@ -8,12 +8,36 @@ export type Habit = { id: string; label: string; why: string };
 // Daily brain-health habits drawn from modifiable risk factors in the
 // 2024 Lancet Commission and the FINGER multidomain trial.
 export const HABITS: Habit[] = [
-  { id: 'move', label: 'Move for 20 minutes', why: 'Physical activity is one of the strongest lifestyle links to brain health.' },
-  { id: 'connect', label: 'Talk with someone you like', why: 'Social contact protects thinking skills and mood.' },
-  { id: 'learn', label: 'Learn or practise something', why: 'New challenges keep the brain engaged.' },
-  { id: 'outside', label: 'Get daylight in the morning', why: 'Morning light helps set your body clock for better sleep.' },
-  { id: 'eat', label: 'Eat vegetables, fruit or whole grains', why: 'Heart-healthy eating supports blood flow to the brain.' },
-  { id: 'winddown', label: 'Wind down without screens before bed', why: 'A calm routine makes it easier to fall asleep.' },
+  {
+    id: 'move',
+    label: '20 minutes that raise your heart rate',
+    why: 'Aerobic work pumps more blood to the brain and raises BDNF, a protein brain cells need to grow and connect. Inactivity is one of the 14 dementia risk factors in the 2024 Lancet Commission.',
+  },
+  {
+    id: 'connect',
+    label: 'One real conversation',
+    why: 'Conversation is a live workout: you hold what was said, read the other person and plan your reply at speed. Social isolation is on the Lancet risk list.',
+  },
+  {
+    id: 'learn',
+    label: '15 minutes on something hard',
+    why: 'Your brain adapts to difficulty, not repetition. A new language, instrument or skill forces it to build new connections. Easy and familiar does not.',
+  },
+  {
+    id: 'outside',
+    label: 'Daylight within an hour of waking',
+    why: 'Morning light sets your body clock, so you get sleepy on time tonight. Better sleep tonight means faster, more accurate thinking tomorrow.',
+  },
+  {
+    id: 'eat',
+    label: 'Plants or whole grains at every meal',
+    why: 'Your brain uses about a fifth of your oxygen, so what protects your blood vessels protects your brain. Diet was one of the four parts of the FINGER trial.',
+  },
+  {
+    id: 'winddown',
+    label: 'Screens off 30 minutes before bed',
+    why: 'Sleep is when today’s training gets locked in. A wind-down routine gets you to sleep faster, and that is when the gains stick.',
+  },
 ];
 
 export type Article = {
@@ -24,88 +48,104 @@ export type Article = {
   sources: Source[];
 };
 
+const LAMPIT = { label: 'Lampit et al. 2014, PLoS Medicine meta-analysis', url: 'https://doi.org/10.1371/journal.pmed.1001756' };
+const EDWARDS = { label: 'Edwards et al. 2017, ACTIVE trial 10-year follow-up', url: 'https://doi.org/10.1016/j.trci.2017.09.002' };
+
 export const ARTICLES: Article[] = [
   {
-    id: 'adhd-basics',
-    title: 'ADHD is a real difference in how brains work',
-    summary: 'What the research consensus says, in plain words.',
+    id: 'three-a-week',
+    title: 'Why three sessions a week beats every day',
+    summary: 'The training schedule the research backs.',
     body: [
-      'ADHD affects attention, activity and impulse control. It is common in children and adults, and it often runs in families.',
-      'An international group of experts reviewed large studies and agreed on 208 evidence-based conclusions. ADHD is not caused by bad parenting or laziness, and it can be identified reliably by trained clinicians.',
-      'Many people with ADHD also have real strengths, such as creativity, energy and deep focus on things that interest them.',
-      'Only a qualified professional can assess ADHD. If you think you or your child might have it, your GP is a good place to start.',
+      'A meta-analysis of 52 trials found that brain training worked better with no more than three sessions a week. Training more often than that gave weaker results.',
+      'Rest days are not lost days. Like muscle, your brain consolidates new skill between sessions, much of it during sleep.',
+      'Your target: three workouts a week. The Progress tab tracks it.',
     ],
-    sources: [
-      { label: 'Faraone et al. 2021, World Federation of ADHD Consensus Statement', url: 'https://doi.org/10.1016/j.neubiorev.2021.01.022' },
-    ],
+    sources: [LAMPIT],
   },
   {
-    id: 'adhd-skills',
-    title: 'Skills that help with ADHD',
-    summary: 'Ways of working with your brain, not against it.',
+    id: 'speed-first',
+    title: 'Why every workout starts with speed',
+    summary: 'The exercise with the longest-running evidence.',
     body: [
-      'Reviews of adult ADHD treatments found that CBT skills, learning about ADHD and mindfulness can reduce symptoms, although results vary. Medication has the most consistent evidence. These skills can work alongside medication, never instead of advice from your prescriber.',
-      'Break big tasks into the smallest next step. "Write the essay" is hard to start. "Open the document and write one sentence" is easy.',
-      'Make time visible. A timer you can see helps with time blindness.',
-      'Use "when X, I will Y" plans. Linking a task to a cue, like "when I finish breakfast, I will take my tablets", means you rely less on memory.',
-      'Change your space, not just your willpower. Put things where you will see them and remove distractions before you start.',
+      'In the ACTIVE trial, 2,800 adults trained either speed, memory or reasoning. Ten years on, the speed-training group had a 29% lower risk of dementia than the group who did no training. Memory and reasoning training did not show the same effect.',
+      'That is one trial, and the training was supervised in person, so it is strong evidence, not proof. It is still the best result of its kind, which is why Speed Match is in every daily workout.',
+      'The rule that drives gains: the time limit shrinks as you improve. Always train at the edge of what you can do.',
     ],
-    sources: [
-      { label: 'Ostinelli et al. 2025, Lancet Psychiatry network meta-analysis', url: 'https://doi.org/10.1016/S2215-0366(24)00360-2' },
-    ],
-  },
-  {
-    id: 'brain-health',
-    title: 'Protecting your brain for life',
-    summary: 'Nearly half of dementia cases are linked to things we can change.',
-    body: [
-      'The 2024 Lancet Commission estimated that about 45% of dementia cases are linked to 14 risk factors that can be changed over a lifetime.',
-      'These include less education in childhood, hearing loss, high LDL cholesterol, depression, head injury, physical inactivity, diabetes, smoking, high blood pressure, obesity, heavy drinking, social isolation, air pollution and untreated vision loss.',
-      'It is never too early or too late to act. Using hearing aids if you need them, staying active, staying connected and looking after your heart all help.',
-    ],
-    sources: [
-      { label: 'Livingston et al. 2024, Lancet Commission on dementia', url: 'https://doi.org/10.1016/S0140-6736(24)01296-0' },
-    ],
-  },
-  {
-    id: 'habits-together',
-    title: 'Why habits work better together',
-    summary: 'The FINGER trial combined several habits at once.',
-    body: [
-      'In the FINGER trial, older adults at higher risk of memory decline followed a two-year programme of healthy eating, exercise, brain training and heart-health checks.',
-      'Their thinking skills held up better than those of a group who received general health advice. The difference was modest, but it showed that a combined approach can help.',
-      'That is why Luminary suggests a few small habits each day, rather than one big change.',
-    ],
-    sources: [
-      { label: 'Ngandu et al. 2015, FINGER trial, The Lancet', url: 'https://doi.org/10.1016/S0140-6736(15)60461-5' },
-    ],
-  },
-  {
-    id: 'sleep',
-    title: 'Better sleep without pills',
-    summary: 'The techniques from CBT for insomnia.',
-    body: [
-      'Cognitive behavioural therapy for insomnia (CBT-I) is the recommended first treatment for long-term sleep problems, and it works when delivered digitally too.',
-      'Keep the same wake-up time every day, including weekends.',
-      'Use your bed for sleep only. If you cannot sleep after about 20 minutes, get up, do something calm in dim light, and go back when you feel sleepy.',
-      'Avoid caffeine after early afternoon, and give yourself 30 to 60 minutes to wind down.',
-      'If poor sleep lasts more than a few weeks, or you snore loudly or stop breathing in your sleep, talk to your GP.',
-    ],
-    sources: [
-      { label: 'Alimoradi et al. 2022, CBT-I meta-analysis, Sleep Medicine Reviews', url: 'https://doi.org/10.1016/j.smrv.2022.101646' },
-    ],
+    sources: [EDWARDS],
   },
   {
     id: 'brain-games',
-    title: 'What brain games can and cannot do',
-    summary: 'Honest expectations.',
+    title: 'What your training does, and does not, do',
+    summary: 'Straight facts, so you train with the right goal.',
     body: [
-      'Computer-based brain training gives small to moderate improvements in thinking skills for people with mild memory problems, and the effects are strongest on the skills you practise.',
-      'It is not proven to prevent dementia, and no app can tell you your "brain age". Luminary will never give you a score like that.',
-      'Brain games are best as one part of a full routine with movement, sleep and social time.',
+      'Brain training reliably improves the skills you practise, with a small to moderate effect on thinking overall. People with mild memory problems see measurable gains.',
+      'The biggest gains are on tasks close to the ones you train. Do not expect n-back practice to raise your IQ: large reviews found it does not.',
+      'Your Sharpness score tracks your level and accuracy across all four skills. It shows how your training is going, not your brain age.',
+      'Training works best alongside the other big levers: movement, sleep and time with people.',
     ],
     sources: [
       { label: 'Hill et al. 2017, American Journal of Psychiatry meta-analysis', url: 'https://doi.org/10.1176/appi.ajp.2016.16030360' },
+      { label: 'Melby-Lervåg et al. 2016, Perspectives on Psychological Science', url: 'https://doi.org/10.1177/1745691616635612' },
     ],
+  },
+  {
+    id: 'adhd-basics',
+    title: 'ADHD: know the brain you are training',
+    summary: 'What 208 evidence-based conclusions say.',
+    body: [
+      'ADHD is a difference in how the brain regulates attention, activity and impulses. It is common, strongly genetic and lasts into adulthood for many people.',
+      'An international expert panel reviewed the large studies and agreed 208 evidence-based conclusions. ADHD is not caused by bad parenting or laziness, and trained clinicians can identify it reliably.',
+      'Training angle: holding back (Catch the Light), ignoring distraction (Colour Clash) and keeping track (Star Tracker) are the skills ADHD makes harder, so that is what the focus track trains.',
+      'Only a qualified professional can assess ADHD. If you think you or your child has it, start with your GP.',
+    ],
+    sources: [{ label: 'Faraone et al. 2021, World Federation of ADHD Consensus Statement', url: 'https://doi.org/10.1016/j.neubiorev.2021.01.022' }],
+  },
+  {
+    id: 'adhd-skills',
+    title: 'ADHD tactics that actually work',
+    summary: 'Change the setup, not your willpower.',
+    body: [
+      'Medication has the most consistent evidence for adult ADHD. CBT skills and learning about ADHD also reduce symptoms in trials. These tactics work alongside your prescriber’s advice, never instead of it.',
+      'Shrink the first step. "Write the essay" stalls. "Open the document and write one sentence" starts. Getting started is the hard part, so make it tiny.',
+      'Make time visible. ADHD makes time feel abstract; a timer you can see turns it into something concrete. Use the visual timer in Focus.',
+      'Use "when X, then Y" plans. Tying an action to a cue moves it from memory to habit, which takes the load off working memory.',
+    ],
+    sources: [{ label: 'Ostinelli et al. 2025, Lancet Psychiatry network meta-analysis', url: 'https://doi.org/10.1016/S2215-0366(24)00360-2' }],
+  },
+  {
+    id: 'brain-health',
+    title: '45% of dementia risk is in your hands',
+    summary: 'The 14 risk factors you can train against.',
+    body: [
+      'The 2024 Lancet Commission estimated that about 45% of dementia cases are linked to 14 risk factors that can be changed over a lifetime.',
+      'The list: less education in childhood, hearing loss, high LDL cholesterol, depression, head injury, physical inactivity, diabetes, smoking, high blood pressure, obesity, heavy drinking, social isolation, air pollution and untreated vision loss.',
+      'Your levers: move, keep learning hard things, stay connected, protect your hearing and eyesight, and look after your heart. Luminary’s daily habits are built from this list.',
+    ],
+    sources: [{ label: 'Livingston et al. 2024, Lancet Commission on dementia', url: 'https://doi.org/10.1016/S0140-6736(24)01296-0' }],
+  },
+  {
+    id: 'habits-together',
+    title: 'Why you train more than one thing',
+    summary: 'The FINGER trial ran the full programme.',
+    body: [
+      'In the FINGER trial, 1,260 older adults at higher risk followed two years of diet, exercise, brain training and heart-health checks together.',
+      'Their thinking held up better than a group who got general health advice. The effect was modest, and it came from the combination.',
+      'That is the Luminary model: brain workouts plus daily habits, not one big change.',
+    ],
+    sources: [{ label: 'Ngandu et al. 2015, FINGER trial, The Lancet', url: 'https://doi.org/10.1016/S0140-6736(15)60461-5' }],
+  },
+  {
+    id: 'sleep',
+    title: 'Sleep is when training sticks',
+    summary: 'The CBT-I playbook, no pills needed.',
+    body: [
+      'CBT for insomnia (CBT-I) is the first-choice treatment for long-term sleep problems, and it works when delivered digitally.',
+      'Fix your wake-up time, weekends included. A steady anchor sets your body clock faster than anything else.',
+      'Bed is for sleep. Awake for about 20 minutes? Get up, do something calm in dim light, and go back when sleepy. This retrains your brain to link bed with sleep.',
+      'No caffeine after early afternoon. It blocks the brain chemical that builds sleep pressure for hours.',
+      'If poor sleep lasts more than a few weeks, or you snore loudly or stop breathing in your sleep, see your GP.',
+    ],
+    sources: [{ label: 'Alimoradi et al. 2022, CBT-I meta-analysis, Sleep Medicine Reviews', url: 'https://doi.org/10.1016/j.smrv.2022.101646' }],
   },
 ];

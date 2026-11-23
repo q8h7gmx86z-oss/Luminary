@@ -88,3 +88,18 @@ test('focus track always starts with Catch the Light and has three different gam
     assert.ok(!g.includes('speed'));
   }
 });
+
+import { roundPerformance, sharpnessHistory, sharpnessOf } from '../src/training/sharpness.ts';
+
+test('sharpness rises with level and accuracy, and counts every skill', () => {
+  assert.ok(roundPerformance({ level: 5, accuracy: 0.9 }) > roundPerformance({ level: 2, accuracy: 0.9 }));
+  assert.equal(roundPerformance({ level: 40, accuracy: 1 }), 1);
+  const skillOf = (g: string) => (g === 'speed' ? 'speed' : 'memory') as 'speed' | 'memory';
+  const r = (game: string, level: number, day: string) => ({ game, level, accuracy: 1, score: 0, at: 0, day }) as any;
+  const one = sharpnessOf([r('speed', 4, '2026-11-01')], skillOf as any, ['speed', 'memory']);
+  const two = sharpnessOf([r('speed', 4, '2026-11-01'), r('grid', 4, '2026-11-01')], skillOf as any, ['speed', 'memory']);
+  assert.ok(two.total > one.total);
+  const hist = sharpnessHistory([r('speed', 2, '2026-11-01'), r('speed', 3, '2026-11-02'), r('speed', 4, '2026-11-03')], skillOf as any, ['speed', 'memory']);
+  assert.equal(hist.length, 3);
+  assert.ok(hist[2].value > hist[0].value);
+});

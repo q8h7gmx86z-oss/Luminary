@@ -18,6 +18,18 @@ export default function Train() {
     <Screen>
       <Title>Brain games</Title>
       <Body muted>Play any game on its own. Each one adapts to you, getting harder as you improve.</Body>
+      <Pressable
+        accessibilityRole="button"
+        onPress={() => router.push('/iq')}
+        style={({ pressed }) => ({ backgroundColor: '#0B1640', borderRadius: 20, padding: 18, gap: 6, opacity: pressed ? 0.92 : 1 })}
+      >
+        <Text style={{ color: '#F2C14E', fontWeight: '800', letterSpacing: 1, fontSize: 12 }}>REASONING TEST · IQ-STYLE</Text>
+        <Text style={{ color: '#FFFFFF', fontSize: 22, fontWeight: '900' }}>Test your reasoning</Text>
+        <Text style={{ color: '#D7DCF5', fontSize: 15 }}>
+          20 timed questions on patterns, numbers and words.{' '}
+          {state.training.tests?.length ? `Last score ${state.training.tests[state.training.tests.length - 1].estimate}.` : 'About 13 minutes.'}
+        </Text>
+      </Pressable>
       <FocusTrackCard />
       {(Object.keys(SKILLS) as Skill[]).map((skill) => {
         const games = all.filter((g) => GAMES[g].skill === skill);

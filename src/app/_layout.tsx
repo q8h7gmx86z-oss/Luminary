@@ -33,12 +33,13 @@ function Gate() {
     >
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       <Stack.Screen name="welcome" options={{ headerShown: false }} />
-      <Stack.Screen name="help" options={{ title: 'Get help now', presentation: 'modal' }} />
+      <Stack.Screen name="help" options={{ title: 'Support services', presentation: 'modal' }} />
       <Stack.Screen name="settings" options={{ title: 'Settings and privacy' }} />
       <Stack.Screen name="article/[id]" options={{ title: 'Learn' }} />
       <Stack.Screen name="mood" options={{ title: 'Mood check-in' }} />
       <Stack.Screen name="sleep" options={{ title: 'Sleep' }} />
       <Stack.Screen name="workout" options={{ headerShown: false, gestureEnabled: false }} />
+      <Stack.Screen name="iq" options={{ headerShown: false, gestureEnabled: false }} />
       <Stack.Screen name="play/[game]" options={{ headerShown: false }} />
     </Stack>
   );

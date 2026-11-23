@@ -130,19 +130,18 @@ export function ScalePicker({
   );
 }
 
-/** Always-visible way to reach crisis help. */
-export function HelpButton() {
+/** Header shortcut to Settings. */
+export function SettingsButton() {
   const t = useTheme();
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel="Get help now"
-      accessibilityHint="Shows crisis lines and emergency numbers for your region"
-      onPress={() => router.push('/help')}
-      style={({ pressed }) => [styles.helpPill, { backgroundColor: t.helpSoft, opacity: pressed ? 0.8 : 1 }]}
+      accessibilityLabel="Settings"
+      onPress={() => router.push('/settings')}
+      style={({ pressed }) => [styles.helpPill, { backgroundColor: t.soft, opacity: pressed ? 0.8 : 1 }]}
       hitSlop={8}
     >
-      <Text style={{ color: t.help, fontWeight: '700', fontSize: 14 }}>Get help now</Text>
+      <Text style={{ color: t.text, fontWeight: '700', fontSize: 14 }}>⚙ Settings</Text>
     </Pressable>
   );
 }

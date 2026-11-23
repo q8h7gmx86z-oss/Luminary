@@ -1,4 +1,3 @@
-import { router } from 'expo-router';
 import React, { useState } from 'react';
 import { Text, View } from 'react-native';
 
@@ -57,13 +56,12 @@ export default function Mood() {
   const [saved, setSaved] = useState(false);
   const t = useTheme();
 
-  const low = mood === 1;
 
   return (
     <Screen>
       <Card>
         <Heading>How are you today?</Heading>
-        <Body muted>There are no right answers. This is just for you.</Body>
+        <Body muted>Ten seconds. Tracking how you feel shows what drives your best days.</Body>
         <ScalePicker label="Mood" value={mood} onChange={(v) => { setMood(v); setSaved(false); }} low="Very low" high="Great" />
         <ScalePicker label="Energy" value={energy} onChange={(v) => { setEnergy(v); setSaved(false); }} low="Drained" high="Full of energy" />
         <ScalePicker label="Focus" value={focus} onChange={(v) => { setFocus(v); setSaved(false); }} low="Scattered" high="Sharp" />
@@ -85,20 +83,11 @@ export default function Mood() {
         />
       </Card>
 
-      {low ? (
-        <Card style={{ borderColor: t.help, borderWidth: 2 }}>
-          <Heading>It sounds like today is really hard</Heading>
-          <Body>
-            Thank you for being honest. If you are struggling to cope or feel unsafe, talking to someone can help, right now.
-          </Body>
-          <Button kind="help" label="See support lines" onPress={() => router.push('/help')} />
-        </Card>
-      ) : null}
 
       <Card>
-        <Heading>A calming minute</Heading>
+        <Heading>One-minute reset</Heading>
         <Body>Breathe in slowly for 4 counts. Hold for 4. Breathe out for 6. Repeat five times.</Body>
-        <Body muted>A longer out-breath helps your body settle when emotions feel big.</Body>
+        <Body muted>A long out-breath slows your heart rate through the vagus nerve. Slow-breathing training lowers stress and anxiety in trials.</Body>
       </Card>
 
       <WeekBars />

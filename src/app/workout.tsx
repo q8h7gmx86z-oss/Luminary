@@ -12,11 +12,17 @@ import { AVAILABLE, GAMES, SKILLS } from '@/training/catalog';
 import { dailyGames, focusGames, GameResult } from '@/training/engine';
 import { AnswerButton } from '@/training/GameFrame';
 import { GameRunner } from '@/training/GameRunner';
+import { MAX_SHARPNESS, sharpnessOf } from '@/training/sharpness';
+import { Skill } from '@/training/engine';
+
+const SKILL_LIST = Object.keys(SKILLS) as Skill[];
 
 /** Today's workout: one minute of breathing, three games, then a summary. */
 export default function Workout() {
   const t = useTheme();
-  const { completeWorkout } = useStore();
+  const { state, completeWorkout } = useStore();
+  const [before] = useState(() => sharpnessOf(state.training.results, (g) => GAMES[g].skill, SKILL_LIST).total);
+  const after = sharpnessOf(state.training.results, (g) => GAMES[g].skill, SKILL_LIST).total;
   const today = dayKey();
   const { track } = useLocalSearchParams<{ track?: string }>();
   const focus = track === 'focus';
@@ -50,9 +56,19 @@ export default function Workout() {
         <LogoMark size={72} />
         <Text style={{ fontSize: 28, fontWeight: '800', color: t.text, textAlign: 'center' }}>{focus ? 'Focus track complete' : 'Workout complete'}</Text>
         <Text style={{ color: t.muted, fontSize: 16, textAlign: 'center', maxWidth: 420 }}>
-          You trained {new Set(results.map((r) => GAMES[r.game].skill)).size} skills today. Regular, spaced practice matters more than any
-          single score.
+          {new Set(results.map((r) => GAMES[r.game].skill)).size} skills trained. Spaced sessions, about three a week, build skill faster
+          than cramming.
         </Text>
+        <View style={{ backgroundColor: '#0B1640', borderRadius: 18, padding: 16, width: '100%', maxWidth: 440, alignItems: 'center', gap: 4 }}>
+          <Text style={{ color: '#F2C14E', fontWeight: '800', letterSpacing: 1, fontSize: 12 }}>BRAIN SHARPNESS</Text>
+          <Text style={{ color: '#FFFFFF', fontSize: 40, fontWeight: '900', fontVariant: ['tabular-nums'] }}>
+            {after}
+            <Text style={{ color: '#8C97C9', fontSize: 15 }}> / {MAX_SHARPNESS}</Text>
+          </Text>
+          <Text style={{ color: after > before ? '#3FD3BA' : '#D7DCF5', fontWeight: '700' }}>
+            {after > before ? `Up ${after - before} from ${before} this session` : after < before ? 'A dip is normal on harder levels. Keep the streak.' : 'Holding steady. Consistency is how scores climb.'}
+          </Text>
+        </View>
         <View style={{ gap: 10, width: '100%', maxWidth: 440 }}>
           {results.map((r) => {
             const g = GAMES[r.game];

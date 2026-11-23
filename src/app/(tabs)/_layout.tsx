@@ -3,7 +3,7 @@ import React from 'react';
 import { ColorValue, Text } from 'react-native';
 
 import { Wordmark } from '@/components/Logo';
-import { HelpButton } from '@/components/ui';
+import { SettingsButton } from '@/components/ui';
 import { useTheme } from '@/lib/theme';
 
 function Icon({ glyph, color }: { glyph: string; color: ColorValue }) {
@@ -17,7 +17,7 @@ export default function TabsLayout() {
       screenOptions={{
         headerStyle: { backgroundColor: t.surface },
         headerTintColor: t.text,
-        headerRight: () => <HelpButton />,
+        headerRight: () => <SettingsButton />,
         tabBarStyle: { backgroundColor: t.surface, borderTopColor: t.border },
         tabBarActiveTintColor: t.primary,
         tabBarInactiveTintColor: t.muted,

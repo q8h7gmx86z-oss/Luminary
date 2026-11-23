@@ -10,7 +10,7 @@ export default function Learn() {
   const t = useTheme();
   return (
     <Screen>
-      <Body muted>Short, research-based reads. Each one links to its sources.</Body>
+      <Body muted>The science behind your training. Short reads, every one sourced.</Body>
       {ARTICLES.map((a) => (
         <Pressable key={a.id} accessibilityRole="link" onPress={() => router.push(`/article/${a.id}`)}>
           {({ pressed }) => (

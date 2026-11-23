@@ -3,7 +3,6 @@ import React, { useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 
 import { Body, Button, Card, Checkbox, Heading, Screen } from '@/components/ui';
-import { REGION_NAMES, Region } from '@/lib/crisis';
 import { useStore } from '@/lib/store';
 import { useTheme } from '@/lib/theme';
 
@@ -30,7 +29,8 @@ function Option({ label, on, onPress }: { label: string; on: boolean; onPress: (
 }
 
 export default function Settings() {
-  const { state, setRegion, setAgeGroup, setSetting, deleteEverything } = useStore();
+  const { state, setAgeGroup, setSetting, deleteEverything } = useStore();
+  const t = useTheme();
   const [confirming, setConfirming] = useState(false);
 
   return (
@@ -44,15 +44,6 @@ export default function Settings() {
         <Body muted>
           If you delete the app or clear your browser data, your entries are deleted too.
         </Body>
-      </Card>
-
-      <Card>
-        <Heading>Region for helplines</Heading>
-        <View accessibilityRole="radiogroup" style={{ gap: 8 }}>
-          {(Object.keys(REGION_NAMES) as Region[]).map((r) => (
-            <Option key={r} label={REGION_NAMES[r]} on={state.region === r} onPress={() => setRegion(r)} />
-          ))}
-        </View>
       </Card>
 
       <Card>
@@ -76,6 +67,9 @@ export default function Settings() {
           Luminary is a wellbeing tool. It is not a medical device and does not diagnose, treat or prevent any condition. Always
           follow advice from your own health professionals.
         </Body>
+        <Pressable accessibilityRole="link" onPress={() => router.push('/help')} hitSlop={8}>
+          <Text style={{ color: t.muted, fontSize: 14, textDecorationLine: 'underline' }}>Need support? Find services near you</Text>
+        </Pressable>
       </Card>
 
       <Card>

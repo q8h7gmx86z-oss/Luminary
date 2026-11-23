@@ -71,7 +71,7 @@ export function Breathing({ onFinish, onQuit }: { onFinish: () => void; onQuit?:
         }}
       >
         {phase === 'ready'
-          ? 'One minute of slow breathing to calm your body and sharpen your focus before training.'
+          ? 'One minute at six breaths a minute. Slow breathing steadies your heart rate, so you start training focused.'
           : `Breath ${cycle + 1} of ${CYCLES}`}
       </Text>
       <View

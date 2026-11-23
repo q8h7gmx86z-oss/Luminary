@@ -7,12 +7,12 @@ import { Score, useStore } from '@/lib/store';
 import { useTheme } from '@/lib/theme';
 
 const TIPS = [
-  'Get up at the same time every day, even at weekends.',
-  'If you are awake for about 20 minutes, get up and do something calm in dim light. Go back to bed when sleepy.',
-  'Keep your bed for sleep. Scroll, work and game somewhere else.',
-  'Skip caffeine after early afternoon.',
-  'Give yourself 30 to 60 minutes to wind down.',
-];
+  'Same wake-up time every day, weekends included. A fixed anchor resets your body clock faster than anything else.',
+  'Awake for about 20 minutes? Get up, do something calm in dim light, and go back when sleepy. It retrains your brain to link bed with sleep.',
+  'Bed is for sleep only. Scroll, work and game somewhere else.',
+  'No caffeine after early afternoon. It blocks sleep pressure for hours.',
+  'Give yourself 30 to 60 minutes to wind down. Your brain needs a runway, not a cliff edge.',
+]
 
 export default function Sleep() {
   const { state, saveSleep } = useStore();
@@ -65,12 +65,12 @@ export default function Sleep() {
       </Card>
 
       <Card>
-        <Heading>Sleep skills from CBT-I</Heading>
+        <Heading>The CBT-I playbook</Heading>
         {TIPS.map((tip) => (
           <Body key={tip}>• {tip}</Body>
         ))}
         <Link href="/article/sleep" style={{ color: t.primary, fontWeight: '600', fontSize: 15 }}>
-          Read more about better sleep
+          Why sleep locks in your training
         </Link>
       </Card>
     </Screen>

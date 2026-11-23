@@ -94,12 +94,12 @@ export function GameRunner({
         </View>
         <Text style={{ color: t.muted, textAlign: 'center', maxWidth: 420 }}>
           {newLevel > result.level
-            ? 'Great accuracy, so the next round will be a little harder.'
+            ? 'Strong round. Level up: the next one gets harder.'
             : newLevel < result.level
-              ? 'We will ease off a little so you can build up again. That is how progress works.'
+              ? 'Dropping a level so you can rebuild. Training at the right difficulty is what drives gains.'
               : result.accuracy < 0.6
-                ? 'That one was tough. Same level next time, and it gets easier with practice.'
-                : 'You are in the sweet spot. Same level next time.'}
+                ? 'Tough round. Same level next time. Reps are how this gets easier.'
+                : 'Right in the training zone. Same level next time.'}
         </Text>
         <View style={{ flexDirection: 'row', gap: 12, width: '100%', maxWidth: 420 }}>
           {onExit ? <AnswerButton label="Done" tone="secondary" onPress={onExit} /> : null}
