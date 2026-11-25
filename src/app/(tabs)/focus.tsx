@@ -1,15 +1,17 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Pressable, Text, Vibration, View } from 'react-native';
 
-import { Body, Button, Card, Checkbox, Field, Heading, Screen } from '@/components/ui';
+import Svg, { Circle } from 'react-native-svg';
+
+import { Body, Button, Card, Checkbox, Field, Heading, Overline, Screen } from '@/components/ui';
 import { formatClock, secondsLeft } from '@/lib/logic';
 import { useStore } from '@/lib/store';
-import { useTheme } from '@/lib/theme';
+import { fonts, radii, type, useTheme } from '@/lib/theme';
 import { FocusTrackCard } from '@/training/FocusTrackCard';
 
 const PRESETS = [5, 10, 15, 25];
 
-function VisualTimer() {
+function VisualTimer({ onRunning }: { onRunning: (running: boolean) => void }) {
   const t = useTheme();
   const [minutes, setMinutes] = useState(10);
   const [endAt, setEndAt] = useState<number | null>(null);
@@ -17,10 +19,11 @@ function VisualTimer() {
   const [finished, setFinished] = useState(false);
 
   useEffect(() => {
+    onRunning(endAt !== null);
     if (!endAt) return;
     const id = setInterval(() => setNow(Date.now()), 250);
     return () => clearInterval(id);
-  }, [endAt]);
+  }, [endAt, onRunning]);
 
   const total = minutes * 60;
   const left = endAt ? secondsLeft(endAt, now) : total;
@@ -34,62 +37,96 @@ function VisualTimer() {
   }, [endAt, left]);
 
   const fraction = total > 0 ? left / total : 0;
+  const size = 220;
+  const stroke = 6;
+  const r = (size - stroke) / 2;
+  const c = 2 * Math.PI * r;
 
   return (
-    <Card>
-      <Heading>Visual timer</Heading>
-      <Body muted>ADHD can make time feel invisible. A shrinking bar makes it concrete, so starting and stopping get easier.</Body>
-      <View style={{ flexDirection: 'row', gap: 8 }}>
-        {PRESETS.map((m) => (
-          <Pressable
-            key={m}
-            accessibilityRole="button"
-            accessibilityState={{ selected: m === minutes }}
-            disabled={!!endAt}
-            onPress={() => {
-              setMinutes(m);
-              setFinished(false);
-            }}
-            style={{
-              flex: 1,
-              minHeight: 44,
-              borderRadius: 10,
-              borderWidth: 2,
-              alignItems: 'center',
-              justifyContent: 'center',
-              borderColor: m === minutes ? t.primary : t.border,
-              backgroundColor: m === minutes ? t.soft : t.surface,
-              opacity: endAt ? 0.5 : 1,
-            }}
-          >
-            <Text style={{ color: t.text, fontWeight: '600' }}>{m} min</Text>
-          </Pressable>
-        ))}
+    <View style={{ backgroundColor: t.surface, borderRadius: radii.panel, borderWidth: 1, borderColor: t.border, padding: 18, gap: 16, alignItems: 'center' }}>
+      <View style={{ alignSelf: 'stretch', gap: 4 }}>
+        <Overline color={t.teal}>Focus block</Overline>
+        <Text style={[type.caption, { color: t.muted }]}>
+          Time can feel invisible, especially with ADHD. A shrinking ring makes it concrete, so starting and stopping get easier.
+        </Text>
       </View>
-      <Text
-        accessibilityLiveRegion="polite"
-        accessibilityLabel={`${Math.ceil(left / 60)} minutes left`}
-        style={{ fontSize: 48, fontWeight: '700', textAlign: 'center', color: t.text, fontVariant: ['tabular-nums'] }}
-      >
-        {formatClock(left)}
-      </Text>
-      <View style={{ height: 18, borderRadius: 9, backgroundColor: t.soft, overflow: 'hidden' }}>
-        <View style={{ width: `${fraction * 100}%`, height: '100%', backgroundColor: t.primary }} />
+
+      <View style={{ width: size, height: size, alignItems: 'center', justifyContent: 'center' }}>
+        <Svg width={size} height={size} style={{ position: 'absolute' }} accessibilityElementsHidden importantForAccessibility="no">
+          <Circle cx={size / 2} cy={size / 2} r={r} stroke="rgba(241, 240, 250, 0.08)" strokeWidth={stroke} fill="none" />
+          <Circle
+            cx={size / 2}
+            cy={size / 2}
+            r={r}
+            stroke={t.teal}
+            strokeWidth={stroke}
+            fill="none"
+            strokeLinecap="round"
+            strokeDasharray={`${c} ${c}`}
+            strokeDashoffset={c * (1 - fraction)}
+            transform={`rotate(-90 ${size / 2} ${size / 2})`}
+          />
+        </Svg>
+        <Text
+          accessibilityLiveRegion="polite"
+          accessibilityLabel={`${Math.ceil(left / 60)} minutes left`}
+          style={[type.metric, { color: t.text, fontSize: 48 }]}
+        >
+          {formatClock(left)}
+        </Text>
+        <Text style={[type.overline, { color: t.muted, fontSize: 9.5, marginTop: 2 }]}>{endAt ? 'Stay with it' : 'Ready'}</Text>
       </View>
-      {finished ? <Body>Block done. Take five minutes off, then go again. Short breaks keep attention fresh for the next block.</Body> : null}
-      {endAt ? (
-        <Button kind="secondary" label="Stop" onPress={() => setEndAt(null)} />
-      ) : (
-        <Button
-          label={`Start ${minutes} minutes`}
-          onPress={() => {
-            setFinished(false);
-            setNow(Date.now());
-            setEndAt(Date.now() + total * 1000);
-          }}
-        />
+
+      {endAt ? null : (
+        <View style={{ flexDirection: 'row', gap: 8, alignSelf: 'stretch' }}>
+          {PRESETS.map((m) => {
+            const on = m === minutes;
+            return (
+              <Pressable
+                key={m}
+                accessibilityRole="button"
+                accessibilityState={{ selected: on }}
+                onPress={() => {
+                  setMinutes(m);
+                  setFinished(false);
+                }}
+                style={{
+                  flex: 1,
+                  height: 40,
+                  borderRadius: 20,
+                  borderWidth: 1,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  borderColor: on ? t.text : t.borderStrong,
+                  backgroundColor: on ? t.text : 'transparent',
+                }}
+              >
+                <Text style={{ color: on ? t.bg : t.muted, fontFamily: fonts.semibold, fontSize: 13 }}>{m} min</Text>
+              </Pressable>
+            );
+          })}
+        </View>
       )}
-    </Card>
+      {finished ? (
+        <Text style={[type.caption, { color: t.text, textAlign: 'center' }]}>
+          Block done. Take five minutes off, then go again. Short breaks keep attention fresh for the next block.
+        </Text>
+      ) : null}
+      <View style={{ alignSelf: 'stretch' }}>
+        {endAt ? (
+          <Button kind="secondary" label="Stop" onPress={() => setEndAt(null)} />
+        ) : (
+          <Button
+            label={`Start ${minutes} minutes`}
+            onPress={() => {
+              setFinished(false);
+              setNow(Date.now());
+              setEndAt(Date.now() + total * 1000);
+            }}
+          />
+        )}
+      </View>
+    </View>
   );
 }
 
@@ -135,15 +172,15 @@ function TaskBreakdown() {
         const allDone = doneCount === task.steps.length;
         return (
           <View key={task.id} style={{ borderTopWidth: 1, borderTopColor: t.border, paddingTop: 12, gap: 4 }}>
-            <Text style={{ color: t.text, fontSize: 17, fontWeight: '700' }}>{task.title}</Text>
-            <Text style={{ color: t.muted, fontSize: 13 }}>
+            <Text style={[type.label, { color: t.text }]}>{task.title}</Text>
+            <Text style={[type.caption, { color: t.muted }]}>
               {allDone ? 'All done. Well done!' : `${doneCount} of ${task.steps.length} steps done`}
             </Text>
             {task.steps.map((s) => (
               <Checkbox key={s.id} checked={s.done} label={s.text} onPress={() => toggleStep(task.id, s.id)} />
             ))}
             <Pressable accessibilityRole="button" onPress={() => removeTask(task.id)} hitSlop={8}>
-              <Text style={{ color: t.muted, fontSize: 14, paddingVertical: 6 }}>{allDone ? 'Clear task' : 'Remove task'}</Text>
+              <Text style={{ color: t.muted, fontSize: 14, fontFamily: fonts.medium, paddingVertical: 6 }}>{allDone ? 'Clear task' : 'Remove task'}</Text>
             </Pressable>
           </View>
         );
@@ -178,7 +215,7 @@ function IfThenPlans() {
           key={p.id}
           style={{ flexDirection: 'row', alignItems: 'center', gap: 8, borderTopWidth: 1, borderTopColor: t.border, paddingTop: 10 }}
         >
-          <Text style={{ color: t.text, fontSize: 16, flex: 1 }}>
+          <Text style={[type.body, { color: t.text, flex: 1 }]}>
             When I {p.when}, then I will {p.then}.
           </Text>
           <Pressable accessibilityRole="button" accessibilityLabel="Remove plan" onPress={() => removePlan(p.id)} hitSlop={8}>
@@ -191,12 +228,28 @@ function IfThenPlans() {
 }
 
 export default function Focus() {
+  const t = useTheme();
+  const [running, setRunning] = useState(false);
+  const onRunning = useCallback((r: boolean) => setRunning(r), []);
   return (
     <Screen>
-      <FocusTrackCard />
-      <VisualTimer />
-      <TaskBreakdown />
-      <IfThenPlans />
+      <View style={{ gap: 6 }}>
+        <Overline>Focus</Overline>
+        <Text accessibilityRole="header" style={[type.title, { color: t.text }]}>
+          {running ? 'One thing at a time.' : 'Clear the noise.'}
+        </Text>
+        <Text style={[type.body, { color: t.muted }]}>
+          {running ? 'Everything else is hidden until the block ends.' : 'A timer, a plan and nothing else competing for your attention.'}
+        </Text>
+      </View>
+      <VisualTimer onRunning={onRunning} />
+      {running ? null : (
+        <>
+          <FocusTrackCard />
+          <TaskBreakdown />
+          <IfThenPlans />
+        </>
+      )}
     </Screen>
   );
 }
