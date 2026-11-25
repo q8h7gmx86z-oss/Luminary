@@ -4,6 +4,8 @@ import { Pressable, ScrollView, StyleSheet, Text, TextInput, TextInputProps, Vie
 
 import { radius, space, useTheme } from '@/lib/theme';
 
+import { Icon } from './Icon';
+
 export function Screen({ children }: { children: React.ReactNode }) {
   const t = useTheme();
   return (
@@ -42,7 +44,7 @@ export function Body({ children, muted, style }: { children: React.ReactNode; mu
 
 export function Card({ children, style }: { children: React.ReactNode; style?: ViewStyle }) {
   const t = useTheme();
-  return <View style={[styles.card, { backgroundColor: t.surface, borderColor: t.border }, style]}>{children}</View>;
+  return <View style={[styles.card, { backgroundColor: t.surface, borderColor: t.border, boxShadow: t.shadow }, style]}>{children}</View>;
 }
 
 type ButtonProps = {
@@ -138,10 +140,10 @@ export function SettingsButton() {
       accessibilityRole="button"
       accessibilityLabel="Settings"
       onPress={() => router.push('/settings')}
-      style={({ pressed }) => [styles.helpPill, { backgroundColor: t.soft, opacity: pressed ? 0.8 : 1 }]}
+      style={({ pressed }) => [styles.iconButton, { backgroundColor: t.soft, opacity: pressed ? 0.8 : 1 }]}
       hitSlop={8}
     >
-      <Text style={{ color: t.text, fontWeight: '700', fontSize: 14 }}>⚙ Settings</Text>
+      <Icon name="sliders" size={20} color={t.text} />
     </Pressable>
   );
 }
@@ -157,7 +159,7 @@ export function Checkbox({ checked, label, onPress }: { checked: boolean; label:
       style={styles.checkRow}
     >
       <View style={[styles.box, { borderColor: checked ? t.good : t.border, backgroundColor: checked ? t.good : 'transparent' }]}>
-        {checked ? <Text style={{ color: '#fff', fontWeight: '800' }}>✓</Text> : null}
+        {checked ? <Icon name="check" size={16} color="#FFFFFF" strokeWidth={3} /> : null}
       </View>
       <Text style={[styles.body, { color: checked ? t.muted : t.text, flex: 1 }]}>{label}</Text>
     </Pressable>
@@ -167,8 +169,8 @@ export function Checkbox({ checked, label, onPress }: { checked: boolean; label:
 const styles = StyleSheet.create({
   screen: { padding: space.lg, paddingBottom: 48, alignItems: 'center' },
   inner: { width: '100%', maxWidth: 640, gap: space.lg },
-  title: { fontSize: 28, fontWeight: '700' },
-  heading: { fontSize: 19, fontWeight: '700' },
+  title: { fontSize: 30, fontWeight: '800', letterSpacing: -0.5 },
+  heading: { fontSize: 19, fontWeight: '800', letterSpacing: -0.2 },
   body: { fontSize: 16, lineHeight: 23 },
   card: { borderWidth: 1, borderRadius: radius, padding: space.lg, gap: space.md },
   button: { minHeight: 48, borderRadius: radius, paddingHorizontal: space.lg, alignItems: 'center', justifyContent: 'center' },
@@ -178,7 +180,7 @@ const styles = StyleSheet.create({
   scaleRow: { flexDirection: 'row', justifyContent: 'space-between', gap: space.sm },
   scaleDot: { flex: 1, minHeight: 48, borderRadius: 12, borderWidth: 2, alignItems: 'center', justifyContent: 'center' },
   scaleEnds: { flexDirection: 'row', justifyContent: 'space-between' },
-  helpPill: { paddingHorizontal: 12, paddingVertical: 8, borderRadius: 999, marginRight: 12 },
+  iconButton: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center', marginRight: 12 },
   checkRow: { flexDirection: 'row', alignItems: 'center', gap: space.md, minHeight: 44 },
   box: { width: 26, height: 26, borderRadius: 8, borderWidth: 2, alignItems: 'center', justifyContent: 'center' },
 });

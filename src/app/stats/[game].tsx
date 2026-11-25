@@ -10,6 +10,7 @@ import { GameId } from '@/training/engine';
 import { Metric } from '@/training/Metric';
 import { Spark } from '@/training/Spark';
 import { gameAnalytics, MetricSummary } from '@/training/stats';
+import { GameBadge } from '@/components/GameBadge';
 
 const pct = (x: number) => `${Math.round(x * 100)}%`;
 
@@ -44,9 +45,10 @@ export default function GameStats() {
   if (a.sessions === 0) {
     return (
       <Screen>
-        <Title>
-          {info.glyph} {info.name}
-        </Title>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
+          <GameBadge game={id} size={48} />
+          <Title>{info.name}</Title>
+        </View>
         <Card>
           <Heading>Not yet measured</Heading>
           <Body>
@@ -64,9 +66,10 @@ export default function GameStats() {
 
   return (
     <Screen>
-      <Title>
-        {info.glyph} {info.name}
-      </Title>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
+        <GameBadge game={id} size={48} />
+        <Title>{info.name}</Title>
+      </View>
       <Body muted>
         {sk.name}. {a.sessions} round{a.sessions === 1 ? '' : 's'} over {a.daysPlayed} day{a.daysPlayed === 1 ? '' : 's'}.
       </Body>

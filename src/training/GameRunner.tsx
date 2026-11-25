@@ -19,6 +19,7 @@ import { MemoryGrid } from './games/MemoryGrid';
 import { SpeedMatch } from './games/SpeedMatch';
 import { StarTracker } from './games/StarTracker';
 import { SwitchIt } from './games/SwitchIt';
+import { GameBadge } from '@/components/GameBadge';
 
 const COMPONENTS = {
   speed: SpeedMatch,
@@ -132,9 +133,7 @@ export function GameRunner({
 
   return (
     <ScrollView contentContainerStyle={{ padding: 20, gap: 16, alignItems: 'center', flexGrow: 1, justifyContent: 'center' }} style={{ backgroundColor: t.bg }}>
-      <View style={{ width: 96, height: 96, borderRadius: 28, backgroundColor: skill.color, alignItems: 'center', justifyContent: 'center' }}>
-        <Text style={{ fontSize: 48, color: '#FFFFFF' }}>{info.glyph}</Text>
-      </View>
+      <GameBadge game={info.id} size={96} />
       <Text style={{ fontSize: 15, color: skill.color, fontWeight: '700', letterSpacing: 0.5 }}>{skill.name.toUpperCase()}</Text>
       <Text style={{ fontSize: 28, fontWeight: '800', color: t.text }}>{info.name}</Text>
       <Text style={{ fontSize: 17, color: t.muted, textAlign: 'center' }}>{info.tagline}</Text>

@@ -6,7 +6,7 @@ const light = {
   surface: '#FFFFFF',
   text: '#1D2433',
   muted: '#5A6375',
-  border: '#E2E0DA',
+  border: '#ECEAE4',
   primary: '#4B5FD6',
   primaryText: '#FFFFFF',
   soft: '#E9ECFB',
@@ -15,6 +15,8 @@ const light = {
   gold: '#8F6212',
   help: '#B3261E',
   helpSoft: '#FCECEA',
+  /** Soft lift for cards. */
+  shadow: '0px 1px 2px rgba(16, 24, 40, 0.05), 0px 6px 20px rgba(16, 24, 40, 0.06)',
 };
 
 const dark: typeof light = {
@@ -30,6 +32,7 @@ const dark: typeof light = {
   gold: '#E6AC3A',
   help: '#FF8A80',
   helpSoft: '#3A1F1F',
+  shadow: 'none',
 };
 
 export type Theme = typeof light;
@@ -39,4 +42,4 @@ export function useTheme(): Theme {
 }
 
 export const space = { xs: 4, sm: 8, md: 12, lg: 16, xl: 24 };
-export const radius = 14;
+export const radius = 18;

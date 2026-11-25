@@ -6,13 +6,19 @@ import { Body, Button, Card, Checkbox, Heading, Screen, Title } from '@/componen
 import { HABITS } from '@/content/content';
 import { dayKey, daysShownUp } from '@/lib/logic';
 import { useStore } from '@/lib/store';
-import { GOLD, NAVY, ON_NAVY } from '@/lib/brand';
+import { GOLD, NAVY, NAVY_TILE, ON_NAVY, ON_NAVY_FAINT, ON_NAVY_MUTED } from '@/lib/brand';
 import { useTheme } from '@/lib/theme';
 import { SharpnessCard } from '@/training/SharpnessCard';
 import { GAMES, SKILLS } from '@/training/catalog';
 import { ChallengesCard } from '@/training/ChallengesCard';
 import { GOAL_NAMES } from '@/training/planner';
 import { useTodayPlan } from '@/training/usePlan';
+import { GameBadge, NavyGlow } from '@/components/GameBadge';
+import { Icon } from '@/components/Icon';
+
+function dateLine(): string {
+  return new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' });
+}
 
 function greeting(): string {
   const h = new Date().getHours();
@@ -47,23 +53,35 @@ export default function Today() {
 
   return (
     <Screen>
-      <Title>{greeting()}</Title>
+      <View style={{ gap: 2 }}>
+        <Text style={{ color: t.muted, fontSize: 14, fontWeight: '700', letterSpacing: 0.4 }}>{dateLine().toUpperCase()}</Text>
+        <Title>{greeting()}</Title>
+      </View>
 
-      <View style={{ backgroundColor: NAVY, borderRadius: 20, padding: 20, gap: 14 }}>
+      <View style={{ backgroundColor: NAVY, borderRadius: 24, padding: 22, gap: 16, overflow: 'hidden' }}>
+        <NavyGlow />
         <Text style={{ color: GOLD, fontWeight: '800', letterSpacing: 0.6, fontSize: 13 }}>
           {workedOut ? 'DONE FOR TODAY' : `YOUR PLAN · ${prefs.sessionMinutes} MIN · ${GOAL_NAMES[prefs.goal].toUpperCase()}`}
         </Text>
         <Text style={{ color: ON_NAVY, fontSize: 24, fontWeight: '800' }}>
           {workedOut ? 'Session banked. Come back tomorrow, or go again.' : `Built from your last sessions`}
         </Text>
-        <View style={{ gap: 10 }}>
-          <Text style={{ color: ON_NAVY, fontSize: 15 }}>◌  1-minute breathing warm-up</Text>
+        <View style={{ gap: 12 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+            <View style={{ width: 40, height: 40, borderRadius: 11, backgroundColor: NAVY_TILE, alignItems: 'center', justifyContent: 'center' }}>
+              <Icon name="wind" size={20} color={ON_NAVY_MUTED} />
+            </View>
+            <Text style={{ color: ON_NAVY, fontSize: 15, fontWeight: '600' }}>1-minute breathing warm-up</Text>
+          </View>
           {plan.map((p) => (
-            <View key={p.game} style={{ gap: 2 }}>
-              <Text style={{ color: ON_NAVY, fontSize: 16, fontWeight: '700' }}>
-                {GAMES[p.game].glyph}  {GAMES[p.game].name} · {SKILLS[GAMES[p.game].skill].name}
-              </Text>
-              <Text style={{ color: ON_NAVY, opacity: 0.8, fontSize: 13, marginLeft: 26 }}>{p.reason}</Text>
+            <View key={p.game} style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+              <GameBadge game={p.game} size={40} />
+              <View style={{ flex: 1, gap: 1 }}>
+                <Text style={{ color: ON_NAVY, fontSize: 16, fontWeight: '700' }}>
+                  {GAMES[p.game].name} <Text style={{ color: ON_NAVY_FAINT, fontWeight: '600' }}>· {SKILLS[GAMES[p.game].skill].name}</Text>
+                </Text>
+                <Text style={{ color: ON_NAVY_MUTED, fontSize: 13 }}>{p.reason}</Text>
+              </View>
             </View>
           ))}
         </View>
@@ -72,14 +90,17 @@ export default function Today() {
           onPress={() => router.push('/workout')}
           style={({ pressed }) => ({
             backgroundColor: '#4B5FD6',
-            borderRadius: 14,
-            minHeight: 52,
+            borderRadius: 16,
+            minHeight: 54,
+            flexDirection: 'row',
+            gap: 8,
             alignItems: 'center',
             justifyContent: 'center',
             opacity: pressed ? 0.9 : 1,
           })}
         >
           <Text style={{ color: '#FFFFFF', fontSize: 17, fontWeight: '800' }}>{workedOut ? 'Train again' : 'Start workout'}</Text>
+          <Icon name="arrow" size={20} color="#FFFFFF" strokeWidth={2.4} />
         </Pressable>
         <Pressable accessibilityRole="link" onPress={() => router.push('/preferences')} hitSlop={8}>
           <Text style={{ color: ON_NAVY, fontWeight: '700', textAlign: 'center', textDecorationLine: 'underline' }}>Change length, goal or pace</Text>

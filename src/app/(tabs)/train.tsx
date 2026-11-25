@@ -9,6 +9,7 @@ import { useTheme } from '@/lib/theme';
 import { AVAILABLE, GAMES, SKILLS } from '@/training/catalog';
 import { savedScore } from '@/iq/items';
 import { GameId, Skill } from '@/training/engine';
+import { GameBadge, NavyGlow } from '@/components/GameBadge';
 
 export default function Train() {
   const t = useTheme();
@@ -22,8 +23,9 @@ export default function Train() {
       <Pressable
         accessibilityRole="button"
         onPress={() => router.push('/iq')}
-        style={({ pressed }) => ({ backgroundColor: '#0B1640', borderRadius: 20, padding: 18, gap: 6, opacity: pressed ? 0.92 : 1 })}
+        style={({ pressed }) => ({ backgroundColor: '#0B1640', borderRadius: 22, padding: 20, gap: 6, overflow: 'hidden', opacity: pressed ? 0.92 : 1 })}
       >
+        <NavyGlow height={170} />
         <Text style={{ color: GOLD, fontWeight: '800', letterSpacing: 1, fontSize: 12 }}>REASONING ASSESSMENT</Text>
         <Text style={{ color: '#FFFFFF', fontSize: 22, fontWeight: '900' }}>Put your reasoning to the test</Text>
         <Text style={{ color: '#D7DCF5', fontSize: 15 }}>
@@ -54,16 +56,15 @@ export default function Train() {
                     alignItems: 'center',
                     gap: 14,
                     padding: 14,
-                    borderRadius: 16,
+                    borderRadius: 18,
                     backgroundColor: t.surface,
                     borderWidth: 1,
                     borderColor: t.border,
+                    boxShadow: t.shadow,
                     opacity: playable ? (pressed ? 0.85 : 1) : 0.55,
                   })}
                 >
-                  <View style={{ width: 52, height: 52, borderRadius: 14, backgroundColor: SKILLS[skill].color, alignItems: 'center', justifyContent: 'center' }}>
-                    <Text style={{ color: '#fff', fontSize: 26 }}>{info.glyph}</Text>
-                  </View>
+                  <GameBadge game={g} size={52} />
                   <View style={{ flex: 1, gap: 2 }}>
                     <Text style={{ color: t.text, fontWeight: '700', fontSize: 17 }}>{info.name}</Text>
                     <Text style={{ color: t.muted, fontSize: 14 }}>{playable ? info.tagline : 'Coming in the next update'}</Text>

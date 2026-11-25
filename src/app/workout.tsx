@@ -16,6 +16,7 @@ import { AnswerButton } from '@/training/GameFrame';
 import { GameRunner } from '@/training/GameRunner';
 import { MAX_SHARPNESS, sharpnessOf } from '@/training/sharpness';
 import { Skill } from '@/training/engine';
+import { GameBadge } from '@/components/GameBadge';
 
 const SKILL_LIST = Object.keys(SKILLS) as Skill[];
 
@@ -83,11 +84,9 @@ export default function Workout() {
             return (
               <View
                 key={r.at}
-                style={{ flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: t.surface, borderRadius: 14, padding: 14, borderWidth: 1, borderColor: t.border }}
+                style={{ flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: t.surface, borderRadius: 18, padding: 14, borderWidth: 1, borderColor: t.border, boxShadow: t.shadow }}
               >
-                <View style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: SKILLS[g.skill].color, alignItems: 'center', justifyContent: 'center' }}>
-                  <Text style={{ color: '#fff', fontSize: 22 }}>{g.glyph}</Text>
-                </View>
+                <GameBadge game={r.game} size={44} />
                 <View style={{ flex: 1 }}>
                   <Text style={{ color: t.text, fontWeight: '700', fontSize: 16 }}>{g.name}</Text>
                   <Text style={{ color: t.muted, fontSize: 13 }}>

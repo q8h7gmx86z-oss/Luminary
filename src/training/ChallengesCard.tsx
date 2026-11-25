@@ -11,6 +11,8 @@ import { AVAILABLE, GAMES, SKILLS } from './catalog';
 import { Skill } from './engine';
 import { challengeDone, dailyChallenge, forgivingStreak, weeklyQuest } from './planner';
 import { skillOf } from './usePlan';
+import { GameBadge } from '@/components/GameBadge';
+import { Icon } from '@/components/Icon';
 
 /** Daily challenge, weekly quest and a streak that rest days never break. */
 export function ChallengesCard() {
@@ -28,9 +30,7 @@ export function ChallengesCard() {
   return (
     <Card>
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-        <View style={{ width: 48, height: 48, borderRadius: 14, backgroundColor: SKILLS[g.skill].color, alignItems: 'center', justifyContent: 'center' }}>
-          <Text style={{ color: '#FFFFFF', fontSize: 24 }}>{g.glyph}</Text>
-        </View>
+        <GameBadge game={c.game} size={48} />
         <View style={{ flex: 1 }}>
           <Text style={{ color: t.primary, fontWeight: '800', fontSize: 12, letterSpacing: 0.8 }}>DAILY CHALLENGE</Text>
           <Text style={{ color: t.text, fontWeight: '800', fontSize: 17 }}>
@@ -39,7 +39,7 @@ export function ChallengesCard() {
           <Text style={{ color: t.muted, fontSize: 14 }}>{done ? 'Cleared. New challenge tomorrow.' : 'One level above yours. Hit 80% to clear it.'}</Text>
         </View>
         {done ? (
-          <Text style={{ color: t.good, fontWeight: '900', fontSize: 22 }}>✓</Text>
+          <Icon name="check" size={26} color={t.good} strokeWidth={3} />
         ) : (
           <Pressable
             accessibilityRole="button"

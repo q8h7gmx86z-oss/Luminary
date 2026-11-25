@@ -14,6 +14,7 @@ import { InsightsCard } from '@/training/InsightsCard';
 import { Metric } from '@/training/Metric';
 import { Spark } from '@/training/Spark';
 import { skillSummaries, workoutsThisWeek } from '@/training/stats';
+import { GameBadge } from '@/components/GameBadge';
 
 const WEEKLY_GOAL = 3;
 
@@ -135,11 +136,10 @@ export default function Progress() {
                       accessibilityRole="button"
                       accessibilityLabel={`${GAMES[g].name} details`}
                       onPress={() => router.push(`/stats/${g}`)}
-                      style={{ flexDirection: 'row', alignItems: 'center', gap: 8, minHeight: 40, paddingHorizontal: 10, borderRadius: 10, backgroundColor: t.bg }}
+                      style={{ flexDirection: 'row', alignItems: 'center', gap: 8, minHeight: 48, paddingHorizontal: 10, borderRadius: 12, backgroundColor: t.bg }}
                     >
-                      <Text style={{ color: t.text, flex: 1, fontWeight: '600' }}>
-                        {GAMES[g].glyph} {GAMES[g].name}
-                      </Text>
+                      <GameBadge game={g} size={28} />
+                      <Text style={{ color: t.text, flex: 1, fontWeight: '600' }}>{GAMES[g].name}</Text>
                       <Text style={{ color: t.muted, fontSize: 13, fontVariant: ['tabular-nums'] }}>
                         {rs.length ? `Lv ${state.training.levels[g] ?? 1} · best ${best}` : 'Not played yet'}
                       </Text>

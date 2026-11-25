@@ -9,6 +9,7 @@ import { useTheme } from '@/lib/theme';
 
 import { AVAILABLE, GAMES, SKILLS } from './catalog';
 import { focusGames } from './engine';
+import { GameBadge } from '@/components/GameBadge';
 
 /** Focus session: three attention and memory drills, for warming up before focused work. */
 export function FocusTrackCard() {
@@ -20,11 +21,14 @@ export function FocusTrackCard() {
       <Text style={{ color: SKILLS.attention.color, fontWeight: '800', letterSpacing: 0.6, fontSize: 13 }}>FOCUS SESSION</Text>
       <Heading>Warm up your attention</Heading>
       <Body muted>Three attention and memory drills before work that needs your full focus. Short rounds, and you can stop at any point.</Body>
-      <View style={{ gap: 6 }}>
+      <View style={{ gap: 10 }}>
         {games.map((g) => (
-          <Text key={g} style={{ color: t.text, fontSize: 15 }}>
-            {GAMES[g].glyph}  {GAMES[g].name} · {SKILLS[GAMES[g].skill].name}
-          </Text>
+          <View key={g} style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+            <GameBadge game={g} size={34} />
+            <Text style={{ color: t.text, fontSize: 15, flex: 1 }}>
+              <Text style={{ fontWeight: '700' }}>{GAMES[g].name}</Text> · {SKILLS[GAMES[g].skill].name}
+            </Text>
+          </View>
         ))}
       </View>
       <Button label="Start focus session" onPress={() => router.push('/workout?track=focus')} />
