@@ -7,7 +7,7 @@ import { GAMES } from '@/training/catalog';
 // Luminary's signature visual: a network with one region per task. Each region glows brighter as
 // measured performance on that task rises. It maps results in the app, not brain activity.
 
-const CENTRES: Record<GameId, [number, number]> = {
+export const CENTRES: Record<GameId, [number, number]> = {
   speed: [0.22, 0.38],
   grid: [0.42, 0.22],
   nback: [0.64, 0.24],
@@ -124,7 +124,7 @@ export function SkillNetwork({
                 y={cy * height + width * 0.16 + 4}
                 textAnchor="middle"
                 fontSize={10.5}
-                fontWeight="600"
+                fontFamily="Inter_600SemiBold"
                 fill={GAMES[g].accent}
                 opacity={quiet(g) ? 0.45 : 0.95}
               >

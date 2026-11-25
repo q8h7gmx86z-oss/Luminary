@@ -1,22 +1,122 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { router } from 'expo-router';
-import { Pressable, Text, View } from 'react-native';
+import { Pressable, Text, useWindowDimensions, View } from 'react-native';
 
-import { Body, Card, Heading, Screen, Title } from '@/components/ui';
+import { Icon } from '@/components/Icon';
+import { CENTRES, networkLevels, SkillNetwork } from '@/components/SkillNetwork';
+import { Body, Card, Heading, Overline, Screen } from '@/components/ui';
 import { lastNDays } from '@/lib/logic';
 import { useStore } from '@/lib/store';
-import { useTheme } from '@/lib/theme';
+import { fonts, radii, type, useTheme } from '@/lib/theme';
 import { GAMES, SKILLS } from '@/training/catalog';
-import { GameId, Skill } from '@/training/engine';
+import { GameId, MAX_LEVEL, Skill } from '@/training/engine';
 import { savedScore } from '@/iq/items';
 import { SharpnessCard } from '@/training/SharpnessCard';
 import { InsightsCard } from '@/training/InsightsCard';
 import { Metric } from '@/training/Metric';
 import { Spark } from '@/training/Spark';
-import { skillSummaries, workoutsThisWeek } from '@/training/stats';
+import { gameAnalytics, skillSummaries, workoutsThisWeek } from '@/training/stats';
 import { GameBadge } from '@/components/GameBadge';
 
 const WEEKLY_GOAL = 3;
+
+function Stat({ label, value, hint, tone }: { label: string; value: string; hint?: string; tone?: 'good' }) {
+  const t = useTheme();
+  return (
+    <View style={{ flexBasis: '45%', flexGrow: 1, borderTopWidth: 1, borderTopColor: t.border, paddingTop: 8, gap: 2 }}>
+      <Text style={[type.overline, { color: t.muted, fontSize: 9.5 }]}>{label}</Text>
+      <Text style={[type.number, { color: tone === 'good' ? t.good : t.text }]}>{value}</Text>
+      {hint ? <Text style={{ color: t.muted, fontSize: 11, fontFamily: fonts.body }}>{hint}</Text> : null}
+    </View>
+  );
+}
+
+/** The signature map: one glowing region per task. Tap a region to see that task's numbers. */
+function NetworkExplorer() {
+  const t = useTheme();
+  const { width } = useWindowDimensions();
+  const { state } = useStore();
+  const { results, levels } = state.training;
+  const played = new Set(results.map((r) => r.game));
+  const mostPlayed = [...played].sort((a, b) => results.filter((r) => r.game === b).length - results.filter((r) => r.game === a).length)[0];
+  const [sel, setSel] = useState<GameId>(mostPlayed ?? 'speed');
+  const w = Math.min(width, 640) - 42;
+  const h = Math.round(w * 0.72);
+  const info = GAMES[sel];
+  const a = gameAnalytics(results, sel, levels[sel] ?? 1);
+  const levelGain = a.levelTrend.length > 1 ? a.levelTrend[a.levelTrend.length - 1] - a.levelTrend[0] : undefined;
+  const hit = 56;
+
+  return (
+    <View style={{ backgroundColor: t.surface, borderRadius: radii.panel, borderWidth: 1, borderColor: t.border, overflow: 'hidden' }}>
+      <View style={{ width: w, height: h }}>
+        <SkillNetwork width={w} height={h} level={networkLevels(levels, played, MAX_LEVEL)} focus={sel} labels />
+        {(Object.keys(CENTRES) as GameId[]).map((g) => (
+          <Pressable
+            key={g}
+            accessibilityRole="button"
+            accessibilityState={{ selected: g === sel }}
+            accessibilityLabel={`${GAMES[g].name}, ${SKILLS[GAMES[g].skill].name}`}
+            onPress={() => setSel(g)}
+            style={{
+              position: 'absolute',
+              left: CENTRES[g][0] * w - hit / 2,
+              top: CENTRES[g][1] * h - hit / 2,
+              width: hit,
+              height: hit,
+              borderRadius: hit / 2,
+              borderWidth: g === sel ? 1 : 0,
+              borderColor: `${GAMES[g].accent}88`,
+            }}
+          />
+        ))}
+      </View>
+
+      <View style={{ padding: 16, paddingTop: 4, gap: 12 }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+          <GameBadge game={sel} size={40} />
+          <View style={{ flex: 1 }}>
+            <Text style={[type.section, { color: t.text }]}>{info.name}</Text>
+            <Text style={{ color: info.accent, fontFamily: fonts.medium, fontSize: 12.5 }}>{SKILLS[info.skill].name}</Text>
+          </View>
+          <Text style={[type.caption, { color: t.muted, fontVariant: ['tabular-nums'] }]}>
+            Lv {a.level} of {MAX_LEVEL}
+          </Text>
+        </View>
+        {a.sessions ? (
+          <>
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', columnGap: 14, rowGap: 10 }}>
+              <Stat label="Accuracy" value={a.recentAccuracy !== undefined ? `${Math.round(a.recentAccuracy * 100)}%` : '—'} hint="last 3 rounds" />
+              <Stat
+                label="Median speed"
+                value={a.rtNow ? `${a.rtNow} ms` : '—'}
+                hint={a.rtNow && a.rtFirst ? `${a.rtNow <= a.rtFirst ? '−' : '+'}${Math.abs(a.rtNow - a.rtFirst)} ms vs start` : 'recent rounds'}
+              />
+              <Stat label="Best score" value={`${a.bestScore ?? 0}`} hint={`${a.sessions} round${a.sessions === 1 ? '' : 's'} played`} />
+              <Stat
+                label="Trend"
+                value={levelGain === undefined ? '—' : `${levelGain > 0 ? '+' : ''}${levelGain} lv`}
+                hint="since your first round"
+                tone={levelGain && levelGain > 0 ? 'good' : undefined}
+              />
+            </View>
+            <Spark values={a.levelTrend} color={info.accent} height={44} label={`${info.name} level by round`} />
+          </>
+        ) : (
+          <Text style={[type.caption, { color: t.muted }]}>Not played yet. This region lights up once you do.</Text>
+        )}
+        <Pressable accessibilityRole="link" onPress={() => router.push(`/stats/${sel}`)} hitSlop={8} style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+          <Text style={{ color: t.lavender, fontFamily: fonts.semibold, fontSize: 14 }}>Full {info.name} stats</Text>
+          <Icon name="arrow" size={16} color={t.lavender} />
+        </Pressable>
+        <Text style={{ color: t.muted, fontSize: 11.5, fontFamily: fonts.body, lineHeight: 16 }}>
+          Each region is one task, and it glows brighter as your level rises. The map shows your results in Luminary. It does not show
+          or measure activity in your brain.
+        </Text>
+      </View>
+    </View>
+  );
+}
 
 export default function Progress() {
   const t = useTheme();
@@ -28,14 +128,22 @@ export default function Progress() {
 
   return (
     <Screen>
-      <Title>Your progress</Title>
+      <View style={{ gap: 6 }}>
+        <Overline>Your skill network</Overline>
+        <Text accessibilityRole="header" style={[type.title, { color: t.text }]}>
+          Watch it light up.
+        </Text>
+        <Text style={[type.body, { color: t.muted }]}>Tap a region to explore that task.</Text>
+      </View>
+
+      <NetworkExplorer />
       <SharpnessCard />
 
       {state.training.tests?.length ? (
         <Card>
           <Heading>Reasoning Assessment</Heading>
           <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 10 }}>
-            <Text style={{ color: t.text, fontSize: 36, fontWeight: '900' }}>{savedScore(state.training.tests[state.training.tests.length - 1])}</Text>
+            <Text style={[type.metric, { color: t.text, fontSize: 40 }]}>{savedScore(state.training.tests[state.training.tests.length - 1])}</Text>
             <Text style={{ color: t.muted }}>
               / 100 latest · {state.training.tests.length} attempt{state.training.tests.length === 1 ? '' : 's'}
             </Text>
@@ -57,14 +165,16 @@ export default function Progress() {
                     width: 34,
                     height: 34,
                     borderRadius: 17,
-                    backgroundColor: did ? t.primary : t.soft,
+                    backgroundColor: did ? t.primary : 'transparent',
+                    borderWidth: did ? 0 : 1,
+                    borderColor: t.borderStrong,
                     alignItems: 'center',
                     justifyContent: 'center',
                   }}
                 >
-                  {did ? <Text style={{ color: t.primaryText, fontWeight: '800' }}>✓</Text> : null}
+                  {did ? <Icon name="check" size={16} color="#FFFFFF" strokeWidth={2.4} /> : null}
                 </View>
-                <Text style={{ color: t.muted, fontSize: 12 }}>{label}</Text>
+                <Text style={{ color: t.muted, fontSize: 12, fontFamily: fonts.medium }}>{label}</Text>
               </View>
             );
           })}
@@ -92,10 +202,10 @@ export default function Progress() {
           <Card key={s.skill}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
               <View style={{ width: 12, height: 12, borderRadius: 6, backgroundColor: sk.color }} />
-              <Text style={{ color: t.text, fontSize: 18, fontWeight: '700', flex: 1 }}>{sk.name}</Text>
-              <Text style={{ color: t.text, fontWeight: '900', fontSize: 18 }}>
+              <Text style={[type.section, { color: t.text, flex: 1 }]}>{sk.name}</Text>
+              <Text style={[type.number, { color: t.text }]}>
                 {s.skillScore}
-                <Text style={{ color: t.muted, fontSize: 13, fontWeight: '700' }}>/100</Text>
+                <Text style={{ color: t.muted, fontSize: 13, fontFamily: fonts.body }}> / 100</Text>
               </Text>
             </View>
             <Body muted>{sk.description}</Body>
@@ -136,19 +246,19 @@ export default function Progress() {
                       accessibilityRole="button"
                       accessibilityLabel={`${GAMES[g].name} details`}
                       onPress={() => router.push(`/stats/${g}`)}
-                      style={{ flexDirection: 'row', alignItems: 'center', gap: 8, minHeight: 48, paddingHorizontal: 10, borderRadius: 12, backgroundColor: t.bg }}
+                      style={{ flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: 52, paddingHorizontal: 10, borderRadius: radii.sm, borderWidth: 1, borderColor: t.border }}
                     >
                       <GameBadge game={g} size={28} />
-                      <Text style={{ color: t.text, flex: 1, fontWeight: '600' }}>{GAMES[g].name}</Text>
+                      <Text style={{ color: t.text, flex: 1, fontFamily: fonts.semibold, fontSize: 14 }}>{GAMES[g].name}</Text>
                       <Text style={{ color: t.muted, fontSize: 13, fontVariant: ['tabular-nums'] }}>
                         {rs.length ? `Lv ${state.training.levels[g] ?? 1} · best ${best}` : 'Not played yet'}
                       </Text>
-                      <Text style={{ color: t.primary, fontWeight: '800' }}>›</Text>
+                      <Icon name="arrow" size={14} color={t.muted} />
                     </Pressable>
                   );
                 })}
             </View>
-            <Text style={{ color: t.muted, fontSize: 13 }}>
+            <Text style={[type.caption, { color: t.muted }]}>
               {s.rounds === 0 ? 'No rounds yet.' : `${s.rounds} round${s.rounds === 1 ? '' : 's'} played`}
             </Text>
           </Card>
