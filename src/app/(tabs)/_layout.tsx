@@ -1,14 +1,30 @@
 import { Tabs } from 'expo-router/js-tabs';
 import React from 'react';
-import { ColorValue } from 'react-native';
+import { ColorValue, View } from 'react-native';
 
 import { Icon, IconName } from '@/components/Icon';
 import { Wordmark } from '@/components/Logo';
 import { SettingsButton } from '@/components/ui';
-import { useTheme } from '@/lib/theme';
+import { fonts, useTheme } from '@/lib/theme';
 
+/** Tab icon with a soft lavender light above the active tab, so the state is not shown by colour alone. */
 function TabIcon({ name, color, focused }: { name: IconName; color: ColorValue; focused: boolean }) {
-  return <Icon name={name} color={color} size={23} strokeWidth={focused ? 2.3 : 1.8} />;
+  return (
+    <View style={{ alignItems: 'center' }}>
+      <View
+        style={{
+          position: 'absolute',
+          top: -9,
+          width: 26,
+          height: 2,
+          borderRadius: 1,
+          backgroundColor: focused ? '#A995FF' : 'transparent',
+          boxShadow: focused ? '0px 0px 10px 2px rgba(169, 149, 255, 0.7)' : undefined,
+        }}
+      />
+      <Icon name={name} color={color} size={22} strokeWidth={focused ? 2 : 1.7} />
+    </View>
+  );
 }
 
 export default function TabsLayout() {
@@ -19,12 +35,12 @@ export default function TabsLayout() {
         headerStyle: { backgroundColor: t.bg },
         headerShadowVisible: false,
         headerTintColor: t.text,
-        headerTitleStyle: { fontWeight: '800' },
+        headerTitleStyle: { fontFamily: fonts.display, fontSize: 17 },
         headerRight: () => <SettingsButton />,
-        tabBarStyle: { backgroundColor: t.surface, borderTopColor: t.border, height: 64, paddingTop: 6 },
-        tabBarLabelStyle: { fontSize: 11, fontWeight: '700' },
-        tabBarActiveTintColor: t.primary,
-        tabBarInactiveTintColor: t.muted,
+        tabBarStyle: { backgroundColor: t.bg, borderTopColor: t.border, height: 66, paddingTop: 8 },
+        tabBarLabelStyle: { fontSize: 10.5, fontFamily: fonts.semibold, letterSpacing: 0.2 },
+        tabBarActiveTintColor: t.text,
+        tabBarInactiveTintColor: '#6E7493',
         sceneStyle: { backgroundColor: t.bg },
       }}
     >

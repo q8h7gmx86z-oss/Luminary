@@ -14,13 +14,15 @@ export type GameInfo = {
   science: string;
   sources: Source[];
   icon: IconName;
+  /** The task's own accent colour, used on its icon, bars and glow. */
+  accent: string;
 };
 
 export const SKILLS: Record<Skill, { name: string; color: string; gradient: [string, string]; description: string }> = {
-  speed: { name: 'Processing speed', color: '#4B5FD6', gradient: ['#7486F5', '#3B4DC4'], description: 'How quickly you take in and respond to information.' },
-  memory: { name: 'Working memory', color: '#7A5AE0', gradient: ['#A184F5', '#5D3CC6'], description: 'Holding and using information in mind for a short time.' },
-  attention: { name: 'Attention control', color: '#1F9D8B', gradient: ['#3CC2AE', '#147A6A'], description: 'Staying on target and holding back automatic responses.' },
-  flexibility: { name: 'Flexibility', color: '#D9822B', gradient: ['#F2A85A', '#C2650F'], description: 'Switching smoothly between rules and tasks.' },
+  speed: { name: 'Processing speed', color: '#4F8CFF', gradient: ['#4F8CFF', '#3B6FE0'], description: 'How quickly you take in and respond to information.' },
+  memory: { name: 'Working memory', color: '#9B7BFF', gradient: ['#9B7BFF', '#7561E8'], description: 'Holding and using information in mind for a short time.' },
+  attention: { name: 'Attention control', color: '#2DB6A3', gradient: ['#2DB6A3', '#1E8F80'], description: 'Staying on target and holding back automatic responses.' },
+  flexibility: { name: 'Flexibility', color: '#F2A65A', gradient: ['#F2A65A', '#D9822B'], description: 'Switching smoothly between rules and tasks.' },
 };
 
 const LAMPIT = { label: 'Lampit et al. 2014, PLoS Medicine', url: 'https://doi.org/10.1371/journal.pmed.1001756' };
@@ -38,6 +40,7 @@ export const GAMES: Record<GameId, GameInfo> = {
     name: 'Speed Match',
     skill: 'speed',
     icon: 'bolt',
+    accent: '#4F8CFF',
     tagline: 'Is it the same as the last one?',
     howTo: [
       'A symbol appears. Decide if it matches the one just before it.',
@@ -53,6 +56,7 @@ export const GAMES: Record<GameId, GameInfo> = {
     name: 'Memory Grid',
     skill: 'memory',
     icon: 'grid',
+    accent: '#9B7BFF',
     tagline: 'Watch the lights, then repeat the pattern.',
     howTo: [
       'Tiles light up one at a time. Watch the order.',
@@ -68,6 +72,7 @@ export const GAMES: Record<GameId, GameInfo> = {
     name: 'Catch the Light',
     skill: 'attention',
     icon: 'bulb',
+    accent: '#2DB6A3',
     tagline: 'Tap the blue lights. Hold back on red.',
     howTo: [
       'Lights flash in the centre of the screen.',
@@ -83,6 +88,7 @@ export const GAMES: Record<GameId, GameInfo> = {
     name: 'Star Tracker',
     skill: 'memory',
     icon: 'star',
+    accent: '#6672FF',
     tagline: 'Was the star here before?',
     howTo: [
       'A star appears in one of eight squares, one at a time.',
@@ -98,6 +104,7 @@ export const GAMES: Record<GameId, GameInfo> = {
     name: 'Colour Clash',
     skill: 'attention',
     icon: 'palette',
+    accent: '#FF7D6B',
     tagline: 'Name the ink, not the word.',
     howTo: [
       'A colour word appears, written in a coloured ink.',
@@ -113,6 +120,7 @@ export const GAMES: Record<GameId, GameInfo> = {
     name: 'Switch It',
     skill: 'flexibility',
     icon: 'swap',
+    accent: '#F2A65A',
     tagline: 'Odd or even? More or less? Follow the colour.',
     howTo: [
       'A number appears on a coloured card.',

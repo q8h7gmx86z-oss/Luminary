@@ -18,10 +18,10 @@ const inlineJs = scripts
 // Images and sounds from the export are referenced by absolute path, which the preview host
 // cannot serve. Swap each one for a data URI.
 function inlineAssets(js) {
-  return js.replace(/"(\/assets\/[^"]+\.(png|jpg|jpeg|gif|wav))"/g, (whole, url, ext) => {
+  return js.replace(/"(\/assets\/[^"]+\.(png|jpg|jpeg|gif|wav|ttf))"/g, (whole, url, ext) => {
     const file = path.join(dist, decodeURIComponent(url));
     if (!fs.existsSync(file)) return whole;
-    const mime = ext === 'wav' ? 'audio/wav' : `image/${ext === 'jpg' ? 'jpeg' : ext}`;
+    const mime = ext === 'wav' ? 'audio/wav' : ext === 'ttf' ? 'font/ttf' : `image/${ext === 'jpg' ? 'jpeg' : ext}`;
     return JSON.stringify(`data:${mime};base64,${fs.readFileSync(file).toString('base64')}`);
   });
 }
@@ -31,7 +31,7 @@ const styles = [...html.matchAll(/<style[^>]*>[\s\S]*?<\/style>/g)].map((m) => m
 const page = `<title>Luminary</title>
 <meta name="description" content="Live preview of the Luminary app">
 <style>
-:root { --bg: #F6F5F2; }
+:root { --bg: #0B1020; color-scheme: dark }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg: #12151C; color-scheme: dark } }
 :root[data-theme="dark"] { --bg: #12151C; color-scheme: dark }
 html, body { height: 100%; }

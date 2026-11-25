@@ -1,17 +1,33 @@
+import { Inter_400Regular } from '@expo-google-fonts/inter/400Regular';
+import { Inter_500Medium } from '@expo-google-fonts/inter/500Medium';
+import { Inter_600SemiBold } from '@expo-google-fonts/inter/600SemiBold';
+import { Inter_700Bold } from '@expo-google-fonts/inter/700Bold';
+import { Sora_600SemiBold } from '@expo-google-fonts/sora/600SemiBold';
+import { Sora_700Bold } from '@expo-google-fonts/sora/700Bold';
+import { useFonts } from 'expo-font';
 import { Redirect, Stack, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import React from 'react';
 import { ActivityIndicator, View } from 'react-native';
 
 import { StoreProvider, useStore } from '@/lib/store';
-import { useTheme } from '@/lib/theme';
+import { fonts, useTheme } from '@/lib/theme';
 
 function Gate() {
   const { state, ready } = useStore();
   const segments = useSegments();
   const t = useTheme();
+  // Fonts ship inside the app. If one fails to load, the app falls back to the system font.
+  const [fontsLoaded, fontError] = useFonts({
+    Inter_400Regular,
+    Inter_500Medium,
+    Inter_600SemiBold,
+    Inter_700Bold,
+    Sora_600SemiBold,
+    Sora_700Bold,
+  });
 
-  if (!ready) {
+  if (!ready || (!fontsLoaded && !fontError)) {
     return (
       <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: t.bg }}>
         <ActivityIndicator color={t.primary} />
@@ -26,8 +42,10 @@ function Gate() {
   return (
     <Stack
       screenOptions={{
-        headerStyle: { backgroundColor: t.surface },
+        headerStyle: { backgroundColor: t.bg },
+        headerShadowVisible: false,
         headerTintColor: t.text,
+        headerTitleStyle: { fontFamily: fonts.display, fontSize: 17 },
         contentStyle: { backgroundColor: t.bg },
       }}
     >
@@ -53,7 +71,7 @@ function Gate() {
 export default function RootLayout() {
   return (
     <StoreProvider>
-      <StatusBar style="auto" />
+      <StatusBar style="light" />
       <Gate />
     </StoreProvider>
   );

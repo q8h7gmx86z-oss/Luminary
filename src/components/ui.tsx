@@ -2,7 +2,7 @@ import { router } from 'expo-router';
 import React from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, TextInput, TextInputProps, View, ViewStyle } from 'react-native';
 
-import { radius, space, useTheme } from '@/lib/theme';
+import { fonts, radii, space, type, useTheme } from '@/lib/theme';
 
 import { Icon } from './Icon';
 
@@ -44,7 +44,7 @@ export function Body({ children, muted, style }: { children: React.ReactNode; mu
 
 export function Card({ children, style }: { children: React.ReactNode; style?: ViewStyle }) {
   const t = useTheme();
-  return <View style={[styles.card, { backgroundColor: t.surface, borderColor: t.border, boxShadow: t.shadow }, style]}>{children}</View>;
+  return <View style={[styles.card, { backgroundColor: t.surface, borderColor: t.border }, style]}>{children}</View>;
 }
 
 type ButtonProps = {
@@ -57,8 +57,8 @@ type ButtonProps = {
 
 export function Button({ label, onPress, kind = 'primary', disabled, accessibilityHint }: ButtonProps) {
   const t = useTheme();
-  const bg = kind === 'primary' ? t.primary : kind === 'help' ? t.help : t.soft;
-  const fg = kind === 'secondary' ? t.text : kind === 'help' ? '#FFFFFF' : t.primaryText;
+  const bg = kind === 'primary' ? t.primary : kind === 'help' ? t.help : 'transparent';
+  const fg = kind === 'secondary' ? t.text : kind === 'help' ? '#0B1020' : t.primaryText;
   return (
     <Pressable
       accessibilityRole="button"
@@ -66,7 +66,17 @@ export function Button({ label, onPress, kind = 'primary', disabled, accessibili
       accessibilityHint={accessibilityHint}
       disabled={disabled}
       onPress={onPress}
-      style={({ pressed }) => [styles.button, { backgroundColor: bg, opacity: disabled ? 0.5 : pressed ? 0.85 : 1 }]}
+      style={({ pressed }) => [
+        styles.button,
+        {
+          backgroundColor: bg,
+          borderWidth: kind === 'secondary' ? 1 : 0,
+          borderColor: t.borderStrong,
+          boxShadow: kind === 'primary' && !disabled ? t.primaryGlow : undefined,
+          opacity: disabled ? 0.5 : pressed ? 0.85 : 1,
+          transform: [{ scale: pressed ? 0.98 : 1 }],
+        },
+      ]}
     >
       <Text style={[styles.buttonText, { color: fg }]}>{label}</Text>
     </Pressable>
@@ -117,16 +127,16 @@ export function ScalePicker({
               accessibilityState={{ checked: on }}
               accessibilityLabel={`${n} of 5${n === 1 ? `, ${low}` : n === 5 ? `, ${high}` : ''}`}
               onPress={() => onChange(n)}
-              style={[styles.scaleDot, { borderColor: on ? t.primary : t.border, backgroundColor: on ? t.primary : t.surface }]}
+              style={[styles.scaleDot, { borderColor: on ? t.primary : t.borderStrong, backgroundColor: on ? t.primary : 'transparent' }]}
             >
-              <Text style={{ color: on ? t.primaryText : t.text, fontSize: 17, fontWeight: '600' }}>{n}</Text>
+              <Text style={{ color: on ? t.primaryText : t.text, fontSize: 17, fontFamily: fonts.display }}>{n}</Text>
             </Pressable>
           );
         })}
       </View>
       <View style={styles.scaleEnds}>
-        <Text style={{ color: t.muted, fontSize: 13 }}>{low}</Text>
-        <Text style={{ color: t.muted, fontSize: 13 }}>{high}</Text>
+        <Text style={[type.caption, { color: t.muted }]}>{low}</Text>
+        <Text style={[type.caption, { color: t.muted }]}>{high}</Text>
       </View>
     </View>
   );
@@ -140,10 +150,10 @@ export function SettingsButton() {
       accessibilityRole="button"
       accessibilityLabel="Settings"
       onPress={() => router.push('/settings')}
-      style={({ pressed }) => [styles.iconButton, { backgroundColor: t.soft, opacity: pressed ? 0.8 : 1 }]}
+      style={({ pressed }) => [styles.iconButton, { borderColor: t.borderStrong, opacity: pressed ? 0.8 : 1 }]}
       hitSlop={8}
     >
-      <Icon name="sliders" size={20} color={t.text} />
+      <Icon name="sliders" size={18} color={t.text} strokeWidth={1.8} />
     </Pressable>
   );
 }
@@ -158,7 +168,7 @@ export function Checkbox({ checked, label, onPress }: { checked: boolean; label:
       onPress={onPress}
       style={styles.checkRow}
     >
-      <View style={[styles.box, { borderColor: checked ? t.good : t.border, backgroundColor: checked ? t.good : 'transparent' }]}>
+      <View style={[styles.box, { borderColor: checked ? t.teal : t.borderStrong, backgroundColor: checked ? t.teal : 'transparent' }]}>
         {checked ? <Icon name="check" size={16} color="#FFFFFF" strokeWidth={3} /> : null}
       </View>
       <Text style={[styles.body, { color: checked ? t.muted : t.text, flex: 1 }]}>{label}</Text>
@@ -167,20 +177,26 @@ export function Checkbox({ checked, label, onPress }: { checked: boolean; label:
 }
 
 const styles = StyleSheet.create({
-  screen: { padding: space.lg, paddingBottom: 48, alignItems: 'center' },
+  screen: { paddingHorizontal: space.gutter, paddingTop: space.md, paddingBottom: 48, alignItems: 'center' },
   inner: { width: '100%', maxWidth: 640, gap: space.lg },
-  title: { fontSize: 30, fontWeight: '800', letterSpacing: -0.5 },
-  heading: { fontSize: 19, fontWeight: '800', letterSpacing: -0.2 },
-  body: { fontSize: 16, lineHeight: 23 },
-  card: { borderWidth: 1, borderRadius: radius, padding: space.lg, gap: space.md },
-  button: { minHeight: 48, borderRadius: radius, paddingHorizontal: space.lg, alignItems: 'center', justifyContent: 'center' },
-  buttonText: { fontSize: 16, fontWeight: '700' },
-  label: { fontSize: 14, fontWeight: '600' },
-  input: { borderWidth: 1, borderRadius: 10, paddingHorizontal: space.md, paddingVertical: 10, fontSize: 16, minHeight: 46 },
+  title: type.title,
+  heading: type.section,
+  body: type.body,
+  card: { borderWidth: 1, borderRadius: radii.panel, padding: 18, gap: space.md },
+  button: { minHeight: 52, borderRadius: radii.button, paddingHorizontal: space.lg, alignItems: 'center', justifyContent: 'center' },
+  buttonText: { fontSize: 16, fontFamily: fonts.semibold },
+  label: { fontSize: 14, fontFamily: fonts.semibold },
+  input: { borderWidth: 1, borderRadius: radii.sm, paddingHorizontal: space.md, paddingVertical: 10, fontSize: 16, fontFamily: fonts.body, minHeight: 46 },
   scaleRow: { flexDirection: 'row', justifyContent: 'space-between', gap: space.sm },
-  scaleDot: { flex: 1, minHeight: 48, borderRadius: 12, borderWidth: 2, alignItems: 'center', justifyContent: 'center' },
+  scaleDot: { flex: 1, minHeight: 48, borderRadius: radii.sm, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
   scaleEnds: { flexDirection: 'row', justifyContent: 'space-between' },
-  iconButton: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center', marginRight: 12 },
+  iconButton: { width: 38, height: 38, borderRadius: 19, borderWidth: 1, alignItems: 'center', justifyContent: 'center', marginRight: 16 },
   checkRow: { flexDirection: 'row', alignItems: 'center', gap: space.md, minHeight: 44 },
-  box: { width: 26, height: 26, borderRadius: 8, borderWidth: 2, alignItems: 'center', justifyContent: 'center' },
+  box: { width: 24, height: 24, borderRadius: 7, borderWidth: 1.5, alignItems: 'center', justifyContent: 'center' },
 });
+
+/** Small tracked capitals above a heading. */
+export function Overline({ children, color }: { children: React.ReactNode; color?: string }) {
+  const t = useTheme();
+  return <Text style={[type.overline, { color: color ?? t.muted }]}>{children}</Text>;
+}

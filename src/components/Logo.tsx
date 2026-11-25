@@ -22,7 +22,7 @@ export function Wordmark({ size = 28 }: { size?: number }) {
   return (
     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }} accessibilityRole="header" accessibilityLabel="Luminary">
       <LogoMark size={size} />
-      <Text style={{ color: t.text, fontSize: size * 0.68, fontWeight: '700', letterSpacing: 0.2 }}>Luminary</Text>
+      <Text style={{ color: t.text, fontSize: size * 0.68, fontFamily: 'Sora_600SemiBold', letterSpacing: -0.2 }}>Luminary</Text>
     </View>
   );
 }
