@@ -122,7 +122,10 @@ export default function Preferences() {
         />
       </Row>
 
-      <Row title="Visuals" why="Minimal turns off glows and moving effects for a calmer screen.">
+      <Row
+        title="Visuals"
+        why="Minimal is a lower-stimulation mode. It turns off glows, count-ups and moving effects, so the screen stays calm and still."
+      >
         <Segmented<Settings['visuals']>
           label="Visuals"
           value={s.visuals}
@@ -130,6 +133,21 @@ export default function Preferences() {
           options={[
             { value: 'minimal', label: 'Minimal' },
             { value: 'standard', label: 'Standard' },
+          ]}
+        />
+      </Row>
+
+      <Row
+        title="Contrast"
+        why="High contrast makes secondary text brighter and borders stronger, so everything is easier to read. Text size follows the text size you set on your phone."
+      >
+        <Segmented<Settings['contrast']>
+          label="Contrast"
+          value={s.contrast}
+          onChange={set('contrast')}
+          options={[
+            { value: 'standard', label: 'Standard' },
+            { value: 'high', label: 'High contrast' },
           ]}
         />
       </Row>

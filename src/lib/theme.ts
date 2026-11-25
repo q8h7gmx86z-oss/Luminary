@@ -1,5 +1,7 @@
 import { TextStyle } from 'react-native';
 
+import { useOptionalSettings } from './store';
+
 // The cognitive performance studio palette. See docs/design-system.md.
 // The app is dark-first: Sandra found the light background too bright. A proper light mode,
 // designed rather than inverted, comes later.
@@ -41,8 +43,21 @@ const studio = {
 
 export type Theme = typeof studio;
 
+/** High contrast: brighter secondary text, stronger borders and accents, darker background. Same layout. */
+const highContrast: Theme = {
+  ...studio,
+  bg: '#05070F',
+  surface: '#121731',
+  text: '#FFFFFF',
+  muted: '#CDD0E4',
+  border: 'rgba(241, 240, 250, 0.24)',
+  borderStrong: 'rgba(241, 240, 250, 0.42)',
+  lavender: '#C7B8FF',
+  primary: '#6A55E6',
+};
+
 export function useTheme(): Theme {
-  return studio;
+  return useOptionalSettings()?.contrast === 'high' ? highContrast : studio;
 }
 
 export const space = { xs: 4, sm: 8, md: 12, lg: 16, xl: 24, gutter: 20 };

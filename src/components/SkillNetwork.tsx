@@ -3,6 +3,7 @@ import Svg, { Circle, Defs, Line, RadialGradient, Stop, Text as SvgText } from '
 
 import { GameId } from '@/training/engine';
 import { GAMES } from '@/training/catalog';
+import { useOptionalSettings } from '@/lib/store';
 
 // Luminary's signature visual: a network with one region per task. Each region glows brighter as
 // measured performance on that task rises. It maps results in the app, not brain activity.
@@ -76,6 +77,7 @@ export function SkillNetwork({
   const { nodes, links } = useMemo(() => build(width, height), [width, height]);
   const p = (g: GameId) => level[g] ?? 0;
   const quiet = (g: GameId) => focus !== undefined && focus !== g;
+  const calm = useOptionalSettings()?.visuals === 'minimal';
 
   return (
     <Svg width={width} height={height} accessibilityElementsHidden importantForAccessibility="no" pointerEvents="none">
@@ -87,7 +89,7 @@ export function SkillNetwork({
           </RadialGradient>
         ))}
       </Defs>
-      {ORDER.map((g) => {
+      {calm ? null : ORDER.map((g) => {
         const [cx, cy] = CENTRES[g];
         const o = quiet(g) ? 0.12 : 0.15 + p(g) * 0.6;
         return <Circle key={g} cx={cx * width} cy={cy * height} r={width * 0.15} fill={`url(#net_${g})`} opacity={o * dim} />;

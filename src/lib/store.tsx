@@ -65,6 +65,8 @@ export type Settings = {
   colourAssist: boolean;
   /** Opt-in: compare training with sleep and mood check-ins, on this device. */
   insights: boolean;
+  /** High contrast brightens secondary text and borders. */
+  contrast: 'standard' | 'high';
 };
 export const DEFAULT_SETTINGS: Settings = {
   calmMode: false,
@@ -79,6 +81,7 @@ export const DEFAULT_SETTINGS: Settings = {
   challenge: 'balanced',
   colourAssist: false,
   insights: false,
+  contrast: 'standard',
 };
 
 function defaultState(): State {
@@ -246,6 +249,11 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
 
   const value = useMemo(() => ({ state, ready, ...actions }), [state, ready, actions]);
   return <StoreContext.Provider value={value}>{children}</StoreContext.Provider>;
+}
+
+/** Settings when inside the provider, otherwise undefined. Lets the theme read them without throwing. */
+export function useOptionalSettings(): Settings | undefined {
+  return useContext(StoreContext)?.state.settings;
 }
 
 export function useStore(): Ctx {

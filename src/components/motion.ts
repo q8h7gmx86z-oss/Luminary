@@ -3,7 +3,7 @@ import { AccessibilityInfo } from 'react-native';
 
 import { useStore } from '@/lib/store';
 
-/** True when the person or their device asks for less motion. */
+/** True when the person or their device asks for less motion, or the person chose calmer visuals. */
 export function useReducedMotion(): boolean {
   const { state } = useStore();
   const [system, setSystem] = useState(false);
@@ -14,7 +14,7 @@ export function useReducedMotion(): boolean {
     const sub = AccessibilityInfo.addEventListener('reduceMotionChanged', setSystem);
     return () => sub.remove();
   }, []);
-  return system || state.settings.calmMode;
+  return system || state.settings.calmMode || state.settings.visuals === 'minimal';
 }
 
 /** Counts a number up smoothly once, then holds it. Jumps straight to the value under reduced motion. */

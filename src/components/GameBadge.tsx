@@ -4,6 +4,7 @@ import Svg, { Defs, RadialGradient, Rect, Stop } from 'react-native-svg';
 
 import { GameId } from '@/training/engine';
 import { GAMES } from '@/training/catalog';
+import { useOptionalSettings } from '@/lib/store';
 
 import { Icon } from './Icon';
 
@@ -34,6 +35,7 @@ export function GameBadge({ game, size = 40 }: { game: GameId; size?: number }) 
  */
 export function NavyGlow({ width = 360, height = 240, color = '#7561E8' }: { width?: number; height?: number; color?: string }) {
   const id = `n${useId().replace(/[^a-zA-Z0-9]/g, '')}`;
+  if (useOptionalSettings()?.visuals === 'minimal') return null;
   return (
     <Svg
       width={width}
