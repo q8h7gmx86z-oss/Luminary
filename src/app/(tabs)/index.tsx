@@ -7,6 +7,7 @@ import { Icon } from '@/components/Icon';
 import { useCountUp } from '@/components/motion';
 import { networkLevels, SkillNetwork } from '@/components/SkillNetwork';
 import { ChampionshipsCard } from '@/training/ChampionshipsUI';
+import { LabToday } from '@/lab/WholeBrainCard';
 import { Body, Button, Card, Checkbox, Heading, Overline, Screen } from '@/components/ui';
 import { HABITS } from '@/content/content';
 import { ResearchLink } from '@/components/Research';
@@ -216,6 +217,8 @@ export default function Today() {
           <Text style={{ color: t.lavender, fontFamily: fonts.medium, fontSize: 14, textAlign: 'center' }}>Change length, goal or pace</Text>
         </Pressable>
       </View>
+
+      <LabToday />
 
       <ChampionshipsCard />
 

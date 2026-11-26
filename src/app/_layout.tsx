@@ -63,6 +63,9 @@ function Gate() {
       <Stack.Screen name="research/[id]" options={{ title: 'The evidence' }} />
       <Stack.Screen name="mood" options={{ title: 'Mood check-in' }} />
       <Stack.Screen name="sleep" options={{ title: 'Sleep' }} />
+      <Stack.Screen name="movement" options={{ title: 'Movement' }} />
+      <Stack.Screen name="lab/index" options={{ title: 'Personal Lab' }} />
+      <Stack.Screen name="lab/check" options={{ headerShown: false, gestureEnabled: false }} />
       <Stack.Screen name="workout" options={{ headerShown: false, gestureEnabled: false }} />
       <Stack.Screen name="iq" options={{ headerShown: false, gestureEnabled: false }} />
       <Stack.Screen name="play/[game]" options={{ headerShown: false }} />
