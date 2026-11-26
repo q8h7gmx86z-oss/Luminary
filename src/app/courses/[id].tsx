@@ -9,9 +9,10 @@ import { courseById } from '@/content/courses';
 import { useStore } from '@/lib/store';
 import { fonts, type, useTheme } from '@/lib/theme';
 import { Bar, Panel } from '@/real/ui';
+import { PlusGate } from '@/plus/PlusGate';
 
 /** One course: its lessons in order, each opened in place, and its practice. */
-export default function CourseScreen() {
+function CourseScreenScreen() {
   const t = useTheme();
   const { id } = useLocalSearchParams<{ id: string }>();
   const course = courseById(String(id));
@@ -82,5 +83,13 @@ export default function CourseScreen() {
       <Button label={course.practice.label} kind="secondary" onPress={() => router.push(course.practice.href as never)} />
       <ResearchLink id={course.evidence} />
     </Screen>
+  );
+}
+
+export default function CourseScreen() {
+  return (
+    <PlusGate feature="courses">
+      <CourseScreenScreen />
+    </PlusGate>
   );
 }

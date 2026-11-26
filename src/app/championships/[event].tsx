@@ -7,9 +7,10 @@ import { Button, Overline, Screen } from '@/components/ui';
 import { fonts, radii, type, useTheme } from '@/lib/theme';
 import { EVENT_ORDER, EventId, EVENTS, formatValue, STAIRCASE } from '@/training/championships';
 import { EventIcon, TrendLine, useChampionships } from '@/training/ChampionshipsUI';
+import { PlusGate } from '@/plus/PlusGate';
 
 /** One event: your threshold, record and trend, how it adapts, and the research behind it. */
-export default function EventDetail() {
+function EventDetailScreen() {
   const t = useTheme();
   const { event } = useLocalSearchParams<{ event: string }>();
   const { width } = useWindowDimensions();
@@ -86,5 +87,13 @@ export default function EventDetail() {
 
       <Button label={`Run a ${ev.name} heat`} onPress={() => router.push(`/championships/heats?event=${id}`)} />
     </Screen>
+  );
+}
+
+export default function EventDetail() {
+  return (
+    <PlusGate feature="championships">
+      <EventDetailScreen />
+    </PlusGate>
   );
 }

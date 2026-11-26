@@ -9,9 +9,10 @@ import { QUOTES } from '@/content/research';
 import { fonts, radii, type, useTheme } from '@/lib/theme';
 import { EVENT_ORDER, FULL_WEEK, sessionsThisWeek } from '@/training/championships';
 import { ChampionshipChart, EventRow, useChampionships } from '@/training/ChampionshipsUI';
+import { PlusGate } from '@/plus/PlusGate';
 
 /** The Neural Championships: the adaptive training core. One event per thinking skill. */
-export default function Championships() {
+function ChampionshipsScreen() {
   const t = useTheme();
   const c = useChampionships();
   const records = EVENT_ORDER.filter((e) => c.standings[e].record !== undefined).length;
@@ -103,5 +104,13 @@ function Legend({ color, label, dashed }: { color: string; label: string; dashed
       <View style={{ width: 14, height: 0, borderTopWidth: 2, borderColor: color, borderStyle: dashed ? 'dashed' : 'solid' }} />
       <Text style={{ color: t.muted, fontFamily: fonts.body, fontSize: 12 }}>{label}</Text>
     </View>
+  );
+}
+
+export default function Championships() {
+  return (
+    <PlusGate feature="championships">
+      <ChampionshipsScreen />
+    </PlusGate>
   );
 }

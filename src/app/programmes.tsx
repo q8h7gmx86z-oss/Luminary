@@ -9,9 +9,10 @@ import { activityOf, TargetRow, useProgramme } from '@/real/ProgrammeCard';
 import { PROGRAMMES, weekProgress, weeksMet } from '@/real/programmes';
 import { Panel } from '@/real/ui';
 import { dayKey } from '@/lib/logic';
+import { PlusGate } from '@/plus/PlusGate';
 
 /** Four-week programmes: choose one, then follow its weekly targets. */
-export default function Programmes() {
+function ProgrammesScreen() {
   const t = useTheme();
   const { state, startProgramme, endProgramme } = useStore();
   const g = useProgramme();
@@ -101,5 +102,13 @@ export default function Programmes() {
         })
       )}
     </Screen>
+  );
+}
+
+export default function Programmes() {
+  return (
+    <PlusGate feature="programmes">
+      <ProgrammesScreen />
+    </PlusGate>
   );
 }
