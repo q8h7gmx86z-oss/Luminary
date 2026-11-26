@@ -142,7 +142,7 @@ export function HoldIt({ level, onFinish, onQuit, untimed }: GameProps & { onQui
         <View style={{ gap: 12, maxWidth: 380 }}>
           <Text style={{ color: t.text, fontSize: 17, textAlign: 'center' }}>Tap the side the blue arrow points to, as fast as you can.</Text>
           <Text style={{ color: STOP, fontSize: 17, fontWeight: '700', textAlign: 'center' }}>If it turns red, stop. Tap nothing.</Text>
-          <Text style={{ color: t.muted, textAlign: 'center' }}>Do not wait for red. The task adapts so you stop about half the time. That is the point.</Text>
+          <Text style={{ color: t.muted, textAlign: 'center' }}>Do not wait for red. The task adapts so that you stop about half the time. This is by design.</Text>
         </View>
       ) : (
         <>
@@ -155,7 +155,7 @@ export function HoldIt({ level, onFinish, onQuit, untimed }: GameProps & { onQui
             <Text style={{ color: dir ? colour : t.muted, fontSize: dir ? 120 : 40, fontWeight: '800', lineHeight: dir ? 140 : 48 }}>{dir === 'left' ? '←' : dir === 'right' ? '→' : '+'}</Text>
           </View>
           <Text style={{ height: 22, fontWeight: '700', color: fb === 'right' || fb === 'held' ? t.good : t.help }}>
-            {fb === 'right' ? 'Correct' : fb === 'held' ? 'Stopped in time' : fb === 'slip' ? 'It turned red. That one got away' : fb === 'wrong' ? 'Other side' : fb === 'late' ? 'Too slow' : ''}
+            {fb === 'right' ? 'Correct' : fb === 'held' ? 'Stop held' : fb === 'slip' ? 'Stop signal missed' : fb === 'wrong' ? 'Incorrect direction' : fb === 'late' ? 'Time elapsed' : ''}
           </Text>
         </>
       )}

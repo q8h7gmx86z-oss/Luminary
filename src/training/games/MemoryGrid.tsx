@@ -98,13 +98,13 @@ export function MemoryGrid({ level, onFinish, onQuit, backwards = false }: GameP
         ? `Watch ${p.span} tiles light up, then tap them in reverse: last one first.`
         : `Watch ${p.span} tiles light up, then repeat them in order.`
       : phase === 'show'
-        ? 'Watch carefully...'
+        ? 'Observe the sequence.'
         : phase === 'input'
           ? `${backwards ? 'Reverse it' : 'Your turn'}: ${taps.length} of ${seq.length}`
           : phase === 'right'
-            ? 'Perfect!'
+            ? 'Sequence correct.'
             : phase === 'wrong'
-              ? 'Not quite. Next one.'
+              ? 'Sequence incorrect.'
               : '';
 
   const gap = 10;

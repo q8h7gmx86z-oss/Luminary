@@ -126,10 +126,10 @@ export function CatchTheLight({ level, onFinish, onQuit, untimed, adaptive }: Ga
   const color = stim === 'go' ? goColor : stim === 'nogo' ? noGoColor : t.soft;
 
   const FB_TEXT: Record<Exclude<Fb, null>, string> = {
-    hit: 'Nice catch',
+    hit: 'Correct',
     miss: 'Missed',
-    false: 'Hold back on that one',
-    hold: 'Well held',
+    false: 'Stop light: hold back',
+    hold: 'Held correctly',
   };
   const fbText = fb ? FB_TEXT[fb] : '';
   const fbColor = fb === 'hit' || fb === 'hold' ? t.good : t.help;

@@ -119,7 +119,7 @@ export function WordFlow({ level, onFinish, onQuit, untimed }: GameProps & { onQ
             <Text style={{ color: t.text, fontSize: 40, fontWeight: '700' }}>{word ?? ''}</Text>
           </View>
           <Text style={{ height: 22, fontWeight: '700', color: fb === 'right' ? t.good : t.help }}>
-            {fb === 'right' ? 'Correct' : fb === 'wrong' ? (s.current.switched ? 'The question changed' : 'Not quite') : fb === 'late' ? 'Too slow' : ''}
+            {fb === 'right' ? 'Correct' : fb === 'wrong' ? (s.current.switched ? 'The question changed' : 'Incorrect') : fb === 'late' ? 'Time elapsed' : ''}
           </Text>
         </>
       )}

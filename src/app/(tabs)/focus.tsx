@@ -177,7 +177,7 @@ function TaskBreakdown() {
           <View key={task.id} style={{ borderTopWidth: 1, borderTopColor: t.border, paddingTop: 12, gap: 4 }}>
             <Text style={[type.label, { color: t.text }]}>{task.title}</Text>
             <Text style={[type.caption, { color: t.muted }]}>
-              {allDone ? 'All done. Well done!' : `${doneCount} of ${task.steps.length} steps done`}
+              {allDone ? 'All steps complete.' : `${doneCount} of ${task.steps.length} steps done`}
             </Text>
             {task.steps.map((s) => (
               <Checkbox key={s.id} checked={s.done} label={s.text} onPress={() => toggleStep(task.id, s.id)} />

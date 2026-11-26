@@ -112,9 +112,9 @@ export function GameRunner({
         <Text style={{ fontSize: 26, fontWeight: '800', color: ON_NAVY }}>{info.name}</Text>
         <Text style={{ fontSize: 64, fontWeight: '800', color: GOLD, fontVariant: ['tabular-nums'] }}>{result.score}</Text>
         {challengeLevel !== undefined ? (
-          <Text style={{ color: cleared ? GOLD : ON_NAVY_MUTED, fontWeight: '800', fontSize: 18 }}>{cleared ? 'Challenge cleared!' : 'Not this time. The challenge resets tomorrow.'}</Text>
+          <Text style={{ color: cleared ? GOLD : ON_NAVY_MUTED, fontWeight: '800', fontSize: 18 }}>{cleared ? 'Challenge complete.' : 'Challenge not met. A new challenge is set tomorrow.'}</Text>
         ) : null}
-        {isBest ? <Text style={{ color: GOLD, fontWeight: '800', fontSize: 17 }}>★ New personal best!</Text> : <Text style={{ color: ON_NAVY_MUTED }}>Personal best: {best}</Text>}
+        {isBest ? <Text style={{ color: GOLD, fontWeight: '800', fontSize: 17 }}>★ Personal record</Text> : <Text style={{ color: ON_NAVY_MUTED }}>Personal best: {best}</Text>}
         <View style={{ flexDirection: 'row', gap: 12, width: '100%', maxWidth: 420 }}>
           <Stat label="Accuracy" value={`${Math.round(result.accuracy * 100)}%`} />
           {result.rtMedian ?? result.rtMs ? <Stat label="Median speed" value={`${Math.round((result.rtMedian ?? result.rtMs)!)} ms`} /> : null}
@@ -127,12 +127,12 @@ export function GameRunner({
         ) : null}
         <Text style={{ color: ON_NAVY_MUTED, textAlign: 'center', maxWidth: 420 }}>
           {newLevel > result.level
-            ? 'Strong round. Level up: the next one gets harder.'
+            ? 'Above your target range. Difficulty increases next round.'
             : newLevel < result.level
-              ? 'Dropping a level so you can rebuild. Training at the right difficulty is what drives gains.'
+              ? 'Below your target range. Difficulty eases by one level: training at the right difficulty is what drives gains.'
               : result.accuracy < 0.6
-                ? 'Tough round. Same level next time. Reps are how this gets easier.'
-                : 'Right in the training zone. Same level next time.'}
+                ? 'Below your target range. The level holds; consistent practice at this level builds capacity.'
+                : 'Within your target range. The level holds.'}
         </Text>
         <View style={{ flexDirection: 'row', gap: 12, width: '100%', maxWidth: 420 }}>
           {onExit ? <AnswerButton label="Done" tone="secondary" onPress={onExit} /> : null}
