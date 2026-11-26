@@ -3,6 +3,7 @@ import { Pressable, Text, Vibration, View } from 'react-native';
 
 import Svg, { Circle } from 'react-native-svg';
 
+import { ResearchLink } from '@/components/Research';
 import { Body, Button, Card, Checkbox, Field, Heading, Overline, Screen } from '@/components/ui';
 import { formatClock, secondsLeft } from '@/lib/logic';
 import { useStore } from '@/lib/store';
@@ -49,6 +50,7 @@ function VisualTimer({ onRunning }: { onRunning: (running: boolean) => void }) {
         <Text style={[type.caption, { color: t.muted }]}>
           Time can feel invisible, especially with ADHD. A shrinking ring makes it concrete, so starting and stopping get easier.
         </Text>
+        {endAt ? null : <ResearchLink id="focus-timer" />}
       </View>
 
       <View style={{ width: size, height: size, alignItems: 'center', justifyContent: 'center' }}>
@@ -148,6 +150,7 @@ function TaskBreakdown() {
         Starting is the hardest part. Split the task into steps, one per line, and make the first step so small you cannot fail it.
         Momentum does the rest.
       </Body>
+      <ResearchLink id="break-down" />
       <Field label="Task" value={title} onChangeText={setTitle} placeholder="For example: tidy my room" />
       <Field
         label="Steps (one per line)"
@@ -198,7 +201,8 @@ function IfThenPlans() {
   return (
     <Card>
       <Heading>When... then... plans</Heading>
-      <Body muted>Tie an action to a cue you already hit every day. Across 94 studies, plans like this clearly improved follow-through, because the cue does the remembering.</Body>
+      <Body muted>Tie an action to a cue you already hit every day. Across 94 tests in over 8,000 people, plans like this clearly improved follow-through, because the cue does the remembering.</Body>
+      <ResearchLink id="when-then" />
       <Field label="When I..." value={when} onChangeText={setWhen} placeholder="finish breakfast" />
       <Field label="Then I will..." value={then} onChangeText={setThen} placeholder="check today's plan" />
       <Button

@@ -2,6 +2,7 @@ import { Link } from 'expo-router';
 import React, { useState } from 'react';
 
 import { Body, Button, Card, Field, Heading, ScalePicker, Screen } from '@/components/ui';
+import { ResearchLink } from '@/components/Research';
 import { dayKey, formatDuration, lastNDays, mean, parseTime, sleepMinutes } from '@/lib/logic';
 import { Score, useStore } from '@/lib/store';
 import { useTheme } from '@/lib/theme';
@@ -72,6 +73,7 @@ export default function Sleep() {
         <Link href="/article/sleep" style={{ color: t.primary, fontWeight: '600', fontSize: 15 }}>
           Why sleep locks in your training
         </Link>
+        <ResearchLink id="sleep" />
       </Card>
     </Screen>
   );

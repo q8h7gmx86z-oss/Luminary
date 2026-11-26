@@ -148,6 +148,9 @@ export const ARTICLES: Article[] = [
       'No caffeine after early afternoon. It blocks the brain chemical that builds sleep pressure for hours.',
       'If poor sleep lasts more than a few weeks, or you snore loudly or stop breathing in your sleep, see your GP.',
     ],
-    sources: [{ label: 'Alimoradi et al. 2022, CBT-I meta-analysis, Sleep Medicine Reviews', url: 'https://doi.org/10.1016/j.smrv.2022.101646' }],
+    sources: [
+      { label: 'Trauer et al. 2015, CBT-I meta-analysis, Annals of Internal Medicine', url: 'https://doi.org/10.7326/M14-2841' },
+      { label: 'Alimoradi et al. 2022, CBT-I and quality of life, including digital CBT-I, Sleep Medicine Reviews', url: 'https://doi.org/10.1016/j.smrv.2022.101646' },
+    ],
   },
 ];

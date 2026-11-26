@@ -1,6 +1,5 @@
-import * as Linking from 'expo-linking';
 import React, { useState } from 'react';
-import { Pressable, ScrollView, Text, View } from 'react-native';
+import { ScrollView, Text, View } from 'react-native';
 
 import { useStore } from '@/lib/store';
 import { dayKey } from '@/lib/logic';
@@ -20,6 +19,7 @@ import { SpeedMatch } from './games/SpeedMatch';
 import { StarTracker } from './games/StarTracker';
 import { SwitchIt } from './games/SwitchIt';
 import { GameBadge } from '@/components/GameBadge';
+import { ResearchPanel } from '@/components/Research';
 
 const COMPONENTS = {
   speed: SpeedMatch,
@@ -60,7 +60,6 @@ export function GameRunner({
   const untimed = !state.settings.timed;
   const [stage, setStage] = useState<'intro' | 'play' | 'result'>('intro');
   const [result, setResult] = useState<GameResult | null>(null);
-  const [showScience, setShowScience] = useState(false);
 
   if (!isPlayable(id)) return null;
   const Game = COMPONENTS[id];
@@ -148,19 +147,9 @@ export function GameRunner({
           {untimed ? ' · Untimed mode' : ''}
         </Text>
       </View>
-      <Pressable accessibilityRole="button" onPress={() => setShowScience((v) => !v)} hitSlop={8}>
-        <Text style={{ color: t.primary, fontWeight: '700', fontSize: 15 }}>{showScience ? 'Hide the science' : 'What does the science say?'}</Text>
-      </Pressable>
-      {showScience ? (
-        <View style={{ gap: 8, width: '100%', maxWidth: 440 }}>
-          <Text style={{ color: t.text, fontSize: 15, lineHeight: 22 }}>{info.science}</Text>
-          {info.sources.map((s) => (
-            <Pressable key={s.url} accessibilityRole="link" onPress={() => Linking.openURL(s.url)}>
-              <Text style={{ color: t.primary, textDecorationLine: 'underline', fontSize: 14 }}>{s.label}</Text>
-            </Pressable>
-          ))}
-        </View>
-      ) : null}
+      <View style={{ width: '100%', maxWidth: 440 }}>
+        <ResearchPanel id={info.id} />
+      </View>
       <View style={{ flexDirection: 'row', width: '100%', maxWidth: 440 }}>
         <AnswerButton label="Play" onPress={() => setStage('play')} />
       </View>

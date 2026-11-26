@@ -26,6 +26,34 @@ export default function Learn() {
         <Text style={[type.body, { color: t.muted }]}>Short reads on the research behind your training. Every claim is sourced.</Text>
       </View>
 
+      <Pressable accessibilityRole="button" accessibilityLabel="The evidence. Every game and tool linked to its peer-reviewed papers." onPress={() => router.push('/research')}>
+        {({ pressed }) => (
+          <View
+            style={{
+              backgroundColor: t.surface,
+              borderRadius: radii.panel,
+              borderWidth: 1,
+              borderColor: t.border,
+              padding: 18,
+              gap: 6,
+              overflow: 'hidden',
+              opacity: pressed ? 0.92 : 1,
+            }}
+          >
+            <NavyGlow height={160} color={t.primary} />
+            <Overline color={t.lavender}>The evidence</Overline>
+            <Text style={[type.section, { color: t.text, fontSize: 20 }]}>Don’t take our word for it</Text>
+            <Text style={[type.caption, { color: t.muted }]}>
+              Every game and tool, linked to the peer-reviewed papers behind it, with an honest rating of how strong the evidence is.
+            </Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 6 }}>
+              <Text style={{ color: t.lavender, fontFamily: fonts.semibold, fontSize: 14 }}>Read the research</Text>
+              <Icon name="arrow" size={16} color={t.lavender} />
+            </View>
+          </View>
+        )}
+      </Pressable>
+
       <Pressable accessibilityRole="button" onPress={() => router.push('/rafi')}>
         {({ pressed }) => (
           <View

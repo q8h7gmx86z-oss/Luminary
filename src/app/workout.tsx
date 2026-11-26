@@ -11,6 +11,7 @@ import { dayKey } from '@/lib/logic';
 import { useStore } from '@/lib/store';
 import { fonts, radii, type, useTheme } from '@/lib/theme';
 import { Breathing } from '@/training/Breathing';
+import { ResearchPanel } from '@/components/Research';
 import { AVAILABLE, GAMES, SKILLS } from '@/training/catalog';
 import { focusGames, GameResult, MAX_LEVEL } from '@/training/engine';
 import { useTodayPlan } from '@/training/usePlan';
@@ -144,6 +145,10 @@ function Summary({ focus, results, before, after, firstTime }: { focus: boolean;
             </View>
           );
         })}
+      </View>
+
+      <View style={{ width: '100%', maxWidth: 440 }}>
+        <ResearchPanel id="workout" />
       </View>
 
       <Pressable

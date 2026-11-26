@@ -4,6 +4,8 @@ import { AccessibilityInfo, Animated, Easing, Text, View } from 'react-native';
 import { useStore } from '@/lib/store';
 import { useTheme } from '@/lib/theme';
 
+import { ResearchLink } from '@/components/Research';
+
 import { useCue } from './feedback';
 import { AnswerButton, GameFrame } from './GameFrame';
 
@@ -76,6 +78,7 @@ export function Breathing({ onFinish, onQuit }: { onFinish: () => void; onQuit?:
           ? 'One minute at six breaths a minute. Slow breathing steadies your heart rate, so you start training focused.'
           : `Breath ${cycle + 1} of ${CYCLES}`}
       </Text>
+      {phase === 'ready' ? <ResearchLink id="breathing" label="Why slow breathing" /> : null}
       <View
         style={{
           width: 260,
