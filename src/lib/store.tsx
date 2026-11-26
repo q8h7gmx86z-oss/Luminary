@@ -5,6 +5,7 @@ import React, { createContext, useCallback, useContext, useEffect, useMemo, useR
 import { FactorRecord, recordFor, Status } from '@/content/rafi';
 import { Challenge, GameId, GameResult, nextLevel } from '@/training/engine';
 import type { Goal } from '@/training/planner';
+import type { Heat } from '@/training/championships';
 
 import { Region, regionFromCode } from './crisis';
 import { dayKey, uid } from './logic';
@@ -38,6 +39,8 @@ export type State = {
   /** Rafi Programme: status and dated notes per risk factor. */
   rafiPlan?: Record<string, FactorRecord>;
   settings: Settings;
+  /** The Neural Championships: heats, the logic event's level and order preference. */
+  championships?: Championships;
   training: {
     levels: Partial<Record<GameId, number>>;
     results: GameResult[];
@@ -46,6 +49,14 @@ export type State = {
     /** Reasoning test attempts. */
     tests?: { at: number; percent: number; score?: number }[];
   };
+};
+
+export type Championships = {
+  heats: Heat[];
+  /** Level of the Logic event, which has no game of its own elsewhere. */
+  logicLevel?: number;
+  /** Off: the weakest event goes first. On: the standard order. */
+  chooseOrder?: boolean;
 };
 
 export type Settings = {
@@ -128,6 +139,9 @@ type Actions = {
   /** Saves a round. A challenge round can raise the game's level but never lowers it. */
   recordResult: (r: GameResult, opts?: { challenge?: boolean }) => void;
   completeWorkout: (day: string) => void;
+  /** Saves a Championships heat. A Logic heat also adjusts the Logic level. */
+  recordHeat: (h: Heat) => void;
+  setChooseOrder: (on: boolean) => void;
   deleteEverything: () => Promise<void>;
   /** Replaces everything on this device with a restored backup. */
   restoreAll: (saved: Partial<State>) => void;
@@ -238,6 +252,13 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         update((s) =>
           s.training.workouts.includes(day) ? s : { ...s, training: { ...s.training, workouts: [...s.training.workouts, day] } },
         ),
+      recordHeat: (h) =>
+        update((s) => {
+          const c = s.championships ?? { heats: [] };
+          const logicLevel = h.event === 'logic' ? nextLevel(h.level, h.accuracy, s.settings.challenge) : c.logicLevel;
+          return { ...s, championships: { ...c, logicLevel, heats: [...c.heats, h].slice(-3000) } };
+        }),
+      setChooseOrder: (chooseOrder) => update((s) => ({ ...s, championships: { heats: [], ...s.championships, chooseOrder } })),
       restoreAll: (saved) => update(() => mergeSaved(defaultState(), saved)),
       deleteEverything: async () => {
         await AsyncStorage.removeItem(STORAGE_KEY).catch(() => {});

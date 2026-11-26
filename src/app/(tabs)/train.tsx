@@ -7,6 +7,7 @@ import { Icon } from '@/components/Icon';
 import { Overline, Screen } from '@/components/ui';
 import { savedScore } from '@/iq/items';
 import { useStore } from '@/lib/store';
+import { ChampionshipsCard } from '@/training/ChampionshipsUI';
 import { fonts, radii, type, useTheme } from '@/lib/theme';
 import { AVAILABLE, GAMES, SKILLS } from '@/training/catalog';
 import { GameId, MAX_LEVEL, Skill } from '@/training/engine';
@@ -97,6 +98,8 @@ export default function Train() {
         </Text>
         <Text style={[type.body, { color: t.muted }]}>Every task adapts to you, getting harder as you improve.</Text>
       </View>
+
+      <ChampionshipsCard />
 
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
         <Chip label="All" on={filter === 'all'} onPress={() => setFilter('all')} />

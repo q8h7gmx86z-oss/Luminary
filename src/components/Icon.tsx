@@ -41,6 +41,13 @@ const ICONS = {
     </>
   ),
   swap: <Path d="M17 3l4 4-4 4M21 7H9M7 21l-4-4 4-4M3 17h12" />,
+  matrix: (
+    <>
+      <Rect x={3.5} y={3.5} width={17} height={17} rx={2} />
+      <Path d="M3.5 12h17M12 3.5v17" />
+    </>
+  ),
+  laurel: <Path d="M12 21v-6M8 21h8M12 15a6 6 0 0 0 6-6V3H6v6a6 6 0 0 0 6 6zM6 5H3v2a3 3 0 0 0 3 3M18 5h3v2a3 3 0 0 1-3 3" />,
   wind: <Path d="M3 8h10a3 3 0 1 0-3-3M3 12h15a3 3 0 1 1-3 3M3 16h7" />,
   check: <Path d="M20 6 9 17l-5-5" />,
   info: (

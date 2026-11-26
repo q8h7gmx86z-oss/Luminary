@@ -256,6 +256,18 @@ export const PAPERS: Record<string, Paper> = {
     design: 'Training study · three age groups: 8–10, 18–26 and 62–76',
     finding: 'Switching practice transferred to similar tasks in every age group, most in children and older adults, and also to other executive tasks and reasoning.',
   },
+  wilson2019: {
+    id: 'wilson2019',
+    short: 'Wilson et al. 2019',
+    authors: 'Wilson RC, Shenhav A, Straccia M, Cohen JD',
+    year: 2019,
+    title: 'The Eighty Five Percent Rule for optimal learning',
+    journal: 'Nature Communications',
+    ref: '10:4646',
+    doi: '10.1038/s41467-019-12552-4',
+    design: 'Mathematical analysis of learning, tested in simulated neural networks and a model of animal learning',
+    finding: 'For a broad class of learning rules, training is fastest when difficulty is set so that about 85% of answers are correct.',
+  },
   carpenter1990: {
     id: 'carpenter1990',
     short: 'Carpenter et al. 1990',
@@ -627,6 +639,21 @@ export const EVIDENCE: Evidence[] = [
   },
 
   // Tasks
+  {
+    id: 'championships',
+    name: 'The Neural Championships',
+    kind: 'task',
+    verdict: 'moderate',
+    why: 'Each event holds you at your own threshold, because training that adapts to the person outperforms practice at a fixed level.',
+    highlights: [
+      'Modelling of learning shows training is fastest when about 85% of answers are correct, which is the default target for every event.',
+      'In a controlled trial, adaptive working memory training produced larger gains than the same training at a fixed, easy level.',
+      'Spaced practice outperforms massed practice across hundreds of experiments, so four sessions a week constitute a full week.',
+    ],
+    limits: 'The 85% figure comes from mathematical models and simulations, not from trials of brain training in people. Gains in each event show improvement on that task; transfer to daily life is set out, event by event, in each research card.',
+    papers: ['wilson2019', 'brehmer2012', 'cepeda2006'],
+    quote: 'cajal',
+  },
   {
     id: 'workout',
     name: 'Daily workout',

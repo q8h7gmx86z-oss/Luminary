@@ -66,6 +66,11 @@ function Gate() {
       <Stack.Screen name="workout" options={{ headerShown: false, gestureEnabled: false }} />
       <Stack.Screen name="iq" options={{ headerShown: false, gestureEnabled: false }} />
       <Stack.Screen name="play/[game]" options={{ headerShown: false }} />
+      <Stack.Screen name="championships/index" options={{ title: '' }} />
+      <Stack.Screen name="championships/[event]" options={{ title: 'Event' }} />
+      <Stack.Screen name="championships/heats" options={{ headerShown: false, gestureEnabled: false }} />
+      <Stack.Screen name="championships/season" options={{ title: 'Season' }} />
+      <Stack.Screen name="championships/settings" options={{ title: '' }} />
     </Stack>
   );
 }

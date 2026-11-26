@@ -21,7 +21,7 @@ import { SwitchIt } from './games/SwitchIt';
 import { GameBadge } from '@/components/GameBadge';
 import { ResearchPanel } from '@/components/Research';
 
-const COMPONENTS = {
+export const COMPONENTS = {
   speed: SpeedMatch,
   grid: MemoryGrid,
   catch: CatchTheLight,
