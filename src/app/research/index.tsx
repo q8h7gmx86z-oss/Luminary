@@ -64,6 +64,20 @@ export default function ResearchHub() {
         ))}
       </View>
 
+      <View style={{ backgroundColor: t.surface, borderRadius: radii.panel, borderWidth: 1, borderColor: t.border, padding: 16, gap: 10 }}>
+        <Overline>How science earns trust</Overline>
+        {[
+          ['Peer review', 'Before a paper is published, independent experts in the field check its methods and conclusions. Every paper here passed that test.'],
+          ['Randomised controlled trial', 'People are assigned to train or not by chance, like a coin toss. It is the fairest way to show that something causes a change, rather than just going with it.'],
+          ['Meta-analysis', 'The results of many studies pooled into one answer, so no single lucky study can mislead. It sits at the top of the evidence ladder.'],
+          ['The journals', 'Some names carry special weight. The Lancet, published in London since 1823, and JAMA, since 1883, are among the most respected medical journals in the world. Each paper card tells you who published it and why that counts.'],
+        ].map(([h, b]) => (
+          <Text key={h} style={[type.caption, { color: t.text }]}>
+            <Text style={{ color: t.lavender }}>{h}.</Text> {b}
+          </Text>
+        ))}
+      </View>
+
       {GROUPS.map((g) => {
         const items = EVIDENCE.filter((e) => e.kind === g.kind);
         return (

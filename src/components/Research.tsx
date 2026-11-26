@@ -3,7 +3,7 @@ import { router } from 'expo-router';
 import React, { useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 
-import { Evidence, evidenceFor, Paper, PAPERS, paperUrl, pubmedUrl, QUOTES, Verdict, VERDICTS } from '@/content/research';
+import { aboutSource, Evidence, evidenceFor, Paper, PAPERS, paperUrl, pubmedUrl, QUOTES, Verdict, VERDICTS } from '@/content/research';
 import { fonts, radii, type, useTheme } from '@/lib/theme';
 
 import { Icon } from './Icon';
@@ -48,6 +48,8 @@ function LinkText({ label, url }: { label: string; url: string }) {
 export function PaperCard({ paper }: { paper: Paper }) {
   const t = useTheme();
   const pm = pubmedUrl(paper);
+  const [why, setWhy] = useState(true);
+  const notes = aboutSource(paper);
   return (
     <View style={{ backgroundColor: t.raised, borderRadius: radii.row, borderWidth: 1, borderColor: t.border, padding: 14, gap: 6 }}>
       <Text style={[type.overline, { color: t.muted, fontSize: 10 }]}>{paper.design}</Text>
@@ -56,9 +58,21 @@ export function PaperCard({ paper }: { paper: Paper }) {
         {paper.authors} · <Text style={{ fontStyle: 'italic' }}>{paper.journal}</Text> {paper.year}; {paper.ref}
       </Text>
       <Text style={[type.caption, { color: t.text, fontSize: 13.5, lineHeight: 20 }]}>{paper.finding}</Text>
-      <View style={{ flexDirection: 'row', gap: 18, marginTop: 2, flexWrap: 'wrap' }}>
+      {why ? (
+        <View style={{ gap: 6, borderLeftWidth: 2, borderLeftColor: t.lavender + '66', paddingLeft: 10, marginTop: 2 }}>
+          {notes.map((n, i) => (
+            <Text key={i} style={[type.caption, { color: t.muted, fontSize: 13, lineHeight: 19 }]}>
+              {n}
+            </Text>
+          ))}
+        </View>
+      ) : null}
+      <View style={{ flexDirection: 'row', gap: 18, marginTop: 2, flexWrap: 'wrap', alignItems: 'center' }}>
         <LinkText label={paper.doi ? 'Read the paper' : 'Read on PubMed'} url={paperUrl(paper)} />
         {paper.doi && pm ? <LinkText label="PubMed" url={pm} /> : null}
+        <Pressable accessibilityRole="button" accessibilityState={{ expanded: why }} onPress={() => setWhy((v) => !v)} hitSlop={8}>
+          <Text style={{ color: t.lavender, fontFamily: fonts.semibold, fontSize: 13 }}>{why ? 'Hide source notes' : 'Why this source counts'}</Text>
+        </Pressable>
       </View>
     </View>
   );

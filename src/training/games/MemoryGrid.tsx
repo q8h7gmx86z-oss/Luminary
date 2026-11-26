@@ -5,6 +5,7 @@ import { useStore } from '@/lib/store';
 import { useTheme } from '@/lib/theme';
 
 import { gridParams } from '../engine';
+import { echoAnswer, echoParams } from '../newgames';
 import { AnswerButton, GameFrame, GameProps } from '../GameFrame';
 import { useAnswerFeedback } from '../feedback';
 
@@ -19,10 +20,11 @@ function makeSequence(span: number, cells: number): number[] {
   return seq;
 }
 
-export function MemoryGrid({ level, onFinish, onQuit }: GameProps & { onQuit?: () => void }) {
+/** Memory Grid repeats the pattern forwards. Echo (backwards = true) plays it back in reverse. */
+export function MemoryGrid({ level, onFinish, onQuit, backwards = false }: GameProps & { onQuit?: () => void; backwards?: boolean }) {
   const t = useTheme();
   const calm = useStore().state.settings.visuals === 'minimal';
-  const p = gridParams(level);
+  const p = backwards ? echoParams(level) : gridParams(level);
   const cells = p.size * p.size;
 
   const [trial, setTrial] = useState(0);
@@ -44,7 +46,7 @@ export function MemoryGrid({ level, onFinish, onQuit }: GameProps & { onQuit?: (
   const play = useCallback(
     (n: number) => {
       const s = makeSequence(p.span, cells);
-      setSeq(s);
+      setSeq(backwards ? echoAnswer(s) : s);
       setTaps([]);
       setTrial(n);
       setPhase('show');
@@ -92,11 +94,13 @@ export function MemoryGrid({ level, onFinish, onQuit }: GameProps & { onQuit?: (
 
   const message =
     phase === 'ready'
-      ? `Watch ${p.span} tiles light up, then repeat them in order.`
+      ? backwards
+        ? `Watch ${p.span} tiles light up, then tap them in reverse: last one first.`
+        : `Watch ${p.span} tiles light up, then repeat them in order.`
       : phase === 'show'
         ? 'Watch carefully...'
         : phase === 'input'
-          ? `Your turn: ${taps.length} of ${seq.length}`
+          ? `${backwards ? 'Reverse it' : 'Your turn'}: ${taps.length} of ${seq.length}`
           : phase === 'right'
             ? 'Perfect!'
             : phase === 'wrong'
@@ -109,7 +113,7 @@ export function MemoryGrid({ level, onFinish, onQuit }: GameProps & { onQuit?: (
 
   return (
     <GameFrame
-      title="Memory Grid"
+      title={backwards ? 'Echo' : 'Memory Grid'}
       level={level}
       progress={(trial + (phase === 'right' || phase === 'wrong' ? 1 : 0)) / p.trials}
       status={`Round ${Math.min(trial + 1, p.trials)} of ${p.trials}`}

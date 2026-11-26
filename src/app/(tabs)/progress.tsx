@@ -45,7 +45,7 @@ function NetworkExplorer() {
   const info = GAMES[sel];
   const a = gameAnalytics(results, sel, levels[sel] ?? 1);
   const levelGain = a.levelTrend.length > 1 ? a.levelTrend[a.levelTrend.length - 1] - a.levelTrend[0] : undefined;
-  const hit = 56;
+  const hit = 44;
 
   return (
     <View style={{ backgroundColor: t.surface, borderRadius: radii.panel, borderWidth: 1, borderColor: t.border, overflow: 'hidden' }}>
