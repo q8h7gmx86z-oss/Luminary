@@ -8,6 +8,8 @@ import type { Goal } from '@/training/planner';
 import type { Heat } from '@/training/championships';
 import type { BenchmarkRecord } from '@/training/benchmark';
 import type { Experiment, LabEntry } from '@/lab/lab';
+import { newCard, RecallCard, review } from '@/real/recall';
+import { programmeById } from '@/real/programmes';
 
 import { Region, regionFromCode } from './crisis';
 import { dayKey, uid } from './logic';
@@ -43,6 +45,16 @@ export type State = {
   settings: Settings;
   /** Minutes of movement per day, keyed YYYY-MM-DD. */
   movement?: Record<string, number>;
+  /** Memory courses: lesson id to when it was completed, and Memory Palace practice scores. */
+  courses?: { lessons: Record<string, number>; palace: { at: number; score: number }[] };
+  /** The recall deck and how many cards were reviewed each day. */
+  recall?: { cards: RecallCard[]; reviews: Record<string, number> };
+  /** Focus blocks finished, per day. */
+  focusBlocks?: Record<string, number>;
+  /** Bedtime brain dumps, per day. */
+  dumps?: Record<string, { items: string[]; at: number }>;
+  /** The four-week programme, if one has been started. */
+  programme?: { id: string; start: string; endedAt?: number };
   /** Personal Lab experiments, oldest first. The last one without endedAt is running. */
   lab?: Experiment[];
   /** The Neural Championships: heats, the logic event's level and order preference. */
@@ -135,6 +147,16 @@ type Actions = {
   /** Adds (or with a negative number removes) minutes of movement for a day. Never below zero. */
   addMovement: (day: string, minutes: number) => void;
   startExperiment: (e: Experiment) => void;
+  completeLesson: (id: string) => void;
+  recordPalace: (score: number) => void;
+  addRecallCard: (q: string, a: string) => void;
+  reviewRecallCard: (id: string, correct: boolean) => void;
+  removeRecallCard: (id: string) => void;
+  logFocusBlock: () => void;
+  saveDump: (items: string[]) => void;
+  /** Starts a programme today and sets the workout goal to match. */
+  startProgramme: (id: string) => void;
+  endProgramme: () => void;
   /** Saves today's check in the running experiment, replacing any earlier check that day. */
   recordLabEntry: (e: LabEntry) => void;
   endExperiment: () => void;
@@ -205,6 +227,37 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       recordBenchmark: (b) => update((s) => ({ ...s, training: { ...s.training, benchmarks: [...(s.training.benchmarks ?? []), b].slice(-60) } })),
       addMovement: (day, minutes) =>
         update((s) => ({ ...s, movement: { ...s.movement, [day]: Math.max(0, Math.min(600, (s.movement?.[day] ?? 0) + minutes)) } })),
+      completeLesson: (id) =>
+        update((s) => {
+          const c = s.courses ?? { lessons: {}, palace: [] };
+          return c.lessons[id] ? s : { ...s, courses: { ...c, lessons: { ...c.lessons, [id]: Date.now() } } };
+        }),
+      recordPalace: (score) =>
+        update((s) => {
+          const c = s.courses ?? { lessons: {}, palace: [] };
+          return { ...s, courses: { ...c, palace: [...c.palace, { at: Date.now(), score }].slice(-50) } };
+        }),
+      addRecallCard: (q, a) =>
+        update((s) => {
+          const r = s.recall ?? { cards: [], reviews: {} };
+          return { ...s, recall: { ...r, cards: [...r.cards, newCard(uid(), q, a, dayKey(), Date.now())].slice(-500) } };
+        }),
+      reviewRecallCard: (id, correct) =>
+        update((s) => {
+          const r = s.recall ?? { cards: [], reviews: {} };
+          const day = dayKey();
+          return { ...s, recall: { cards: r.cards.map((c) => (c.id === id ? review(c, correct, day) : c)), reviews: { ...r.reviews, [day]: (r.reviews[day] ?? 0) + 1 } } };
+        }),
+      removeRecallCard: (id) => update((s) => (s.recall ? { ...s, recall: { ...s.recall, cards: s.recall.cards.filter((c) => c.id !== id) } } : s)),
+      logFocusBlock: () => update((s) => ({ ...s, focusBlocks: { ...s.focusBlocks, [dayKey()]: (s.focusBlocks?.[dayKey()] ?? 0) + 1 } })),
+      saveDump: (items) => update((s) => ({ ...s, dumps: { ...s.dumps, [dayKey()]: { items, at: Date.now() } } })),
+      startProgramme: (id) =>
+        update((s) => {
+          const p = programmeById(id);
+          if (!p) return s;
+          return { ...s, programme: { id, start: dayKey() }, settings: { ...s.settings, goal: p.goal } };
+        }),
+      endProgramme: () => update((s) => (s.programme ? { ...s, programme: { ...s.programme, endedAt: Date.now() } } : s)),
       startExperiment: (e) => update((s) => ({ ...s, lab: [...(s.lab ?? []).map((x) => (x.endedAt ? x : { ...x, endedAt: Date.now() })), e].slice(-20) })),
       recordLabEntry: (entry) =>
         update((s) => {

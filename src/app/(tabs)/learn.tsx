@@ -7,6 +7,7 @@ import { Icon } from '@/components/Icon';
 import { Overline, Screen } from '@/components/ui';
 import { ARTICLES } from '@/content/content';
 import { fonts, radii, type, useTheme } from '@/lib/theme';
+import { EntryCard } from '@/real/ui';
 
 /** Reading time at about 200 words a minute, never less than one. */
 function minutes(body: string[]): number {
@@ -53,6 +54,26 @@ export default function Learn() {
           </View>
         )}
       </Pressable>
+
+      <EntryCard
+        overline="Four-week programmes"
+        title="A month with a purpose"
+        detail="Faster Thinking, Memory Foundations, Steady Focus or The Whole Brain: one goal, weekly targets, tracked for you."
+        href="/programmes"
+        icon="target"
+        colour={t.gold}
+        cta="Choose a programme"
+      />
+
+      <EntryCard
+        overline="Memory courses"
+        title="Remember what matters"
+        detail="The Memory Palace, and Remember for Good with your own recall deck. Short lessons with practice built in."
+        href="/courses"
+        icon="book"
+        colour={t.teal}
+        cta="Open the courses"
+      />
 
       <Pressable accessibilityRole="button" onPress={() => router.push('/rafi')}>
         {({ pressed }) => (
