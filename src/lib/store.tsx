@@ -6,6 +6,7 @@ import { FactorRecord, recordFor, Status } from '@/content/rafi';
 import { Challenge, GameId, GameResult, nextLevel } from '@/training/engine';
 import type { Goal } from '@/training/planner';
 import type { Heat } from '@/training/championships';
+import type { BenchmarkRecord } from '@/training/benchmark';
 
 import { Region, regionFromCode } from './crisis';
 import { dayKey, uid } from './logic';
@@ -48,6 +49,8 @@ export type State = {
     workouts: string[];
     /** Reasoning test attempts. */
     tests?: { at: number; percent: number; score?: number }[];
+    /** The Luminary Benchmark: monthly checks on untrained tasks, oldest first. */
+    benchmarks?: BenchmarkRecord[];
   };
 };
 
@@ -123,6 +126,7 @@ type Actions = {
   setCalmMode: (on: boolean) => void;
   setSetting: <K extends keyof Settings>(key: K, value: Settings[K]) => void;
   recordTest: (t: { at: number; percent: number; score: number }) => void;
+  recordBenchmark: (b: BenchmarkRecord) => void;
   saveMood: (e: Omit<MoodEntry, 'at'>) => void;
   saveSleep: (e: Omit<SleepEntry, 'at'>) => void;
   toggleHabit: (habitId: string) => void;
@@ -187,6 +191,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       setRegion: (region) => update((s) => ({ ...s, region })),
       setAgeGroup: (ageGroup) => update((s) => ({ ...s, ageGroup })),
       setCalmMode: (calmMode) => update((s) => ({ ...s, settings: { ...s.settings, calmMode } })),
+      recordBenchmark: (b) => update((s) => ({ ...s, training: { ...s.training, benchmarks: [...(s.training.benchmarks ?? []), b].slice(-60) } })),
       recordTest: (rec) => update((s) => ({ ...s, training: { ...s.training, tests: [...(s.training.tests ?? []), rec].slice(-50) } })),
       setSetting: (key, value) => update((s) => ({ ...s, settings: { ...s.settings, [key]: value } })),
       saveMood: (e) => update((s) => ({ ...s, moods: { ...s.moods, [dayKey()]: { ...e, at: Date.now() } } })),
