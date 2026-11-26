@@ -26,6 +26,12 @@ export type ChampEvent = {
 
 export const EVENT_ORDER: EventId[] = ['sprint', 'span', 'focus', 'shift', 'logic'];
 
+/**
+ * Events whose difficulty adjusts after every answer, as in classic threshold tests. Span and Logic
+ * have too few items per heat for a staircase, and Shift measures a switch cost, so those adjust between heats.
+ */
+export const STAIRCASE: EventId[] = ['sprint', 'focus'];
+
 export const EVENTS: Record<EventId, ChampEvent> = {
   sprint: {
     id: 'sprint',
@@ -139,17 +145,18 @@ export function thresholdFor(
   untimed: boolean,
   metrics?: Record<string, number>,
 ): number | undefined {
-  // Only a heat at or above target accuracy measures your threshold.
-  if (accuracy < target) return undefined;
-  const held = heldLevel(level, accuracy, target);
+  // A staircase heat measures the threshold directly. Otherwise only a heat at or above target does.
+  const stair = metrics?.stairLevel;
+  if (stair === undefined && accuracy < target) return undefined;
+  const held = stair ?? heldLevel(level, accuracy, target);
   if (untimed) return held;
   switch (event) {
     case 'sprint':
-      return speedParams(held).deadlineMs;
+      return Math.round(speedParams(held).deadlineMs);
     case 'span':
       return gridParams(held).span;
     case 'focus':
-      return catchParams(held).showMs;
+      return Math.round(catchParams(held).showMs);
     case 'shift': {
       const cost = metrics?.switchCost;
       return cost !== undefined ? Math.max(0, Math.round(cost)) : undefined;
@@ -157,6 +164,33 @@ export function thresholdFor(
     case 'logic':
       return held;
   }
+}
+
+// --- Trial-by-trial staircase ------------------------------------------------------
+
+/**
+ * Weighted up-down staircase (Kaernbach 1991). Each correct answer makes the next trial a small
+ * step harder; each error makes it easier by step × p / (1 − p). It settles where you answer
+ * correctly a share p of the time, so the target accuracy is held trial by trial.
+ */
+export type Stair = { level: number; up: number; down: number; min: number; max: number; dir: 0 | 1 | -1; reversals: number[]; trials: number };
+
+export function makeStair(start: number, target: number, step = 0.5, min = 1, max = MAX_LEVEL): Stair {
+  return { level: Math.min(max, Math.max(min, start)), up: step, down: (step * target) / (1 - target), min, max, dir: 0, reversals: [], trials: 0 };
+}
+
+export function stepStair(s: Stair, correct: boolean): Stair {
+  const dir: 1 | -1 = correct ? 1 : -1;
+  const level = Math.min(s.max, Math.max(s.min, s.level + (correct ? s.up : -s.down)));
+  const reversals = s.dir !== 0 && dir !== s.dir ? [...s.reversals, s.level] : s.reversals;
+  return { ...s, level, dir, reversals, trials: s.trials + 1 };
+}
+
+/** Threshold estimate: the mean level at the last six reversals. Needs at least three. */
+export function stairEstimate(s: Stair): number | undefined {
+  if (s.reversals.length < 3) return undefined;
+  const last = s.reversals.slice(-6);
+  return last.reduce((a, b) => a + b, 0) / last.length;
 }
 
 export function formatValue(value: number | undefined, unit: Unit): string {
@@ -207,7 +241,7 @@ export function medalFor(heat: Heat, earlier: Heat[], target: number): Medal {
     const avg = recent.reduce((a, b) => a + b, 0) / recent.length;
     if (isBetter(heat.value, avg, dir)) return 'silver';
   }
-  return heat.accuracy >= target ? 'bronze' : 'none';
+  return heat.value !== undefined || heat.accuracy >= target ? 'bronze' : 'none';
 }
 
 // --- Seasons ---------------------------------------------------------------------

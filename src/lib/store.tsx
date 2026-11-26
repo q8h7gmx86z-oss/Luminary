@@ -137,7 +137,7 @@ type Actions = {
   removePlan: (id: string) => void;
   /** Saves a round and adjusts that game's level for next time. */
   /** Saves a round. A challenge round can raise the game's level but never lowers it. */
-  recordResult: (r: GameResult, opts?: { challenge?: boolean }) => void;
+  recordResult: (r: GameResult, opts?: { challenge?: boolean; setLevel?: number }) => void;
   completeWorkout: (day: string) => void;
   /** Saves a Championships heat. A Logic heat also adjusts the Logic level. */
   recordHeat: (h: Heat) => void;
@@ -237,7 +237,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         update((s) => {
           const current = s.training.levels[r.game] ?? 1;
           const next = nextLevel(r.level, r.accuracy, s.settings.challenge);
-          const level = opts?.challenge ? Math.max(current, next > r.level ? next : current) : next;
+          const level = opts?.setLevel !== undefined ? Math.round(opts.setLevel) : opts?.challenge ? Math.max(current, next > r.level ? next : current) : next;
           return {
             ...s,
             training: {

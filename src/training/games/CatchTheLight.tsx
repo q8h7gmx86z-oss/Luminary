@@ -4,6 +4,7 @@ import { Pressable, Text, View } from 'react-native';
 import { useStore } from '@/lib/store';
 import { useTheme } from '@/lib/theme';
 
+import { makeStair, stairEstimate, stepStair } from '../championships';
 import { catchParams, goNoGoAccuracy, mean, defined, rtStats } from '../engine';
 import { AnswerButton, GameFrame, GameProps, useTap } from '../GameFrame';
 import { useAnswerFeedback } from '../feedback';
@@ -12,13 +13,17 @@ import { useKeys } from '../useKeys';
 type Stim = 'go' | 'nogo' | null;
 type Fb = 'hit' | 'miss' | 'false' | 'hold' | null;
 
-export function CatchTheLight({ level, onFinish, onQuit, untimed }: GameProps & { onQuit?: () => void }) {
+export function CatchTheLight({ level, onFinish, onQuit, untimed, adaptive }: GameProps & { onQuit?: () => void }) {
   const t = useTheme();
   const { visuals, colourAssist } = useStore().state.settings;
   const calm = visuals === 'minimal';
   // Untimed mode keeps each light on twice as long. The task still needs a window to respond in.
   const base = catchParams(level);
   const p = untimed ? { ...base, showMs: base.showMs * 2 } : base;
+  // Championships: display time, gap and share of stop lights adapt after every light.
+  const stairOn = !!adaptive && !untimed;
+  const stair = useRef(makeStair(level, adaptive?.target ?? 0.85));
+  const [showNow, setShowNow] = useState(p.showMs);
   const [phase, setPhase] = useState<'ready' | 'play' | 'done'>('ready');
   const [stim, setStim] = useState<Stim>(null);
   const [trial, setTrial] = useState(0);
@@ -53,6 +58,7 @@ export function CatchTheLight({ level, onFinish, onQuit, untimed }: GameProps & 
         accuracy: goNoGoAccuracy(st.hits, st.holds, p.trials),
         ...rtStats(st.rts),
         metrics: defined({
+          ...(stairOn ? { stairLevel: stairEstimate(stair.current), endLevel: stair.current.level } : {}),
           falseStarts: st.falseStarts,
           misses: st.misses,
           stopRate: st.nogos ? st.holds / st.nogos : undefined,
@@ -61,7 +67,9 @@ export function CatchTheLight({ level, onFinish, onQuit, untimed }: GameProps & 
       });
       return;
     }
-    const kind: Stim = Math.random() < p.noGoRate ? 'nogo' : 'go';
+    const q = stairOn ? catchParams(stair.current.level) : p;
+    setShowNow(q.showMs);
+    const kind: Stim = Math.random() < q.noGoRate ? 'nogo' : 'go';
     const st = s.current;
     st.trial = n;
     st.responded = false;
@@ -83,9 +91,10 @@ export function CatchTheLight({ level, onFinish, onQuit, untimed }: GameProps & 
           setFb('miss');
         }
       }
+      if (stairOn) stair.current = stepStair(stair.current, kind === 'go' ? st.responded : !st.responded);
       setStim(null);
-      later(() => runTrial(n + 1), p.gapMs + Math.random() * 300);
-    }, p.showMs);
+      later(() => runTrial(n + 1), q.gapMs + Math.random() * 300);
+    }, q.showMs);
   };
 
   const press = () => {
@@ -128,9 +137,9 @@ export function CatchTheLight({ level, onFinish, onQuit, untimed }: GameProps & 
   return (
     <GameFrame
       title="Catch the Light"
-      level={level}
+      level={stairOn ? Math.round(stair.current.level) : level}
       progress={trial / p.trials}
-      status={phase === 'play' ? `${trial + 1} of ${p.trials}` : undefined}
+      status={phase === 'play' ? `${trial + 1} of ${p.trials}${stairOn ? `  ·  ${Math.round(showNow)} ms` : ''}` : undefined}
       onQuit={onQuit}
     >
       {phase === 'ready' ? (

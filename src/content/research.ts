@@ -256,6 +256,18 @@ export const PAPERS: Record<string, Paper> = {
     design: 'Training study · three age groups: 8–10, 18–26 and 62–76',
     finding: 'Switching practice transferred to similar tasks in every age group, most in children and older adults, and also to other executive tasks and reasoning.',
   },
+  kaernbach1991: {
+    id: 'kaernbach1991',
+    short: 'Kaernbach 1991',
+    authors: 'Kaernbach C',
+    year: 1991,
+    title: 'Simple adaptive testing with the weighted up-down method',
+    journal: 'Perception & Psychophysics',
+    ref: '49(3):227–229',
+    doi: '10.3758/BF03214307',
+    design: 'Method paper with simulations of adaptive threshold testing',
+    finding: 'Making the step after an error larger than the step after a correct answer, in proportion to the target, holds a person at any chosen accuracy and measures their threshold efficiently.',
+  },
   wilson2019: {
     id: 'wilson2019',
     short: 'Wilson et al. 2019',
@@ -647,11 +659,12 @@ export const EVIDENCE: Evidence[] = [
     why: 'Each event holds you at your own threshold, because training that adapts to the person outperforms practice at a fixed level.',
     highlights: [
       'Modelling of learning shows training is fastest when about 85% of answers are correct, which is the default target for every event.',
+      'Sprint and Focus adjust after every answer using the weighted up-down method, a standard way to hold a person at a chosen accuracy and measure their threshold.',
       'In a controlled trial, adaptive working memory training produced larger gains than the same training at a fixed, easy level.',
       'Spaced practice outperforms massed practice across hundreds of experiments, so four sessions a week constitute a full week.',
     ],
     limits: 'The 85% figure comes from mathematical models and simulations, not from trials of brain training in people. Gains in each event show improvement on that task; transfer to daily life is set out, event by event, in each research card.',
-    papers: ['wilson2019', 'brehmer2012', 'cepeda2006'],
+    papers: ['wilson2019', 'kaernbach1991', 'brehmer2012', 'cepeda2006'],
     quote: 'cajal',
   },
   {

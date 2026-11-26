@@ -5,7 +5,7 @@ import { Text, useWindowDimensions, View } from 'react-native';
 import { ResearchPanel } from '@/components/Research';
 import { Button, Overline, Screen } from '@/components/ui';
 import { fonts, radii, type, useTheme } from '@/lib/theme';
-import { EVENT_ORDER, EventId, EVENTS, formatValue } from '@/training/championships';
+import { EVENT_ORDER, EventId, EVENTS, formatValue, STAIRCASE } from '@/training/championships';
 import { EventIcon, TrendLine, useChampionships } from '@/training/ChampionshipsUI';
 
 /** One event: your threshold, record and trend, how it adapts, and the research behind it. */
@@ -74,7 +74,9 @@ export default function EventDetail() {
       <View style={{ borderRadius: radii.row, borderWidth: 1, borderColor: t.border, backgroundColor: t.surface, padding: 16, gap: 8 }}>
         <Text style={[type.section, { color: t.text }]}>How this event adapts</Text>
         <Text style={[type.caption, { color: t.text, opacity: 0.85 }]}>
-          After a heat at or above your target accuracy, the next heat moves up a level. Well below it, the next heat moves down. This keeps you close to the level at which you answer correctly about {Math.round(c.target * 100)}% of the time.
+          {STAIRCASE.includes(id) && !c.untimed
+            ? `Difficulty adjusts after every answer. Each correct answer makes the next trial slightly harder; each error makes it easier by a larger step. This holds you at the level where you answer correctly about ${Math.round(c.target * 100)}% of the time, and your threshold is measured where the two meet.`
+            : `After a heat at or above your target accuracy, the next heat moves up a level. Well below it, the next heat moves down. This keeps you close to the level at which you answer correctly about ${Math.round(c.target * 100)}% of the time.`}
         </Text>
         <Text style={[type.caption, { color: t.text, opacity: 0.85 }]}>{ev.adapts}</Text>
         <Text style={[type.caption, { color: t.text, opacity: 0.85 }]}>Each heat resumes from your most recent level.</Text>

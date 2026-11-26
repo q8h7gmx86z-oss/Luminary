@@ -8,6 +8,9 @@ import {
   heatOrder,
   heldLevel,
   logicParams,
+  makeStair,
+  stairEstimate,
+  stepStair,
   medalFor,
   seasonOf,
   sessionsThisWeek,
@@ -46,7 +49,7 @@ test('medals compare only with your own heats', () => {
   const many = [heat({ value: 400 }), heat({ value: 410 }), heat({ value: 520 }), heat({ value: 540 })];
   assert.equal(medalFor(heat({ value: 450, day: '2026-11-05' }), many, 0.85), 'silver');
   assert.equal(medalFor(heat({ value: 600, day: '2026-11-05' }), many, 0.85), 'bronze');
-  assert.equal(medalFor(heat({ value: 600, accuracy: 0.5, day: '2026-11-05' }), many, 0.85), 'none');
+  assert.equal(medalFor(heat({ value: undefined, accuracy: 0.5, day: '2026-11-05' }), many, 0.85), 'none');
   assert.equal(medalFor(heat({ value: 300, untimed: true }), many, 0.85), 'bronze', 'timed and untimed records never mix');
 });
 
@@ -90,4 +93,32 @@ test('logic gets harder with level', () => {
   assert.ok(logicParams(20).itemMs < logicParams(1).itemMs);
   assert.equal(formatValue(412, 'ms'), '412 ms');
   assert.equal(formatValue(6.44, 'items'), '6.4 items');
+});
+
+test('the staircase holds the target accuracy trial by trial', () => {
+  // A simulated player who is right 98% of the time at level 1, falling to chance-like 50% near level 19.
+  let seed = 7;
+  const rand = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+  const pCorrect = (lv: number) => 0.5 + 0.48 / (1 + Math.exp((lv - 10) / 1.5));
+  for (const target of [0.75, 0.85, 0.9]) {
+    let s = makeStair(5, target);
+    let right = 0;
+    const n = 4000;
+    for (let i = 0; i < n; i++) {
+      const ok = rand() < pCorrect(s.level);
+      if (ok) right += 1;
+      s = stepStair(s, ok);
+    }
+    assert.ok(Math.abs(right / n - target) < 0.03, `target ${target}, got ${(right / n).toFixed(3)}`);
+    assert.ok(stairEstimate(s)! > 1 && stairEstimate(s)! < 20);
+  }
+});
+
+test('a staircase heat measures its threshold from the reversals', () => {
+  let s = makeStair(10, 0.85);
+  for (const ok of [true, true, false, true, true, true, false, true, false]) s = stepStair(s, ok);
+  assert.ok(s.reversals.length >= 3);
+  const est = stairEstimate(s)!;
+  assert.equal(thresholdFor('sprint', 10, 0.6, 0.85, false, { stairLevel: est }), Math.round(2200 - est * 80));
+  assert.equal(stairEstimate(makeStair(4, 0.85)), undefined);
 });

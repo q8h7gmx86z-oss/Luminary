@@ -6,7 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { dayKey } from '@/lib/logic';
 import { useStore } from '@/lib/store';
 import { fonts, radii, type, useTheme } from '@/lib/theme';
-import { EVENT_ORDER, EventId, EVENTS, formatValue, Heat, heatOrder, Medal, medalFor, MEDALS, thresholdFor, unitOf } from '@/training/championships';
+import { EVENT_ORDER, EventId, EVENTS, STAIRCASE, formatValue, Heat, heatOrder, Medal, medalFor, MEDALS, thresholdFor, unitOf } from '@/training/championships';
 import { EventIcon, useChampionships } from '@/training/ChampionshipsUI';
 import { GameResult } from '@/training/engine';
 import { useCue } from '@/training/feedback';
@@ -41,11 +41,13 @@ export default function Heats() {
     const ev = EVENTS[current];
     const now = Date.now();
     const day = dayKey();
+    // A staircase heat ends where the staircase settled; the next heat resumes from there.
+    const end = o.metrics?.endLevel;
     if (ev.game !== 'logic') {
       const r: GameResult = { game: ev.game, level, score: o.score, accuracy: o.accuracy, rtMs: o.rtMs, rtMedian: o.rtMedian, rtSd: o.rtSd, metrics: o.metrics, at: now, day };
-      recordResult(r);
+      recordResult(r, end !== undefined ? { setLevel: end } : undefined);
     }
-    const heat: Heat = { event: current, level, accuracy: o.accuracy, value: thresholdFor(current, level, o.accuracy, c.target, c.untimed, o.metrics), untimed: c.untimed, at: now, day };
+    const heat: Heat = { event: current, level: end !== undefined ? Math.round(end) : level, accuracy: o.accuracy, value: thresholdFor(current, level, o.accuracy, c.target, c.untimed, o.metrics), untimed: c.untimed, at: now, day };
     const medal = medalFor(heat, history.current, c.target);
     history.current = [...history.current, heat];
     recordHeat(heat);
@@ -64,7 +66,7 @@ export default function Heats() {
     return (
       <SafeAreaView style={{ flex: 1, backgroundColor: t.bg }}>
         <Stack.Screen options={{ headerShown: false }} />
-        <Game key={step} level={level} untimed={c.untimed} onQuit={() => setStage('results')} onFinish={(o: RoundOutcome) => finish(o, level)} />
+        <Game key={step} level={level} untimed={c.untimed} adaptive={STAIRCASE.includes(current) ? { target: c.target } : undefined} onQuit={() => setStage('results')} onFinish={(o: RoundOutcome) => finish(o, level)} />
       </SafeAreaView>
     );
   }
