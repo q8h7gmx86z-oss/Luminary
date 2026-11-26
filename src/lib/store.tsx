@@ -7,6 +7,7 @@ import { Challenge, GameId, GameResult, nextLevel } from '@/training/engine';
 import type { Goal } from '@/training/planner';
 import type { Heat } from '@/training/championships';
 import type { BenchmarkRecord } from '@/training/benchmark';
+import type { Experiment, LabEntry } from '@/lab/lab';
 
 import { Region, regionFromCode } from './crisis';
 import { dayKey, uid } from './logic';
@@ -40,6 +41,10 @@ export type State = {
   /** Rafi Programme: status and dated notes per risk factor. */
   rafiPlan?: Record<string, FactorRecord>;
   settings: Settings;
+  /** Minutes of movement per day, keyed YYYY-MM-DD. */
+  movement?: Record<string, number>;
+  /** Personal Lab experiments, oldest first. The last one without endedAt is running. */
+  lab?: Experiment[];
   /** The Neural Championships: heats, the logic event's level and order preference. */
   championships?: Championships;
   training: {
@@ -127,6 +132,12 @@ type Actions = {
   setSetting: <K extends keyof Settings>(key: K, value: Settings[K]) => void;
   recordTest: (t: { at: number; percent: number; score: number }) => void;
   recordBenchmark: (b: BenchmarkRecord) => void;
+  /** Adds (or with a negative number removes) minutes of movement for a day. Never below zero. */
+  addMovement: (day: string, minutes: number) => void;
+  startExperiment: (e: Experiment) => void;
+  /** Saves today's check in the running experiment, replacing any earlier check that day. */
+  recordLabEntry: (e: LabEntry) => void;
+  endExperiment: () => void;
   saveMood: (e: Omit<MoodEntry, 'at'>) => void;
   saveSleep: (e: Omit<SleepEntry, 'at'>) => void;
   toggleHabit: (habitId: string) => void;
@@ -192,6 +203,18 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       setAgeGroup: (ageGroup) => update((s) => ({ ...s, ageGroup })),
       setCalmMode: (calmMode) => update((s) => ({ ...s, settings: { ...s.settings, calmMode } })),
       recordBenchmark: (b) => update((s) => ({ ...s, training: { ...s.training, benchmarks: [...(s.training.benchmarks ?? []), b].slice(-60) } })),
+      addMovement: (day, minutes) =>
+        update((s) => ({ ...s, movement: { ...s.movement, [day]: Math.max(0, Math.min(600, (s.movement?.[day] ?? 0) + minutes)) } })),
+      startExperiment: (e) => update((s) => ({ ...s, lab: [...(s.lab ?? []).map((x) => (x.endedAt ? x : { ...x, endedAt: Date.now() })), e].slice(-20) })),
+      recordLabEntry: (entry) =>
+        update((s) => {
+          const lab = [...(s.lab ?? [])];
+          const i = lab.length - 1;
+          if (i < 0 || lab[i].endedAt) return s;
+          lab[i] = { ...lab[i], entries: [...lab[i].entries.filter((x) => x.day !== entry.day), entry] };
+          return { ...s, lab };
+        }),
+      endExperiment: () => update((s) => ({ ...s, lab: (s.lab ?? []).map((x) => (x.endedAt ? x : { ...x, endedAt: Date.now() })) })),
       recordTest: (rec) => update((s) => ({ ...s, training: { ...s.training, tests: [...(s.training.tests ?? []), rec].slice(-50) } })),
       setSetting: (key, value) => update((s) => ({ ...s, settings: { ...s.settings, [key]: value } })),
       saveMood: (e) => update((s) => ({ ...s, moods: { ...s.moods, [dayKey()]: { ...e, at: Date.now() } } })),

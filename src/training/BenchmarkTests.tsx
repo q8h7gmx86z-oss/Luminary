@@ -28,7 +28,7 @@ function useTimers() {
  * because a press re-renders the button between its press-in and its press.
  */
 let pressedIn = false;
-function tapIn(fn: () => void) {
+export function tapIn(fn: () => void) {
   return {
     onPressIn: () => {
       pressedIn = true;

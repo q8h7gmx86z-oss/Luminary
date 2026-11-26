@@ -13,6 +13,7 @@ import { GameId, MAX_LEVEL, Skill } from '@/training/engine';
 import { savedScore } from '@/iq/items';
 import { SharpnessCard } from '@/training/SharpnessCard';
 import { InsightsCard } from '@/training/InsightsCard';
+import { LabCard, WholeBrainCard } from '@/lab/WholeBrainCard';
 import { Metric } from '@/training/Metric';
 import { Spark } from '@/training/Spark';
 import { gameAnalytics, skillSummaries, workoutsThisWeek } from '@/training/stats';
@@ -138,6 +139,8 @@ export default function Progress() {
 
       <NetworkExplorer />
       <SharpnessCard />
+      <WholeBrainCard />
+      <LabCard />
 
       {state.training.tests?.length ? (
         <Card>
@@ -181,7 +184,7 @@ export default function Progress() {
         </View>
         <Body>
           {done >= WEEKLY_GOAL
-            ? `${done} workouts this week. Goal reached, well done.`
+            ? `${done} workouts this week. Goal reached.`
             : `${done} of ${WEEKLY_GOAL} workouts this week.`}
         </Body>
         <Body muted>
