@@ -3,6 +3,7 @@ import { Text, View } from 'react-native';
 
 import { useTheme } from '@/lib/theme';
 
+import { makeStair, stairEstimate, stepStair } from '../championships';
 import { rtStats, speedParams } from '../engine';
 import { AnswerButton, GameFrame, GameProps } from '../GameFrame';
 import { useAnswerFeedback } from '../feedback';
@@ -26,9 +27,14 @@ const UNTIMED_TRIALS = 30;
 
 type Feedback = 'right' | 'wrong' | 'late' | null;
 
-export function SpeedMatch({ level, onFinish, onQuit, untimed }: GameProps & { onQuit?: () => void }) {
+export function SpeedMatch({ level, onFinish, onQuit, untimed, adaptive }: GameProps & { onQuit?: () => void }) {
   const t = useTheme();
   const p = speedParams(level);
+  // Championships: the response window adapts after every answer. Untimed mode has no window to adapt.
+  const stairOn = !!adaptive && !untimed;
+  const stair = useRef(makeStair(level, adaptive?.target ?? 0.85));
+  const windowMs = () => (stairOn ? speedParams(stair.current.level).deadlineMs : p.deadlineMs);
+  const trialDeadline = useRef(p.deadlineMs);
   const pool = SYMBOLS.slice(0, p.symbolCount);
 
   const [prev, setPrev] = useState<number | null>(null);
@@ -55,9 +61,11 @@ export function SpeedMatch({ level, onFinish, onQuit, untimed }: GameProps & { o
       score: Math.round(s.correct * (10 + level * 2) + s.bonus),
       accuracy,
       ...rtStats(s.rts),
-      metrics: { answered: s.answered },
+      metrics: stairOn
+        ? { answered: s.answered, ...(stairEstimate(stair.current) !== undefined ? { stairLevel: stairEstimate(stair.current)! } : {}), endLevel: stair.current.level }
+        : { answered: s.answered },
     });
-  }, [level, onFinish]);
+  }, [level, onFinish, stairOn]);
 
   const nextTrial = useCallback(
     (from: number) => {
@@ -77,9 +85,11 @@ export function SpeedMatch({ level, onFinish, onQuit, untimed }: GameProps & { o
       locked.current = false;
       shownAt.current = Date.now();
       if (deadline.current) clearTimeout(deadline.current);
-      if (!untimed) deadline.current = setTimeout(() => respondRef.current(null), p.deadlineMs);
+      trialDeadline.current = windowMs();
+      if (!untimed) deadline.current = setTimeout(() => respondRef.current(null), trialDeadline.current);
     },
-    [finish, p.deadlineMs, p.durationMs, pool.length, untimed],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [finish, p.deadlineMs, p.durationMs, pool.length, untimed, stairOn],
   );
 
   const currentRef = useRef(current);
@@ -102,13 +112,14 @@ export function SpeedMatch({ level, onFinish, onQuit, untimed }: GameProps & { o
         fb = 'right';
         s.correct += 1;
         s.rts.push(rt);
-        s.bonus += Math.max(0, ((p.deadlineMs - rt) / p.deadlineMs) * 6);
+        s.bonus += Math.max(0, ((trialDeadline.current - rt) / trialDeadline.current) * 6);
       } else fb = 'wrong';
+      if (stairOn) stair.current = stepStair(stair.current, fb === 'right');
       setFeedback(fb);
       const from = currentRef.current;
       setTimeout(() => nextTrial(from), fb === 'right' ? 180 : 420);
     },
-    [nextTrial, p.deadlineMs],
+    [nextTrial, stairOn],
   );
   const respondRef = useRef(respond);
   respondRef.current = respond;
@@ -142,9 +153,9 @@ export function SpeedMatch({ level, onFinish, onQuit, untimed }: GameProps & { o
   return (
     <GameFrame
       title="Speed Match"
-      level={level}
+      level={stairOn ? Math.round(stair.current.level) : level}
       progress={phase === 'play' ? (untimed ? stats.current.answered / UNTIMED_TRIALS : elapsed / p.durationMs) : 0}
-      status={phase === 'play' ? `${stats.current.correct} correct` : undefined}
+      status={phase === 'play' ? (stairOn ? `Window ${Math.round(trialDeadline.current)} ms` : `${stats.current.correct} correct`) : undefined}
       onQuit={onQuit}
     >
       <Text style={{ color: t.muted, fontSize: 16, textAlign: 'center' }}>

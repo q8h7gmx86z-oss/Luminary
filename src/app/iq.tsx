@@ -3,6 +3,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Pressable, ScrollView, Text, useWindowDimensions, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { ResearchPanel } from '@/components/Research';
 import { formatClock } from '@/lib/logic';
 import { GOLD, NAVY } from '@/lib/brand';
 import { useStore } from '@/lib/store';
@@ -92,6 +93,7 @@ export default function ReasoningTest() {
         <Text style={{ color: t.muted, fontSize: 14, lineHeight: 20 }}>
           Find a quiet spot and give it your full attention. You cannot go back, and skipped questions score zero. Every attempt uses new questions.
         </Text>
+        <ResearchPanel id="reasoning" />
         <View style={{ flexDirection: 'row', gap: 12 }}>
           <AnswerButton label="Not now" tone="secondary" onPress={quit} />
           <AnswerButton

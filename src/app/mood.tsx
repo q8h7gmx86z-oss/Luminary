@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Text, View } from 'react-native';
 
 import { Body, Button, Card, Field, Heading, ScalePicker, Screen } from '@/components/ui';
+import { ResearchLink } from '@/components/Research';
 import { dayKey, lastNDays } from '@/lib/logic';
 import { Score, useStore } from '@/lib/store';
 import { useTheme } from '@/lib/theme';
@@ -62,6 +63,7 @@ export default function Mood() {
       <Card>
         <Heading>How are you today?</Heading>
         <Body muted>Ten seconds. Tracking how you feel shows what drives your best days.</Body>
+        <ResearchLink id="mood" />
         <ScalePicker label="Mood" value={mood} onChange={(v) => { setMood(v); setSaved(false); }} low="Very low" high="Great" />
         <ScalePicker label="Energy" value={energy} onChange={(v) => { setEnergy(v); setSaved(false); }} low="Drained" high="Full of energy" />
         <ScalePicker label="Focus" value={focus} onChange={(v) => { setFocus(v); setSaved(false); }} low="Scattered" high="Sharp" />
@@ -88,6 +90,7 @@ export default function Mood() {
         <Heading>One-minute reset</Heading>
         <Body>Breathe in slowly for 4 counts. Hold for 4. Breathe out for 6. Repeat five times.</Body>
         <Body muted>A long out-breath slows your heart rate through the vagus nerve. Slow-breathing training lowers stress and anxiety in trials.</Body>
+        <ResearchLink id="breathing" label="Why slow breathing" />
       </Card>
 
       <WeekBars />

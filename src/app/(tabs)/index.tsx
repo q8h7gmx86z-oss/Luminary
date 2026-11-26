@@ -6,8 +6,10 @@ import { GameBadge, NavyGlow } from '@/components/GameBadge';
 import { Icon } from '@/components/Icon';
 import { useCountUp } from '@/components/motion';
 import { networkLevels, SkillNetwork } from '@/components/SkillNetwork';
+import { ChampionshipsCard } from '@/training/ChampionshipsUI';
 import { Body, Button, Card, Checkbox, Heading, Overline, Screen } from '@/components/ui';
 import { HABITS } from '@/content/content';
+import { ResearchLink } from '@/components/Research';
 import { dayKey } from '@/lib/logic';
 import { useStore } from '@/lib/store';
 import { fonts, radii, type, useTheme } from '@/lib/theme';
@@ -215,6 +217,8 @@ export default function Today() {
         </Pressable>
       </View>
 
+      <ChampionshipsCard />
+
       <ChallengesCard />
 
       <Card>
@@ -249,6 +253,9 @@ export default function Today() {
           <View key={h.id}>
             <Checkbox checked={done.includes(h.id)} label={h.label} onPress={() => toggleHabit(h.id)} />
             <Text style={[type.caption, { color: t.muted, marginLeft: 36 }]}>{h.why}</Text>
+            <View style={{ marginLeft: 36, marginTop: 4 }}>
+              <ResearchLink id={h.id} />
+            </View>
           </View>
         ))}
         <Link href="/rafi" style={{ color: t.lavender, fontFamily: fonts.medium, fontSize: 15 }}>

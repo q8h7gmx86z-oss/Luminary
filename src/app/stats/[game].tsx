@@ -11,6 +11,7 @@ import { Metric } from '@/training/Metric';
 import { Spark } from '@/training/Spark';
 import { gameAnalytics, MetricSummary } from '@/training/stats';
 import { GameBadge } from '@/components/GameBadge';
+import { ResearchPanel } from '@/components/Research';
 
 const pct = (x: number) => `${Math.round(x * 100)}%`;
 
@@ -54,7 +55,9 @@ export default function GameStats() {
           <Body>
             Play one round to set your baseline. From then on, every round is compared with your own first results, never with anyone else.
           </Body>
-          <Button label={`Play ${info.name}`} onPress={() => router.push(`/play/${id}`)} />
+          <ResearchPanel id={id} />
+
+      <Button label={`Play ${info.name}`} onPress={() => router.push(`/play/${id}`)} />
         </Card>
       </Screen>
     );

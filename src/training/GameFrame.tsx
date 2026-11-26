@@ -7,7 +7,14 @@ import { useTheme } from '@/lib/theme';
 import { preloadCues } from './feedback';
 
 export type RoundOutcome = { score: number; accuracy: number; rtMs?: number; rtMedian?: number; rtSd?: number; metrics?: Record<string, number> };
-export type GameProps = { level: number; onFinish: (o: RoundOutcome) => void; /** No answer deadlines, slower pacing. */ untimed?: boolean };
+export type GameProps = {
+  level: number;
+  onFinish: (o: RoundOutcome) => void;
+  /** No answer deadlines, slower pacing. */
+  untimed?: boolean;
+  /** Championships: adjust difficulty after every answer to hold this accuracy. Games that support it report metrics.stairLevel and metrics.endLevel. */
+  adaptive?: { target: number };
+};
 
 /** Shared chrome for every game: title, level, progress bar and a way out. */
 export function GameFrame({
