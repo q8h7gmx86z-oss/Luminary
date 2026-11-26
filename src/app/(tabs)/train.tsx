@@ -7,6 +7,7 @@ import { Icon } from '@/components/Icon';
 import { Overline, Screen } from '@/components/ui';
 import { savedScore } from '@/iq/items';
 import { useStore } from '@/lib/store';
+import { BenchmarkCard } from '@/training/BenchmarkCard';
 import { ChampionshipsCard } from '@/training/ChampionshipsUI';
 import { fonts, radii, type, useTheme } from '@/lib/theme';
 import { AVAILABLE, GAMES, SKILLS } from '@/training/catalog';
@@ -100,6 +101,7 @@ export default function Train() {
       </View>
 
       <ChampionshipsCard />
+      <BenchmarkCard />
 
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
         <Chip label="All" on={filter === 'all'} onPress={() => setFilter('all')} />
