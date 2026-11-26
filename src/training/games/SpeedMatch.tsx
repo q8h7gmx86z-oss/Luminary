@@ -178,7 +178,7 @@ export function SpeedMatch({ level, onFinish, onQuit, untimed, adaptive }: GameP
         <Text style={{ fontSize: 110, color: sym.color, lineHeight: 130 }}>{sym.glyph}</Text>
       </View>
       <Text style={{ height: 22, fontWeight: '700', color: feedback === 'right' ? t.good : t.help }}>
-        {feedback === 'right' ? 'Correct' : feedback === 'wrong' ? 'Not quite' : feedback === 'late' ? 'Too slow' : ''}
+        {feedback === 'right' ? 'Correct' : feedback === 'wrong' ? 'Incorrect' : feedback === 'late' ? 'Time elapsed' : ''}
       </Text>
       {phase === 'memorise' ? (
         <View style={{ flexDirection: 'row', width: '100%' }}>

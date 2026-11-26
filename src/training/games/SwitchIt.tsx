@@ -131,7 +131,7 @@ export function SwitchIt({ level, onFinish, onQuit, untimed }: GameProps & { onQ
               <Text style={{ color: t.text, fontSize: 16, fontWeight: '700', flex: 1 }}>{RULES[r].question}</Text>
             </View>
           ))}
-          <Text style={{ color: t.muted, textAlign: 'center' }}>The rule can change at any moment. Stay alert.</Text>
+          <Text style={{ color: t.muted, textAlign: 'center' }}>The rule can change at any moment.</Text>
         </View>
       ) : (
         <>
@@ -144,7 +144,7 @@ export function SwitchIt({ level, onFinish, onQuit, untimed }: GameProps & { onQ
             <Text style={{ color: '#FFFFFF', fontSize: 100, fontWeight: '800', lineHeight: 118 }}>{trial?.digit ?? ''}</Text>
           </View>
           <Text style={{ height: 22, fontWeight: '700', color: fb === 'right' ? t.good : t.help }}>
-            {fb === 'right' ? 'Correct' : fb === 'wrong' ? (trial?.switched ? 'The rule changed. Check the colour' : 'Not quite') : fb === 'late' ? 'Too slow' : ''}
+            {fb === 'right' ? 'Correct' : fb === 'wrong' ? (trial?.switched ? 'The rule changed. Check the card colour' : 'Incorrect') : fb === 'late' ? 'Time elapsed' : ''}
           </Text>
         </>
       )}

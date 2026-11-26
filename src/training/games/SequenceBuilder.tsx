@@ -83,11 +83,11 @@ export function SequenceBuilder({ level, onFinish, onQuit, untimed }: GameProps 
     phase === 'ready'
       ? `You will see ${p.length} numbers and letters. Then rebuild them: numbers smallest first, then letters A to Z.`
       : phase === 'show'
-        ? 'Hold them in mind...'
+        ? 'Retain the sequence.'
         : phase === 'input'
           ? 'Numbers first, smallest to largest. Then letters, A to Z.'
           : phase === 'right'
-            ? 'Perfect order.'
+            ? 'Correct order.'
             : phase === 'wrong'
               ? `The order was ${letterNumberAnswer(items).join(' ')}`
               : '';

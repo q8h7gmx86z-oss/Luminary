@@ -102,7 +102,7 @@ export function DoubleTake({ level, onFinish, onQuit, untimed }: GameProps & { o
         <View style={{ gap: 12, maxWidth: 380 }}>
           <Text style={{ color: t.text, fontSize: 17, textAlign: 'center' }}>One shape is different from all the others. Tap it as fast as you can.</Text>
           <Text style={{ color: t.muted, textAlign: 'center' }}>
-            {p.conjunction ? 'At this level it differs only in its mix of colour and shape. Look carefully.' : 'At this level it is a different colour, so it should pop out.'}
+            {p.conjunction ? 'At this level it differs only in its mix of colour and shape. A deliberate search is required.' : 'At this level it is a different colour, so it should stand out at once.'}
           </Text>
         </View>
       ) : (
@@ -127,7 +127,7 @@ export function DoubleTake({ level, onFinish, onQuit, untimed }: GameProps & { o
             })}
           </View>
           <Text style={{ height: 22, fontWeight: '700', color: fb === 'right' ? t.good : t.help }}>
-            {fb === 'right' ? 'Found it' : fb === 'wrong' ? 'Not that one. It is circled' : fb === 'late' ? 'Time. It is circled' : ''}
+            {fb === 'right' ? 'Located' : fb === 'wrong' ? 'Incorrect. The target is circled' : fb === 'late' ? 'Time elapsed. The target is circled' : ''}
           </Text>
         </>
       )}

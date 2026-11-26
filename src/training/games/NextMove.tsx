@@ -134,7 +134,7 @@ export function NextMove({ level, onFinish, onQuit }: GameProps & { onQuit?: () 
         ? 'Solved in the fewest moves.'
         : `Solved in ${moves}. It can be done in ${p.minMoves}.`
       : phase === 'failed'
-        ? 'Out of moves. Next puzzle.'
+        ? 'Move limit reached.'
         : `Moves: ${moves}  ·  Target: ${p.minMoves}`;
 
   return (

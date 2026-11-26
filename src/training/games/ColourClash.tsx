@@ -183,11 +183,11 @@ export function ColourClash({ level, onFinish, onQuit, untimed }: GameProps & { 
           : fb === 'right'
             ? 'Correct'
             : fb === 'word'
-              ? 'That was the word, not the ink'
+              ? 'That was the word, not the ink colour'
               : fb === 'wrong'
-                ? 'Not quite'
+                ? 'Incorrect'
                 : fb === 'late'
-                  ? 'Too slow'
+                  ? 'Time elapsed'
                   : ''}
       </Text>
       {phase === 'ready' ? (
