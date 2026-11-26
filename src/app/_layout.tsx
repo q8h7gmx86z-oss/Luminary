@@ -64,6 +64,12 @@ function Gate() {
       <Stack.Screen name="mood" options={{ title: 'Mood check-in' }} />
       <Stack.Screen name="sleep" options={{ title: 'Sleep' }} />
       <Stack.Screen name="movement" options={{ title: 'Movement' }} />
+      <Stack.Screen name="courses/index" options={{ title: 'Memory courses' }} />
+      <Stack.Screen name="courses/[id]" options={{ title: 'Course' }} />
+      <Stack.Screen name="courses/palace-practice" options={{ title: 'Memory Palace practice' }} />
+      <Stack.Screen name="recall" options={{ title: 'Recall deck' }} />
+      <Stack.Screen name="dump" options={{ title: 'Brain dump' }} />
+      <Stack.Screen name="programmes" options={{ title: 'Programmes' }} />
       <Stack.Screen name="lab/index" options={{ title: 'Personal Lab' }} />
       <Stack.Screen name="lab/check" options={{ headerShown: false, gestureEnabled: false }} />
       <Stack.Screen name="workout" options={{ headerShown: false, gestureEnabled: false }} />

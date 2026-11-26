@@ -7,7 +7,7 @@ const GAME_IDS = ['speed', 'grid', 'catch', 'nback', 'clash', 'switch', 'sequenc
 const HABIT_IDS = ['move', 'connect', 'learn', 'eat', 'winddown'];
 
 test('every game and linked habit has its research', () => {
-  for (const id of [...GAME_IDS, ...HABIT_IDS, 'workout', 'benchmark', 'lab', 'breathing', 'focus-timer', 'when-then', 'break-down', 'reasoning', 'sleep', 'mood']) {
+  for (const id of [...GAME_IDS, ...HABIT_IDS, 'workout', 'benchmark', 'lab', 'palace', 'recall', 'dump', 'breathing', 'focus-timer', 'when-then', 'break-down', 'reasoning', 'sleep', 'mood']) {
     assert.ok(EVIDENCE.find((e) => e.id === id), `missing evidence for ${id}`);
   }
 });

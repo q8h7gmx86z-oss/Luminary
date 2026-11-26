@@ -9,6 +9,7 @@ import { formatClock, secondsLeft } from '@/lib/logic';
 import { useStore } from '@/lib/store';
 import { fonts, radii, type, useTheme } from '@/lib/theme';
 import { FocusTrackCard } from '@/training/FocusTrackCard';
+import { EntryCard } from '@/real/ui';
 
 const PRESETS = [5, 10, 15, 25];
 
@@ -18,6 +19,7 @@ function VisualTimer({ onRunning }: { onRunning: (running: boolean) => void }) {
   const [endAt, setEndAt] = useState<number | null>(null);
   const [now, setNow] = useState(Date.now());
   const [finished, setFinished] = useState(false);
+  const { logFocusBlock } = useStore();
 
   useEffect(() => {
     onRunning(endAt !== null);
@@ -33,9 +35,10 @@ function VisualTimer({ onRunning }: { onRunning: (running: boolean) => void }) {
     if (endAt && left === 0) {
       setEndAt(null);
       setFinished(true);
+      logFocusBlock();
       Vibration.vibrate(400);
     }
-  }, [endAt, left]);
+  }, [endAt, left, logFocusBlock]);
 
   const fraction = total > 0 ? left / total : 0;
   const size = 220;
@@ -252,6 +255,15 @@ export default function Focus() {
           <FocusTrackCard />
           <TaskBreakdown />
           <IfThenPlans />
+          <EntryCard
+            overline="Before sleep"
+            title="Bedtime brain dump"
+            detail="Five minutes, one specific to-do list. Unfinished tasks stop circling when they are written down."
+            href="/dump"
+            icon="moon"
+            colour={t.lavender}
+            cta="Write tonight’s list"
+          />
         </>
       )}
     </Screen>
