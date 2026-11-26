@@ -70,7 +70,7 @@ Task accents (each game keeps one, used only on that game's icon, bars and glow)
   bright gradient squares).
 - **Game row and game card:** icon, name, skill in its accent, level and a thin progress bar.
 - **Tab bar:** five destinations, a glowing lavender indicator above the active tab.
-- **Skill network:** six regions (one per task) of connected points, brightness from measured
+- **Skill network:** one region per task (twelve) of connected points, brightness from measured
   performance. Always captioned as a map of results in Luminary, not brain activity.
 
 ## Rollout order

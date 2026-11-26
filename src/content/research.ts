@@ -489,6 +489,71 @@ export const PAPERS: Record<string, Paper> = {
     design: 'Expert commission review of the world evidence',
     finding: 'About 45% of dementia cases worldwide are linked to 14 risk factors that can be changed, including inactivity, hearing loss and social isolation. This is a population estimate, not a personal one.',
   },
+  baddeley2003: {
+    id: 'baddeley2003',
+    short: 'Baddeley 2003',
+    authors: 'Baddeley A',
+    year: 2003,
+    title: 'Working memory: looking back and looking forward',
+    journal: 'Nature Reviews Neuroscience',
+    ref: '4(10):829–839',
+    doi: '10.1038/nrn1201',
+    pmid: '14523382',
+    design: 'Review by the scientist who proposed the working memory model',
+    finding: 'Working memory is more than a store: a “central executive” controls attention and rearranges what you hold, alongside separate stores for words and for images.',
+  },
+  verbruggen2008: {
+    id: 'verbruggen2008',
+    short: 'Verbruggen & Logan 2008',
+    authors: 'Verbruggen F, Logan GD',
+    year: 2008,
+    title: 'Response inhibition in the stop-signal paradigm',
+    journal: 'Trends in Cognitive Sciences',
+    ref: '12(11):418–424',
+    doi: '10.1016/j.tics.2008.07.005',
+    pmid: '18799345',
+    design: 'Review of stop-signal research',
+    finding: 'Stopping an action already under way is a hallmark of self-control, and the stop-signal task is the most suitable way to study it in the lab.',
+  },
+  treisman1980: {
+    id: 'treisman1980',
+    short: 'Treisman & Gelade 1980',
+    authors: 'Treisman AM, Gelade G',
+    year: 1980,
+    title: 'A feature-integration theory of attention',
+    journal: 'Cognitive Psychology',
+    ref: '12(1):97–136',
+    doi: '10.1016/0010-0285(80)90005-5',
+    pmid: '7351125',
+    design: 'Series of visual search experiments',
+    finding: 'A target that differs in one feature, such as colour, pops out at once. A target defined by a combination of features has to be searched for item by item, so search time grows with every extra item.',
+  },
+  shallice1982: {
+    id: 'shallice1982',
+    short: 'Shallice 1982',
+    authors: 'Shallice T',
+    year: 1982,
+    title: 'Specific impairments of planning',
+    journal: 'Philosophical Transactions of the Royal Society B',
+    ref: '298(1089):199–209',
+    doi: '10.1098/rstb.1982.0082',
+    pmid: '6125971',
+    design: 'Original Tower of London study, with patients and controls',
+    finding: 'Introduced the Tower of London, a puzzle built to load on planning. People with damage to the left frontal lobe were specifically impaired on it.',
+  },
+  troyer1997: {
+    id: 'troyer1997',
+    short: 'Troyer et al. 1997',
+    authors: 'Troyer AK, Moscovitch M, Winocur G',
+    year: 1997,
+    title: 'Clustering and switching as two components of verbal fluency: evidence from younger and older healthy adults',
+    journal: 'Neuropsychology',
+    ref: '11(1):138–146',
+    doi: '10.1037//0894-4105.11.1.138',
+    pmid: '9055277',
+    design: 'Two experiments · 54 older and 41 younger adults, then 22 young adults',
+    finding: 'Word fluency has two parts: working within a category and switching between categories. Switching was the part linked to frontal-lobe function.',
+  },
   stroop1935: {
     id: 'stroop1935',
     short: 'Stroop 1935',
@@ -650,6 +715,91 @@ export const EVIDENCE: Evidence[] = [
     ],
     limits: 'The transfer results come mainly from one controlled study. Effects on daily life are not yet proven.',
     papers: ['monsell2003', 'karbach2009'],
+  },
+
+  {
+    id: 'sequence',
+    name: 'Sequence Builder',
+    kind: 'game',
+    verdict: 'mixed',
+    why: 'Holding a list and rearranging it at the same time works the “central executive”, the control part of working memory.',
+    highlights: [
+      'In the leading model of working memory, a central executive directs attention and reorganises what you hold, on top of simple storage.',
+      'Sorting numbers and letters while you hold them is a manipulation task, harder than repeating a list as you heard it.',
+      'Working memory practice reliably improves the trained task and similar ones.',
+    ],
+    limits: 'A review of 87 publications found no convincing gains in intelligence, reading or maths from working memory training. Expect a stronger working memory for lists, not a higher IQ.',
+    papers: ['baddeley2003', 'melby2016'],
+  },
+  {
+    id: 'echo',
+    name: 'Echo',
+    kind: 'game',
+    verdict: 'mixed',
+    why: 'Playing a pattern back in reverse makes you transform what you hold, not just keep it.',
+    highlights: [
+      'Echo is the backward version of the Corsi block task, the standard test of spatial working memory that Memory Grid is built on.',
+      'Reversing a sequence calls on the central executive of working memory, not only its spatial store.',
+      'Training that adapts to your level beats practice at a fixed level, so the sequence grows as you improve.',
+    ],
+    limits: 'As with all working memory training, gains are clearest on similar tasks. A review of 87 publications found no convincing transfer to intelligence or school skills.',
+    papers: ['kessels2000', 'baddeley2003', 'melby2016'],
+  },
+  {
+    id: 'hold',
+    name: 'Hold It',
+    kind: 'game',
+    verdict: 'mixed',
+    why: 'This is the stop-signal task, the lab standard for measuring how quickly you can cancel an action already under way.',
+    highlights: [
+      'Stopping a response you have already started is a hallmark of self-control, and the stop-signal task measures it best.',
+      'Your stopping time is estimated by the standard method: your typical go speed minus the average delay before the red signal.',
+      'Across 19 studies, inhibition training had a small effect on real behaviour.',
+    ],
+    limits: 'Stopping time is a research measure and shifts from day to day, so judge it over weeks. The behaviour effects of inhibition training were small and may be short-term.',
+    papers: ['verbruggen2008', 'allom2016'],
+  },
+  {
+    id: 'search',
+    name: 'Double Take',
+    kind: 'game',
+    verdict: 'early',
+    why: 'Finding a target among distractors, fast, is the visual search skill behind the speed training with the best long-term evidence.',
+    highlights: [
+      'A target that differs only in colour pops out. A target defined by a mix of colour and shape has to be searched item by item, which is why higher levels feel slower.',
+      'The speed training in the ACTIVE trial was built on fast visual search and identification.',
+      'Luminary reports your time per shape, a simple measure of search speed.',
+    ],
+    limits: 'Double Take is related to ACTIVE’s speed training, not a copy of it, so the ACTIVE results do not transfer to it directly. Treat it as practice of a well-understood skill.',
+    papers: ['treisman1980', 'ball2002'],
+  },
+  {
+    id: 'tower',
+    name: 'Next Move',
+    kind: 'game',
+    verdict: 'measure',
+    why: 'This is the Tower of London, the classic puzzle for measuring planning: thinking several moves ahead before acting.',
+    highlights: [
+      'The Tower of London was designed in 1982 to load heavily on planning.',
+      'People with damage to the left frontal lobe were specifically impaired on it, which links it to the brain’s planning systems.',
+      'Luminary scores both whether you solve it in the fewest moves and how long you plan before the first move.',
+    ],
+    limits: 'The Tower of London is an established measure of planning. There is no strong evidence yet that practising it improves planning in everyday life.',
+    papers: ['shallice1982'],
+  },
+  {
+    id: 'words',
+    name: 'Word Flow',
+    kind: 'game',
+    verdict: 'early',
+    why: 'Changing between categories of words is the switching part of verbal fluency, linked to the frontal lobes.',
+    highlights: [
+      'Word fluency has two parts: working within a category and switching between them. Switching is the part tied to frontal-lobe function.',
+      'Everyone is slower just after the question changes. Luminary measures that switch cost for you.',
+      'From level 5, questions about meaning and first letters mix, so you switch between two kinds of thinking.',
+    ],
+    limits: 'Our version asks you to judge words, not produce them, so it is a cousin of the fluency test, not the test itself. Effects of switching practice on daily life are not yet proven.',
+    papers: ['troyer1997', 'monsell2003'],
   },
 
   // Tasks
@@ -850,6 +1000,74 @@ export const EVIDENCE: Evidence[] = [
     papers: ['ngandu2015', 'livingston2024'],
   },
 ];
+
+// --- The sources, explained ------------------------------------------------------------------
+// Not everyone knows what The Lancet is or why a randomised trial counts for more than a survey.
+// These notes appear under every paper. They describe the source, never the finding.
+
+/** Plain-English notes on the journals behind the most important papers. Facts about the journals only. */
+export const JOURNALS: Record<string, string> = {
+  'The Lancet': 'One of the oldest and most respected medical journals in the world, published in London since 1823. Doctors and governments rely on what it prints.',
+  'The Lancet Psychiatry': 'The mental health journal of The Lancet, one of the world’s leading medical publishers.',
+  JAMA: 'The Journal of the American Medical Association, published since 1883 and one of the most widely read medical journals in the world.',
+  PNAS: 'Proceedings of the National Academy of Sciences, the journal of the United States’ national academy of leading scientists, published since 1915.',
+  'Nature Communications': 'A journal from the publisher of Nature, one of the world’s most prestigious science journals.',
+  'Nature Reviews Neuroscience': 'A Nature journal where leading researchers summarise what their field has established.',
+  'Annals of Internal Medicine': 'The journal of the American College of Physicians, published since 1927.',
+  'American Journal of Psychiatry': 'The journal of the American Psychiatric Association, published since 1844.',
+  'PLoS Medicine': 'A leading medical journal that is free for anyone to read.',
+  'Psychological Bulletin': 'The American Psychological Association’s journal for large reviews that pool many studies.',
+  'Psychological Review': 'The American Psychological Association’s journal for major theories of the mind, published since 1894.',
+  'Psychological Science': 'The flagship journal of the Association for Psychological Science.',
+  'Trends in Cognitive Sciences': 'A journal where leading researchers review the state of knowledge in the science of thinking.',
+  'Philosophical Transactions of the Royal Society B': 'Part of Philosophical Transactions, published by the Royal Society, the UK’s national academy of sciences, since 1665: the longest-running science journal in the world.',
+};
+
+const PEER_REVIEW = 'Peer-reviewed: independent experts checked the study before it was published.';
+
+/** What kind of study this is, and why that matters, from the start of its design line. */
+export function studyTypeNote(design: string): string | undefined {
+  const d = design.toLowerCase();
+  if (d.startsWith('network meta-analysis') || d.startsWith('meta-analysis') || d.includes('meta-analysis'))
+    return 'A meta-analysis pools the results of many studies, so no single lucky or unlucky study can mislead. It sits at the top of the evidence ladder.';
+  if (d.startsWith('randomised controlled trial'))
+    return 'A randomised controlled trial assigns people to groups by chance, the fairest way to test whether something causes a change.';
+  if (d.startsWith('systematic review'))
+    return 'A systematic review gathers every study on a question by a fixed method, so the authors cannot pick only the results they like.';
+  if (d.startsWith('expert commission') || d.startsWith('consensus'))
+    return 'A panel of leading specialists weighed all the available evidence and agreed what it shows.';
+  if (d.startsWith('controlled') || d.includes('with controls'))
+    return 'A controlled study compares people who trained with people who did not, so practice effects alone cannot explain the result.';
+  if (d.startsWith('review'))
+    return 'A review written by researchers in the field, summarising what many studies have found.';
+  return undefined;
+}
+
+/** The studies that are famous enough to have names, explained. */
+export const NAMED_STUDIES: { match: string; note: string }[] = [
+  {
+    match: '(ACTIVE)',
+    note: 'ACTIVE (Advanced Cognitive Training for Independent and Vital Elderly) is a US government-funded trial of 2,832 adults aged 65 to 94, followed for ten years. Its participants were assigned to training or no training by chance.',
+  },
+  {
+    match: '(FINGER)',
+    note: 'FINGER (the Finnish Geriatric Intervention Study to Prevent Cognitive Impairment and Disability) followed 1,260 people at raised risk of dementia for two years. It was the first large, long-term trial to show that diet, exercise, brain training and heart-health checks together can protect thinking.',
+  },
+  {
+    match: 'Lancet standing Commission',
+    note: 'The Lancet Commission on dementia is a panel of leading dementia specialists brought together by The Lancet to review all the world’s evidence. It has reported in 2017, 2020 and 2024, and is the most widely cited summary of what can lower dementia risk.',
+  },
+];
+
+/** Everything a reader needs to judge a source: the named study, the study type, the journal. */
+export function aboutSource(p: Paper): string[] {
+  const out: string[] = [];
+  for (const n of NAMED_STUDIES) if (p.design.includes(n.match) || p.title.includes(n.match)) out.push(n.note);
+  const type = studyTypeNote(p.design);
+  if (type) out.push(type);
+  out.push(JOURNALS[p.journal] ? `${p.journal}: ${JOURNALS[p.journal]} ${PEER_REVIEW}` : `${p.journal}. ${PEER_REVIEW}`);
+  return out;
+}
 
 export function evidenceFor(id: string): Evidence | undefined {
   return EVIDENCE.find((e) => e.id === id);

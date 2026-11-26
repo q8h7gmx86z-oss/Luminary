@@ -3,7 +3,7 @@ import { test } from 'node:test';
 
 import { EVIDENCE, PAPERS, paperUrl, QUOTES } from '../src/content/research.ts';
 
-const GAME_IDS = ['speed', 'grid', 'catch', 'nback', 'clash', 'switch'];
+const GAME_IDS = ['speed', 'grid', 'catch', 'nback', 'clash', 'switch', 'sequence', 'echo', 'hold', 'search', 'tower', 'words'];
 const HABIT_IDS = ['move', 'connect', 'learn', 'eat', 'winddown'];
 
 test('every game and linked habit has its research', () => {

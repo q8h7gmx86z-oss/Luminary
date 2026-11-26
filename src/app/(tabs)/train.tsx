@@ -94,7 +94,7 @@ export default function Train() {
       <View style={{ gap: 6 }}>
         <Overline>The cognitive laboratory</Overline>
         <Text accessibilityRole="header" style={[type.title, { color: t.text }]}>
-          Six tasks. Four skills.
+          Twelve tasks. Four skills.
         </Text>
         <Text style={[type.body, { color: t.muted }]}>Every task adapts to you, getting harder as you improve.</Text>
       </View>

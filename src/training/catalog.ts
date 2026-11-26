@@ -18,7 +18,7 @@ export const SKILLS: Record<Skill, { name: string; color: string; gradient: [str
   speed: { name: 'Processing speed', color: '#4F8CFF', gradient: ['#4F8CFF', '#3B6FE0'], description: 'How quickly you take in and respond to information.' },
   memory: { name: 'Working memory', color: '#9B7BFF', gradient: ['#9B7BFF', '#7561E8'], description: 'Holding and using information in mind for a short time.' },
   attention: { name: 'Attention control', color: '#2DB6A3', gradient: ['#2DB6A3', '#1E8F80'], description: 'Staying on target and holding back automatic responses.' },
-  flexibility: { name: 'Flexibility', color: '#F2A65A', gradient: ['#F2A65A', '#D9822B'], description: 'Switching smoothly between rules and tasks.' },
+  flexibility: { name: 'Flexibility', color: '#F2A65A', gradient: ['#F2A65A', '#D9822B'], description: 'Switching smoothly between rules and tasks, and planning ahead.' },
 };
 
 export const GAMES: Record<GameId, GameInfo> = {
@@ -100,7 +100,85 @@ export const GAMES: Record<GameId, GameInfo> = {
       'The rule can switch at any moment. Switching more often comes with higher levels.',
     ],
   },
+  sequence: {
+    id: 'sequence',
+    name: 'Sequence Builder',
+    skill: 'memory',
+    icon: 'sort',
+    accent: '#B48CFF',
+    tagline: 'Hold it, then put it in order.',
+    howTo: [
+      'A mix of numbers and letters appears, one at a time.',
+      'Rebuild it in order: numbers first, smallest to largest, then letters from A to Z.',
+      'Holding and rearranging at once is the skill. The list grows as you improve.',
+    ],
+  },
+  echo: {
+    id: 'echo',
+    name: 'Echo',
+    skill: 'memory',
+    icon: 'rewind',
+    accent: '#8F86FF',
+    tagline: 'Watch the pattern, then play it back in reverse.',
+    howTo: [
+      'Tiles light up one at a time. Watch the order.',
+      'Tap them back in reverse: last tile first.',
+      'Get it right and the sequence grows.',
+    ],
+  },
+  hold: {
+    id: 'hold',
+    name: 'Hold It',
+    skill: 'attention',
+    icon: 'stop',
+    accent: '#E2607A',
+    tagline: 'Go with the arrow. Stop if it turns red.',
+    howTo: [
+      'An arrow points left or right. Tap that side as fast as you can.',
+      'Sometimes the arrow turns red just after it appears. Then stop: tap nothing.',
+      'The red signal comes later each time you stop in time, so stopping stays hard. Missing about half of them is normal.',
+    ],
+  },
+  search: {
+    id: 'search',
+    name: 'Double Take',
+    skill: 'speed',
+    icon: 'search',
+    accent: '#5DA8FF',
+    tagline: 'Find the odd one out, fast.',
+    howTo: [
+      'A field of shapes appears. One of them is different.',
+      'Tap the odd one out as quickly as you can.',
+      'At higher levels it differs only in its mix of colour and shape, so you have to look properly.',
+    ],
+  },
+  tower: {
+    id: 'tower',
+    name: 'Next Move',
+    skill: 'flexibility',
+    icon: 'tower',
+    accent: '#E9B45C',
+    tagline: 'Plan the moves before you make them.',
+    howTo: [
+      'Move the balls on the left to match the target on the right.',
+      'Tap a peg to lift its top ball, then tap another peg to place it. The pegs hold three, two and one ball.',
+      'Aim to match it in the fewest moves shown. Planning first scores best.',
+    ],
+  },
+  words: {
+    id: 'words',
+    name: 'Word Flow',
+    skill: 'flexibility',
+    icon: 'words',
+    accent: '#F28C5A',
+    tagline: 'Does the word fit? The question keeps changing.',
+    howTo: [
+      'A question and a word appear, such as “Animals?” and “otter”.',
+      'Tap Yes if the word fits the question, No if it does not.',
+      'The question changes without warning. From level 5 some ask about the first letter instead.',
+    ],
+  },
 };
 
 /** Games that are playable in this version. */
-export const AVAILABLE: GameId[] = ['speed', 'grid', 'catch', 'nback', 'clash', 'switch'];
+export const AVAILABLE: GameId[] = ['speed', 'grid', 'catch', 'nback', 'clash', 'switch', 'sequence', 'echo', 'hold', 'search', 'tower', 'words'];

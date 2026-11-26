@@ -102,6 +102,44 @@ export type MetricDef = {
 /** The extra measures each game records, and how to read them. */
 export const GAME_METRICS: Record<GameId, MetricDef[]> = {
   speed: [],
+  sequence: [
+    { key: 'length', label: 'List length', unit: 'n', better: 'higher', explain: 'How many numbers and letters you were asked to hold and reorder.' },
+    { key: 'perfect', label: 'Perfect lists', unit: 'count', better: 'higher', explain: 'Lists you rebuilt in exactly the right order.' },
+  ],
+  echo: [
+    { key: 'span', label: 'Backward span', unit: 'n', better: 'higher', explain: 'How many tiles you were asked to play back in reverse.' },
+    { key: 'perfect', label: 'Perfect sequences', unit: 'count', better: 'higher', explain: 'Sequences you reversed without a slip.' },
+  ],
+  hold: [
+    {
+      key: 'ssrt',
+      label: 'Stopping time',
+      unit: 'ms',
+      better: 'lower',
+      explain: 'Stop-signal reaction time: an estimate of how long your brain needs to cancel a movement already under way. Lower is a quicker brake.',
+    },
+    { key: 'stopRate', label: 'Stops held', unit: 'pct', better: 'neither', explain: 'Share of red arrows you stopped for. The task keeps this near half on purpose.' },
+    { key: 'goAccuracy', label: 'Go accuracy', unit: 'pct', better: 'higher', explain: 'Correct taps on the arrows you were meant to follow.' },
+  ],
+  search: [
+    { key: 'setSize', label: 'Shapes on screen', unit: 'n', better: 'higher', explain: 'How many shapes you searched through.' },
+    { key: 'msPerItem', label: 'Time per shape', unit: 'ms', better: 'lower', explain: 'Your median find time divided by the number of shapes: a rough search speed.' },
+  ],
+  tower: [
+    { key: 'minMoves', label: 'Puzzle length', unit: 'n', better: 'higher', explain: 'The fewest moves each puzzle needed.' },
+    { key: 'optimal', label: 'Solved in fewest moves', unit: 'pct', better: 'higher', explain: 'Share of puzzles you solved with no wasted moves.' },
+    { key: 'planMs', label: 'Planning time', unit: 'ms', better: 'neither', explain: 'Median time before your first move. Longer planning often means fewer wasted moves.' },
+  ],
+  words: [
+    {
+      key: 'switchCost',
+      label: 'Switch cost',
+      unit: 'ms',
+      better: 'lower',
+      explain: 'How much slower you are just after the question changes than when it stays the same.',
+    },
+    { key: 'switchAccuracy', label: 'Accuracy after a switch', unit: 'pct', better: 'higher', explain: 'Accuracy on words where the question had just changed.' },
+  ],
   grid: [
     { key: 'span', label: 'Sequence length', unit: 'n', better: 'higher', explain: 'How many tiles you were asked to remember.' },
     { key: 'perfect', label: 'Perfect sequences', unit: 'count', better: 'higher', explain: 'Sequences you repeated without a slip.' },

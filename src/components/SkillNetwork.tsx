@@ -9,12 +9,18 @@ import { useOptionalSettings } from '@/lib/store';
 // measured performance on that task rises. It maps results in the app, not brain activity.
 
 export const CENTRES: Record<GameId, [number, number]> = {
-  speed: [0.22, 0.38],
-  grid: [0.42, 0.22],
-  nback: [0.64, 0.24],
-  catch: [0.8, 0.48],
-  clash: [0.56, 0.62],
-  switch: [0.3, 0.7],
+  speed: [0.18, 0.4],
+  search: [0.3, 0.2],
+  grid: [0.46, 0.14],
+  nback: [0.64, 0.2],
+  sequence: [0.82, 0.3],
+  echo: [0.5, 0.36],
+  catch: [0.84, 0.56],
+  clash: [0.66, 0.5],
+  hold: [0.7, 0.8],
+  switch: [0.32, 0.62],
+  words: [0.16, 0.8],
+  tower: [0.46, 0.84],
 };
 const ORDER = Object.keys(CENTRES) as GameId[];
 const NEUTRAL = '#A995FF';
@@ -35,9 +41,9 @@ function build(w: number, h: number) {
   const nodes: Node[] = [];
   for (const g of ORDER) {
     const [cx, cy] = CENTRES[g];
-    for (let i = 0; i < 9; i++) {
+    for (let i = 0; i < 6; i++) {
       const a = rand() * Math.PI * 2;
-      const d = Math.sqrt(rand()) * 0.13;
+      const d = Math.sqrt(rand()) * 0.09;
       nodes.push({ game: g, x: (cx + Math.cos(a) * d * 1.1) * w, y: (cy + Math.sin(a) * d * 1.3) * h, r: 1 + rand() * 1.8 });
     }
   }
@@ -92,7 +98,7 @@ export function SkillNetwork({
       {calm ? null : ORDER.map((g) => {
         const [cx, cy] = CENTRES[g];
         const o = quiet(g) ? 0.12 : 0.15 + p(g) * 0.6;
-        return <Circle key={g} cx={cx * width} cy={cy * height} r={width * 0.15} fill={`url(#net_${g})`} opacity={o * dim} />;
+        return <Circle key={g} cx={cx * width} cy={cy * height} r={width * 0.1} fill={`url(#net_${g})`} opacity={o * dim} />;
       })}
       {links.map(([i, j]) => {
         const a = nodes[i];
@@ -123,9 +129,9 @@ export function SkillNetwork({
               <SvgText
                 key={g}
                 x={cx * width}
-                y={cy * height + width * 0.16 + 4}
+                y={cy * height + width * 0.075 + 4}
                 textAnchor="middle"
-                fontSize={10.5}
+                fontSize={9.5}
                 fontFamily="Inter_600SemiBold"
                 fill={GAMES[g].accent}
                 opacity={quiet(g) ? 0.45 : 0.95}

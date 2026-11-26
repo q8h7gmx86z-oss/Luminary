@@ -57,6 +57,17 @@ const ICONS = {
     </>
   ),
   arrow: <Path d="M5 12h14M13 6l6 6-6 6" />,
+  sort: <Path d="M4 20V14M10 20V10M16 20V6M22 20V3M2 20h21" />,
+  rewind: <Path d="M11 19 2 12l9-7v14zM22 19l-9-7 9-7v14z" />,
+  stop: <Path d="M7.9 2h8.2L22 7.9v8.2L16.1 22H7.9L2 16.1V7.9zM8 12h8" />,
+  search: (
+    <>
+      <Circle cx={11} cy={11} r={7} />
+      <Path d="m21 21-4.3-4.3" />
+    </>
+  ),
+  tower: <Path d="M5 21V9M12 21V12M19 21V15M2 21h20M5 9a2 2 0 1 0 0-.01M12 12a2 2 0 1 0 0-.01" />,
+  words: <Path d="M4 7V5h10v2M9 5v14M7 19h4M14 13v-1h7v1M17.5 12v7M16 19h3" />,
   moon: <Path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" />,
   heart: <Path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1 1.1L12 21l7.8-7.5 1-1.1a5.5 5.5 0 0 0 0-7.8z" />,
 } as const;

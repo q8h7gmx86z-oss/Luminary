@@ -18,6 +18,12 @@ import { MemoryGrid } from './games/MemoryGrid';
 import { SpeedMatch } from './games/SpeedMatch';
 import { StarTracker } from './games/StarTracker';
 import { SwitchIt } from './games/SwitchIt';
+import { DoubleTake } from './games/DoubleTake';
+import { HoldIt } from './games/HoldIt';
+import { NextMove } from './games/NextMove';
+import { SequenceBuilder } from './games/SequenceBuilder';
+import { WordFlow } from './games/WordFlow';
+import type { GameProps } from './GameFrame';
 import { GameBadge } from '@/components/GameBadge';
 import { ResearchPanel } from '@/components/Research';
 
@@ -28,6 +34,12 @@ export const COMPONENTS = {
   nback: StarTracker,
   clash: ColourClash,
   switch: SwitchIt,
+  sequence: SequenceBuilder,
+  echo: (props: GameProps & { onQuit?: () => void }) => <MemoryGrid {...props} backwards />,
+  hold: HoldIt,
+  search: DoubleTake,
+  tower: NextMove,
+  words: WordFlow,
 } as const;
 
 export function isPlayable(id: GameId): id is keyof typeof COMPONENTS {

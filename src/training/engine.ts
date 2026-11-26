@@ -1,6 +1,6 @@
 // Pure training logic: levels, scoring and the daily plan. No imports, so plain Node can test it.
 
-export type GameId = 'speed' | 'grid' | 'catch' | 'nback' | 'clash' | 'switch';
+export type GameId = 'speed' | 'grid' | 'catch' | 'nback' | 'clash' | 'switch' | 'sequence' | 'echo' | 'hold' | 'search' | 'tower' | 'words';
 export type Skill = 'speed' | 'memory' | 'attention' | 'flexibility';
 
 export type GameResult = {
@@ -203,7 +203,7 @@ export function nbackSequence(length: number, n: number, positions: number, targ
  * every time, then two of Colour Clash, Star Tracker and Switch It in rotation.
  */
 export function focusGames(day: string, available: GameId[]): GameId[] {
-  const pool = (['clash', 'nback', 'switch'] as GameId[]).filter((g) => available.includes(g));
+  const pool = (['clash', 'nback', 'switch', 'hold', 'words'] as GameId[]).filter((g) => available.includes(g));
   const i = dayIndex(day);
   const picks: GameId[] = available.includes('catch') ? ['catch'] : [];
   for (let k = 0; picks.length < 3 && k < pool.length; k++) picks.push(pool[(i + k) % pool.length]);
