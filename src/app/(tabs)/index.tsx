@@ -1,25 +1,22 @@
-import { Link, router } from 'expo-router';
+import { router } from 'expo-router';
 import React, { useState } from 'react';
 import { Pressable, Text, useWindowDimensions, View } from 'react-native';
 
 import { AuraNote } from '@/aura/Aura';
 import { todayBrief } from '@/aura/script';
 import { GameBadge, NavyGlow } from '@/components/GameBadge';
-import { Icon } from '@/components/Icon';
+import { Icon, IconName } from '@/components/Icon';
 import { useCountUp } from '@/components/motion';
 import { networkLevels, SkillNetwork } from '@/components/SkillNetwork';
-import { ChampionshipsCard } from '@/training/ChampionshipsUI';
-import { LabToday } from '@/lab/WholeBrainCard';
-import { ProgrammeCard } from '@/real/ProgrammeCard';
-import { Body, Button, Card, Checkbox, Heading, Overline, Screen } from '@/components/ui';
-import { HABITS } from '@/content/content';
-import { ResearchLink } from '@/components/Research';
+import { Overline, Screen } from '@/components/ui';
+import { ARTICLES, HABITS } from '@/content/content';
 import { dayKey } from '@/lib/logic';
 import { useStore } from '@/lib/store';
 import { fonts, radii, type, useTheme } from '@/lib/theme';
 import { GAMES, SKILLS } from '@/training/catalog';
-import { ChallengesCard } from '@/training/ChallengesCard';
-import { GameId, MAX_LEVEL } from '@/training/engine';
+import { dayIndex, GameId, MAX_LEVEL, Skill } from '@/training/engine';
+import { skillSummaries } from '@/training/stats';
+import { todayInsight } from '@/training/todayInsight';
 import { forgivingStreak, GOAL_NAMES, weekOf } from '@/training/planner';
 import { MAX_SHARPNESS } from '@/training/sharpness';
 import { useSharpness } from '@/training/SharpnessCard';
@@ -182,20 +179,76 @@ function TodayBrief({ plan }: { plan: ReturnType<typeof useTodayPlan> }) {
   );
 }
 
+/** One honest sentence about the person's own progress. */
+function InsightLine() {
+  const t = useTheme();
+  const { state } = useStore();
+  const summaries = skillSummaries(state.training.results, state.training.levels, (g) => GAMES[g].skill, Object.keys(SKILLS) as Skill[]);
+  const insight = todayInsight(summaries, (s) => SKILLS[s].name);
+  const colour = insight.skill ? SKILLS[insight.skill].color : t.lavender;
+  return (
+    <Pressable accessibilityRole="button" accessibilityLabel={`Your progress. ${insight.text}`} onPress={() => router.push('/progress')}>
+      {({ pressed }) => (
+        <View style={{ flexDirection: 'row', gap: 12, alignItems: 'center', padding: 14, borderRadius: radii.row, borderWidth: 1, borderColor: t.border, backgroundColor: t.surface, opacity: pressed ? 0.9 : 1 }}>
+          <View style={{ width: 4, alignSelf: 'stretch', borderRadius: 2, backgroundColor: colour }} />
+          <View style={{ flex: 1, gap: 4 }}>
+            <Text style={[type.overline, { color: t.muted, fontSize: 9.5 }]}>Your progress</Text>
+            <Text style={[type.body, { color: t.text }]}>{insight.text}</Text>
+          </View>
+          <Icon name="arrow" size={16} color={t.muted} />
+        </View>
+      )}
+    </Pressable>
+  );
+}
+
+/** A short read from the Brain Observatory, a different one each day. */
+function Discovery() {
+  const t = useTheme();
+  const a = ARTICLES[((dayIndex(dayKey()) % ARTICLES.length) + ARTICLES.length) % ARTICLES.length];
+  return (
+    <Pressable accessibilityRole="link" accessibilityLabel={`Today's discovery. ${a.title}`} onPress={() => router.push(`/article/${a.id}`)}>
+      {({ pressed }) => (
+        <View style={{ padding: 16, gap: 6, borderRadius: radii.panel, borderWidth: 1, borderColor: t.border, backgroundColor: t.surface, opacity: pressed ? 0.92 : 1 }}>
+          <Overline color={t.lavender}>A discovery for today</Overline>
+          <Text style={[type.section, { color: t.text, fontSize: 17, lineHeight: 23 }]}>{a.title}</Text>
+          <Text style={[type.caption, { color: t.muted }]}>{a.summary}</Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 4 }}>
+            <Text style={{ color: t.lavender, fontFamily: fonts.semibold, fontSize: 14 }}>Explore the science</Text>
+            <Icon name="arrow" size={16} color={t.lavender} />
+          </View>
+        </View>
+      )}
+    </Pressable>
+  );
+}
+
+function Tool({ icon, label, detail, colour, onPress }: { icon: IconName; label: string; detail: string; colour: string; onPress: () => void }) {
+  const t = useTheme();
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={`${label}. ${detail}`}
+      onPress={onPress}
+      style={({ pressed }) => ({ flex: 1, minHeight: 104, padding: 12, gap: 6, borderRadius: radii.row, borderWidth: 1, borderColor: t.border, backgroundColor: t.surface, opacity: pressed ? 0.88 : 1 })}
+    >
+      <Icon name={icon} size={20} color={colour} strokeWidth={1.7} />
+      <Text style={[type.label, { color: t.text }]}>{label}</Text>
+      <Text style={[type.caption, { color: t.muted, fontSize: 12 }]}>{detail}</Text>
+    </Pressable>
+  );
+}
+
 export default function Today() {
-  const { state, toggleHabit } = useStore();
+  const { state } = useStore();
   const t = useTheme();
   const today = dayKey();
-  const done = state.habits[today] ?? [];
-  const mood = state.moods[today];
-  const sleep = state.sleeps[today];
+  const habitsDone = (state.habits[today] ?? []).length;
+  const checkedIn = Boolean(state.moods[today]) && Boolean(state.sleeps[today]);
 
   const plan = useTodayPlan();
   const prefs = state.settings;
   const workedOut = state.training.workouts.includes(today);
-
-  const openSteps = state.tasks.flatMap((task) => task.steps.filter((s) => !s.done).map((s) => ({ task, s })));
-  const next = openSteps[0];
 
   return (
     <Screen>
@@ -208,8 +261,6 @@ export default function Today() {
         </Text>
       </View>
 
-      <PerformancePanel />
-
       <TodayBrief plan={plan} />
 
       <View style={{ gap: 10 }}>
@@ -220,10 +271,6 @@ export default function Today() {
           <Text style={[type.caption, { color: t.muted }]}>
             {prefs.sessionMinutes} min · {GOAL_NAMES[prefs.goal]}
           </Text>
-        </View>
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 4 }}>
-          <Icon name="wind" size={16} color={t.muted} />
-          <Text style={[type.caption, { color: t.muted }]}>Starts with a 1-minute breathing warm-up</Text>
         </View>
         <View style={{ gap: 8 }}>
           {plan.map((p) => (
@@ -249,64 +296,25 @@ export default function Today() {
           <Text style={{ color: '#FFFFFF', fontSize: 16, fontFamily: fonts.semibold }}>{workedOut ? 'Train again' : 'Start workout'}</Text>
           <Icon name="arrow" size={18} color="#FFFFFF" strokeWidth={2.2} />
         </Pressable>
-        <Pressable accessibilityRole="link" onPress={() => router.push('/preferences')} hitSlop={8}>
-          <Text style={{ color: t.lavender, fontFamily: fonts.medium, fontSize: 14, textAlign: 'center' }}>Change length, goal or pace</Text>
-        </Pressable>
+        <Text style={[type.caption, { color: t.muted, textAlign: 'center' }]}>Starts with a one-minute breathing warm-up</Text>
       </View>
 
-      <ProgrammeCard />
+      <PerformancePanel />
 
-      <LabToday />
+      <InsightLine />
 
-      <ChampionshipsCard />
+      <Discovery />
 
-      <ChallengesCard />
-
-      <Card>
-        <Heading>Quick check-ins</Heading>
-        <View style={{ gap: 8 }}>
-          <Button
-            kind={mood ? 'secondary' : 'primary'}
-            label={mood ? 'Mood logged today ✓' : 'Log mood, energy and focus'}
-            onPress={() => router.push('/mood')}
-          />
-          <Button
-            kind={sleep ? 'secondary' : 'primary'}
-            label={sleep ? 'Sleep logged today ✓' : 'Log last night’s sleep'}
-            onPress={() => router.push('/sleep')}
-          />
+      <View style={{ gap: 10 }}>
+        <Text accessibilityRole="header" style={[type.section, { color: t.text }]}>
+          Tools for today
+        </Text>
+        <View style={{ flexDirection: 'row', gap: 8 }}>
+          <Tool icon="target" label="Focus" detail="Timer, tasks and plans" colour={t.teal} onPress={() => router.push('/focus')} />
+          <Tool icon="moon" label="Check in" detail={checkedIn ? 'Done today' : 'Sleep and mood'} colour={t.gold} onPress={() => router.push(state.sleeps[today] ? '/mood' : '/sleep')} />
+          <Tool icon="check" label="Habits" detail={`${habitsDone} of ${HABITS.length} today`} colour={t.lavender} onPress={() => router.push('/habits')} />
         </View>
-      </Card>
-
-      {next ? (
-        <Card>
-          <Heading>Your next step</Heading>
-          <Body muted>{next.task.title}</Body>
-          <Body>{next.s.text}</Body>
-          <Button kind="secondary" label="Open Focus" onPress={() => router.push('/focus')} />
-        </Card>
-      ) : null}
-
-      <Card>
-        <Heading>Daily brain habits</Heading>
-        <Body muted>Your training outside the app. Each one is backed by the research below.</Body>
-        {HABITS.map((h) => (
-          <View key={h.id}>
-            <Checkbox checked={done.includes(h.id)} label={h.label} onPress={() => toggleHabit(h.id)} />
-            <Text style={[type.caption, { color: t.muted, marginLeft: 36 }]}>{h.why}</Text>
-            <View style={{ marginLeft: 36, marginTop: 4 }}>
-              <ResearchLink id={h.id} />
-            </View>
-          </View>
-        ))}
-        <Link href="/rafi" style={{ color: t.lavender, fontFamily: fonts.medium, fontSize: 15 }}>
-          Your full brain health plan: the Rafi Programme
-        </Link>
-      </Card>
-
-      <Link href="/settings" style={{ color: t.lavender, fontFamily: fonts.medium, fontSize: 15, textAlign: 'center' }}>
-        Settings and privacy
-      </Link>
+      </View>
     </Screen>
   );
 }

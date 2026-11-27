@@ -69,6 +69,18 @@ const ICONS = {
   tower: <Path d="M5 21V9M12 21V12M19 21V15M2 21h20M5 9a2 2 0 1 0 0-.01M12 12a2 2 0 1 0 0-.01" />,
   words: <Path d="M4 7V5h10v2M9 5v14M7 19h4M14 13v-1h7v1M17.5 12v7M16 19h3" />,
   moon: <Path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" />,
+  person: (
+    <>
+      <Circle cx={12} cy={8} r={4} />
+      <Path d="M4 21a8 8 0 0 1 16 0" />
+    </>
+  ),
+  compass: (
+    <>
+      <Circle cx={12} cy={12} r={9} />
+      <Path d="M15.5 8.5l-2 5-5 2 2-5z" />
+    </>
+  ),
   heart: <Path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1 1.1L12 21l7.8-7.5 1-1.1a5.5 5.5 0 0 0 0-7.8z" />,
 } as const;
 
