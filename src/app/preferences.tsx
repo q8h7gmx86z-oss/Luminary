@@ -195,6 +195,22 @@ export default function Preferences() {
         />
       </Row>
 
+      <Row
+        title="Aura"
+        why="Aura, your companion, explains each session and what your results mean. In games, it reacts quietly to right and wrong answers. Choose guidance only if any movement beside a game distracts you."
+      >
+        <Segmented<Settings['aura']>
+          label="Aura"
+          value={s.aura ?? 'full'}
+          onChange={set('aura')}
+          options={[
+            { value: 'full', label: 'Guidance and reactions' },
+            { value: 'guide', label: 'Guidance only' },
+            { value: 'off', label: 'Off' },
+          ]}
+        />
+      </Row>
+
       <Row title="Vibration" why="A light tap for right answers and a short buzz for wrong ones. Phones only.">
         <Segmented<'on' | 'off'>
           label="Vibration"

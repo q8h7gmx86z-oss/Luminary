@@ -3,6 +3,7 @@ import * as Haptics from 'expo-haptics';
 import { useCallback, useEffect } from 'react';
 import { Platform } from 'react-native';
 
+import { useAuraReact } from '@/aura/Aura';
 import { useStore } from '@/lib/store';
 
 // Original sounds, synthesised by scripts/sounds/make.py.
@@ -68,8 +69,12 @@ export function useCue() {
 /** Plays the right or wrong cue whenever a game's feedback state changes. */
 export function useAnswerFeedback(fb: string | null, good: string[]) {
   const cue = useCue();
+  const aura = useAuraReact();
   useEffect(() => {
-    if (fb) cue(good.includes(fb) ? 'right' : 'wrong');
+    if (!fb) return;
+    const right = good.includes(fb);
+    cue(right ? 'right' : 'wrong');
+    aura(right);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fb]);
 }

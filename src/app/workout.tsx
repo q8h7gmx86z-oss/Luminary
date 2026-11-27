@@ -3,6 +3,8 @@ import React, { useMemo, useState } from 'react';
 import { Pressable, ScrollView, Text, useWindowDimensions, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { AuraNote } from '@/aura/Aura';
+import { summaryLine } from '@/aura/script';
 import { Icon } from '@/components/Icon';
 import { useCountUp } from '@/components/motion';
 import { networkLevels, SkillNetwork } from '@/components/SkillNetwork';
@@ -123,6 +125,17 @@ function Summary({ focus, results, before, after, firstTime }: { focus: boolean;
                   : 'Holding steady. Consistency is how scores climb.'}
           </Text>
         </View>
+      </View>
+
+      <View style={{ width: '100%', maxWidth: 440 }}>
+        <AuraNote
+          line={summaryLine({
+            firstTime,
+            diff,
+            focus,
+            results: results.map((r) => ({ game: GAMES[r.game].name, accuracy: r.accuracy, levelledUp: (state.training.levels[r.game] ?? 1) > r.level })),
+          })}
+        />
       </View>
 
       <View style={{ gap: 8, width: '100%', maxWidth: 440 }}>

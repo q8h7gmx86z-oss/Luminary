@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { ScrollView, Text, View } from 'react-native';
 
+import { AuraNote } from '@/aura/Aura';
+import { introLine, resultLine } from '@/aura/script';
 import { useStore } from '@/lib/store';
 import { dayKey } from '@/lib/logic';
 import { GOLD, NAVY, NAVY_LINE, NAVY_TILE, ON_NAVY, ON_NAVY_MUTED } from '@/lib/brand';
@@ -8,7 +10,7 @@ import { useTheme } from '@/lib/theme';
 
 import { GLOW } from './BrainMap';
 import { GAMES, SKILLS } from './catalog';
-import { GameId, GameResult, nextLevel } from './engine';
+import { GameId, GameResult, nextLevel, THRESHOLDS } from './engine';
 import { GAME_METRICS } from './stats';
 import { useCue } from './feedback';
 import { AnswerButton, RoundOutcome } from './GameFrame';
@@ -72,6 +74,7 @@ export function GameRunner({
   const untimed = !state.settings.timed;
   const [stage, setStage] = useState<'intro' | 'play' | 'result'>('intro');
   const [result, setResult] = useState<GameResult | null>(null);
+  const [firstTime] = useState(() => !state.training.results.some((r) => r.game === id));
 
   if (!isPlayable(id)) return null;
   const Game = COMPONENTS[id];
@@ -125,15 +128,18 @@ export function GameRunner({
             {highlight.label}: {highlight.value}
           </Text>
         ) : null}
-        <Text style={{ color: ON_NAVY_MUTED, textAlign: 'center', maxWidth: 420 }}>
-          {newLevel > result.level
-            ? 'Above your target range. Difficulty increases next round.'
-            : newLevel < result.level
-              ? 'Below your target range. Difficulty eases by one level: training at the right difficulty is what drives gains.'
-              : result.accuracy < 0.6
-                ? 'Below your target range. The level holds; consistent practice at this level builds capacity.'
-                : 'Within your target range. The level holds.'}
-        </Text>
+        <View style={{ width: '100%', maxWidth: 420 }}>
+          <AuraNote
+            essential
+            line={resultLine({
+              accuracy: result.accuracy,
+              level: result.level,
+              newLevel,
+              personalBest: isBest && best > 0,
+              cleared: challengeLevel !== undefined ? cleared : undefined,
+            })}
+          />
+        </View>
         <View style={{ flexDirection: 'row', gap: 12, width: '100%', maxWidth: 420 }}>
           {onExit ? <AnswerButton label="Done" tone="secondary" onPress={onExit} /> : null}
           <AnswerButton label={doneLabel} onPress={() => onDone(result)} />
@@ -158,6 +164,18 @@ export function GameRunner({
           {challengeLevel !== undefined ? `Challenge: level ${level}, one above yours. Hit 80% to clear it.` : `Your level: ${level}`}
           {untimed ? ' · Untimed mode' : ''}
         </Text>
+      </View>
+      <View style={{ width: '100%', maxWidth: 440 }}>
+        <AuraNote
+          line={introLine({
+            game: info.name,
+            level,
+            firstTime,
+            challenge: challengeLevel !== undefined,
+            untimed,
+            band: { down: Math.round(THRESHOLDS[state.settings.challenge].down * 100), up: Math.round(THRESHOLDS[state.settings.challenge].up * 100) },
+          })}
+        />
       </View>
       <View style={{ width: '100%', maxWidth: 440 }}>
         <ResearchPanel id={info.id} />

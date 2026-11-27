@@ -30,7 +30,7 @@ export const MAX_LEVEL = 20;
  * practice is challenging but not discouraging.
  */
 export type Challenge = 'steady' | 'balanced' | 'push';
-const THRESHOLDS: Record<Challenge, { up: number; down: number }> = {
+export const THRESHOLDS: Record<Challenge, { up: number; down: number }> = {
   steady: { up: 0.9, down: 0.65 },
   balanced: { up: 0.85, down: 0.6 },
   push: { up: 0.8, down: 0.55 },
