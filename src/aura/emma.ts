@@ -13,3 +13,5 @@ export function emmaSpeak(_text: string, _on: { start?: () => void; done?: () =>
 }
 export const emmaStop = () => {};
 export const emmaRetry = () => {};
+export const emmaWarm = () => {};
+export const emmaWait = (_ms: number) => Promise.resolve(false);
