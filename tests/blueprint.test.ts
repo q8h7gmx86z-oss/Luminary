@@ -1,7 +1,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { GAME_STANDARD, reviewOverdue } from '../src/training/standard.ts';
+import { BENCHMARK_PARADIGMS, GAME_STANDARD, LIBRARY_PARADIGMS, benchmarkLeaks, reviewOverdue } from '../src/training/standard.ts';
+import { MEASURE_ORDER } from '../src/training/benchmark.ts';
 import { todayInsight } from '../src/training/todayInsight.ts';
 
 const name = (s: string) => ({ speed: 'Processing speed', memory: 'Working memory', attention: 'Attention control', flexibility: 'Flexibility' })[s]!;
@@ -47,4 +48,16 @@ test('insight counts rounds to a baseline', () => {
   const i = todayInsight(sums, name as never);
   assert.equal(i.skill, 'flexibility');
   assert.match(i.text, /^1 more round of flexibility/);
+});
+
+test('the Benchmark stays untrained: no library game uses a Benchmark paradigm', () => {
+  assert.deepEqual(benchmarkLeaks(), []);
+  assert.deepEqual(benchmarkLeaks({ x: 'Digit span' }), ['x']);
+});
+
+test('every live game names its paradigm, and Benchmark ids are not game ids', () => {
+  const games = ['speed', 'grid', 'catch', 'nback', 'clash', 'switch', 'sequence', 'echo', 'hold', 'search', 'tower', 'words'];
+  for (const g of games) assert.ok(LIBRARY_PARADIGMS[g], g);
+  for (const m of MEASURE_ORDER) assert.ok(!games.includes(m), m);
+  assert.equal(BENCHMARK_PARADIGMS.length, 5);
 });
