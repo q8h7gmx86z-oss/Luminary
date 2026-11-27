@@ -2,7 +2,8 @@ import * as Speech from 'expo-speech';
 import { Platform } from 'react-native';
 
 import { emmaSpeak, emmaStop, emmaSupported, emmaWait, primeEmma } from './emma';
-import { cleanForSpeech, pickAuraVoice, speechPieces } from './voicePick';
+import { diag, playbackSession } from './diag';
+import { cleanForSpeech, pickAuraVoice, speechPieces, wavBytes } from './voicePick';
 
 // Aura speaks with Emma, the Kokoro bf_emma voice made on the phone, as in Sandra's other apps.
 // Where Emma can't run (native builds for now, or a phone where she failed to start), the system's
@@ -80,6 +81,7 @@ async function speakWeb(text: string, on: { start?: () => void; done?: () => voi
   const my = ++webGen;
   const voice = await webVoice();
   if (my !== webGen) return;
+  diag(`standard voice: ${voice ? voice.name : 'default'} (${s.getVoices().length} voices)`);
   // Safari drops speech that is queued straight after cancel(), so leave a short gap.
   if (s.speaking || s.pending) { s.cancel(); cancelledAt = Date.now(); }
   const gap = 150 - (Date.now() - cancelledAt);
@@ -93,8 +95,9 @@ async function speakWeb(text: string, on: { start?: () => void; done?: () => voi
     if (voice) u.voice = voice;
     u.lang = voice?.lang || 'en-GB';
     u.rate = 0.98;
-    u.onstart = () => { if (!started && my === webGen) { started = true; on.start?.(); } };
-    u.onend = u.onerror = () => { if (--left === 0) finish(); };
+    u.onstart = () => { if (!started && my === webGen) { started = true; diag('standard voice started'); on.start?.(); } };
+    u.onend = () => { if (--left === 0) { diag('standard voice finished'); finish(); } };
+    u.onerror = (e) => { diag(`standard voice error: ${(e as SpeechSynthesisErrorEvent).error}`); if (--left === 0) finish(); };
     return u;
   });
   // Keeping the utterances referenced stops some browsers from dropping their events.
@@ -105,6 +108,7 @@ async function speakWeb(text: string, on: { start?: () => void; done?: () => voi
 
 /** Call during the tap that will lead to speech, so phones allow the audio to play later. */
 export function primeAura() {
+  if (Platform.OS === 'web') playbackSession();
   primeEmma();
   // iPhones only let a page speak with the system voice after it has spoken during a tap, so say
   // nothing, silently, now. Then the fallback voice works if Emma can't start.
@@ -125,11 +129,14 @@ export async function speakAura(text: string, on: { start?: () => void; done?: (
   // Emma reads if she is ready, or gets ready within a few seconds (she was set loading when the
   // screen opened). While she is still downloading the first time, the standard voice reads this
   // answer so Aura is never silent, and Emma takes over once she is ready.
-  if (emmaSupported() && (await emmaWait(8000))) {
+  const useEmma = emmaSupported() && (await emmaWait(8000));
+  diag(useEmma ? 'reading with Emma' : 'reading with the standard voice');
+  if (useEmma) {
     try {
       await emmaSpeak(text, on);
       return;
-    } catch {
+    } catch (e) {
+      diag(`emma couldn't read: ${String((e as Error)?.message || e).slice(0, 80)}`);
       // Emma couldn't read this one; the system voice reads it instead.
     }
   }
@@ -144,4 +151,34 @@ export function stopAura() {
     const s = synth();
     try { if (s && (s.speaking || s.pending)) { s.cancel(); cancelledAt = Date.now(); } } catch { /* none */ }
   } else Speech.stop();
+}
+
+/**
+ * Sound check, run from a tap: a short tone through the same kind of player Emma uses, then one
+ * sentence in the standard voice. Each step is written to the voice log shown on screen.
+ */
+export function soundCheck() {
+  if (Platform.OS !== 'web' || typeof document === 'undefined') return;
+  stopAura();
+  playbackSession();
+  diag(`check: ${navigator.userAgent.match(/(CriOS|FxiOS|EdgiOS|Version)\/[\d.]+/)?.[0] ?? 'browser'}, session=${(navigator as unknown as { audioSession?: { type: string } }).audioSession?.type ?? 'n/a'}`);
+  const n = 24000 * 0.6;
+  const tone = new Float32Array(n);
+  for (let i = 0; i < n; i++) tone[i] = 0.4 * Math.sin((2 * Math.PI * 523 * i) / 24000) * Math.min(1, (n - i) / 2400);
+  const a = document.createElement('audio');
+  a.setAttribute('playsinline', '');
+  document.body.appendChild(a);
+  a.src = URL.createObjectURL(new Blob([wavBytes(tone, 24000) as BlobPart], { type: 'audio/wav' }));
+  const sayIt = () => {
+    a.remove();
+    speakWeb('This is the standard voice.', {});
+  };
+  a.onended = () => { diag(`check: tone ended at ${a.currentTime.toFixed(2)}s`); sayIt(); };
+  a.onerror = () => { diag(`check: tone error ${a.error?.code}`); sayIt(); };
+  a.play().then(
+    () => diag(`check: tone playing, muted=${a.muted}, vol=${a.volume}`),
+    (e: Error) => { diag(`check: tone refused: ${e?.name}`); sayIt(); },
+  );
+  // Speak once in the tap too, so the phone allows the standard voice afterwards.
+  try { const u = new SpeechSynthesisUtterance(' '); u.volume = 0; window.speechSynthesis.speak(u); } catch { diag('check: no speech engine'); }
 }
