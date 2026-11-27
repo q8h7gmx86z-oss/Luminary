@@ -6,9 +6,10 @@ import { COURSES } from '@/content/courses';
 import { useStore } from '@/lib/store';
 import { type, useTheme } from '@/lib/theme';
 import { EntryCard } from '@/real/ui';
+import { PlusGate } from '@/plus/PlusGate';
 
 /** The memory courses. */
-export default function Courses() {
+function CoursesScreen() {
   const t = useTheme();
   const { state } = useStore();
   const done = state.courses?.lessons ?? {};
@@ -40,5 +41,13 @@ export default function Courses() {
         );
       })}
     </Screen>
+  );
+}
+
+export default function Courses() {
+  return (
+    <PlusGate feature="courses">
+      <CoursesScreen />
+    </PlusGate>
   );
 }

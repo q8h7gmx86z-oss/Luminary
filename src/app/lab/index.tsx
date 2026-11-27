@@ -8,6 +8,7 @@ import { analyse, armFor, dayIndex, Experiment, LabResult, makeSchedule, MIN_PAI
 import { dayKey, uid } from '@/lib/logic';
 import { useStore } from '@/lib/store';
 import { fonts, radii, type, useTheme } from '@/lib/theme';
+import { PlusGate } from '@/plus/PlusGate';
 
 const LENGTHS = [14, 20, 28];
 
@@ -78,7 +79,7 @@ function Calendar({ exp, today }: { exp: Experiment; today: string }) {
 }
 
 /** The Personal Lab: test what sharpens you, with a randomised experiment on yourself. */
-export default function Lab() {
+function LabScreen() {
   const t = useTheme();
   const { state, startExperiment, endExperiment } = useStore();
   const today = dayKey();
@@ -224,5 +225,13 @@ export default function Lab() {
         The Lab is for personal insight, not medical advice. Do not change prescribed medication as part of an experiment without speaking to your doctor.
       </Text>
     </Screen>
+  );
+}
+
+export default function Lab() {
+  return (
+    <PlusGate feature="lab">
+      <LabScreen />
+    </PlusGate>
   );
 }

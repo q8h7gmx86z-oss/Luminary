@@ -10,9 +10,10 @@ import { dayKey } from '@/lib/logic';
 import { useStore } from '@/lib/store';
 import { type, useTheme } from '@/lib/theme';
 import { AnswerButton } from '@/training/GameFrame';
+import { PlusGate } from '@/plus/PlusGate';
 
 /** Today's alertness check for the running experiment, then one question: did you keep to the condition? */
-export default function LabCheck() {
+function LabCheckScreen() {
   const t = useTheme();
   const { state, recordLabEntry } = useStore();
   const exp = (state.lab ?? []).filter((e) => !e.endedAt).pop();
@@ -69,5 +70,13 @@ export default function LabCheck() {
         )}
       </ScrollView>
     </SafeAreaView>
+  );
+}
+
+export default function LabCheck() {
+  return (
+    <PlusGate feature="lab">
+      <LabCheckScreen />
+    </PlusGate>
   );
 }

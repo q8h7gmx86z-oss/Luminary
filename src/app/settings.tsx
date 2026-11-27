@@ -5,6 +5,7 @@ import { Pressable, Text, View } from 'react-native';
 import { Body, Button, Card, Checkbox, Heading, Screen } from '@/components/ui';
 import { useStore } from '@/lib/store';
 import { useTheme } from '@/lib/theme';
+import { MembershipCard } from '@/plus/MembershipCard';
 
 function Option({ label, on, onPress }: { label: string; on: boolean; onPress: () => void }) {
   const t = useTheme();
@@ -35,6 +36,8 @@ export default function Settings() {
 
   return (
     <Screen>
+      <MembershipCard />
+
       <Card>
         <Heading>Your privacy</Heading>
         <Body>

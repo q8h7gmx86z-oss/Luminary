@@ -8,9 +8,10 @@ import { useStore } from '@/lib/store';
 import { fonts, radii, type, useTheme } from '@/lib/theme';
 import { dueCards, INTERVALS, learned } from '@/real/recall';
 import { Panel } from '@/real/ui';
+import { PlusGate } from '@/plus/PlusGate';
 
 /** The recall deck: what you want to remember, tested on a widening schedule. */
-export default function Recall() {
+function RecallScreen() {
   const t = useTheme();
   const { state, addRecallCard, reviewRecallCard, removeRecallCard } = useStore();
   const cards = state.recall?.cards ?? [];
@@ -118,5 +119,13 @@ export default function Recall() {
 
       <ResearchLink id="recall" />
     </Screen>
+  );
+}
+
+export default function Recall() {
+  return (
+    <PlusGate feature="recall">
+      <RecallScreen />
+    </PlusGate>
   );
 }

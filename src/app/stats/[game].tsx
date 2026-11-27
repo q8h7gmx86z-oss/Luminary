@@ -12,6 +12,7 @@ import { Spark } from '@/training/Spark';
 import { gameAnalytics, MetricSummary } from '@/training/stats';
 import { GameBadge } from '@/components/GameBadge';
 import { ResearchPanel } from '@/components/Research';
+import { PlusGate } from '@/plus/PlusGate';
 
 const pct = (x: number) => `${Math.round(x * 100)}%`;
 
@@ -34,7 +35,7 @@ function change(m: MetricSummary) {
 }
 
 /** Everything Luminary has measured for one game. */
-export default function GameStats() {
+function GameStatsScreen() {
   const t = useTheme();
   const { game } = useLocalSearchParams<{ game: string }>();
   const { state } = useStore();
@@ -148,5 +149,13 @@ export default function GameStats() {
         never compared with other people.
       </Body>
     </Screen>
+  );
+}
+
+export default function GameStats() {
+  return (
+    <PlusGate feature="analytics">
+      <GameStatsScreen />
+    </PlusGate>
   );
 }

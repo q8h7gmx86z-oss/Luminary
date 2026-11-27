@@ -7,11 +7,12 @@ import { useStore } from '@/lib/store';
 import { fonts, radii, type, useTheme } from '@/lib/theme';
 import { makePalace, PALACE_SIZE, scorePalace } from '@/real/palace';
 import { Panel } from '@/real/ui';
+import { PlusGate } from '@/plus/PlusGate';
 
 type Phase = 'intro' | 'study' | 'walk' | 'recall' | 'result';
 
 /** Memory Palace practice: place ten words along your route, then recall them in order. */
-export default function PalacePractice() {
+function PalacePracticeScreen() {
   const t = useTheme();
   const { state, recordPalace } = useStore();
   const [round, setRound] = useState(() => makePalace());
@@ -145,5 +146,13 @@ export default function PalacePractice() {
         </View>
       ) : null}
     </Screen>
+  );
+}
+
+export default function PalacePractice() {
+  return (
+    <PlusGate feature="courses">
+      <PalacePracticeScreen />
+    </PlusGate>
   );
 }
