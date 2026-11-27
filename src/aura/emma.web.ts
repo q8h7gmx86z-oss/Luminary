@@ -8,6 +8,7 @@
 //   uses the processor instead.
 // - If Emma cannot start at all, the caller falls back to the system voice and the text stays on screen.
 
+import { diag } from './diag';
 import { speechPieces, wavBytes } from './voicePick';
 
 export type EmmaState = 'idle' | 'loading' | 'ready' | 'failed';
@@ -192,6 +193,7 @@ function init(): Promise<void> {
     return ready(w, 'wasm');
   })();
   E.p.catch((e) => {
+    diag(`emma failed to start: ${String((e as Error)?.message || e).slice(0, 80)}`);
     E.err = String((e as Error)?.message || e).slice(0, 140);
     E.state = 'failed';
     E.trying = false;
@@ -203,6 +205,7 @@ function init(): Promise<void> {
 }
 
 function ready(w: Worker, backend: 'gpu' | 'wasm') {
+  diag(`emma ready (${backend})`);
   E.w = w;
   E.backend = backend;
   E.trying = false;
@@ -243,6 +246,8 @@ let gen = 0;
 let urls: string[] = [];
 let wake: (() => void) | null = null;
 let silent = '';
+// True while the silent unlock clip is the one loaded, so its late success never pauses Emma.
+let primed = false;
 const el = () => {
   if (!audio) {
     audio = document.createElement('audio');
@@ -267,7 +272,11 @@ export function primeEmma() {
   if (!silent) silent = URL.createObjectURL(new Blob([wavBytes(new Float32Array(2400), RATE) as BlobPart], { type: 'audio/wav' }));
   a.src = silent;
   a.muted = true;
-  a.play().then(() => { a.dataset.ok = '1'; a.pause(); a.muted = false; }).catch(() => { a.muted = false; });
+  primed = true;
+  a.play().then(
+    () => { a.dataset.ok = '1'; diag('audio unlocked'); if (primed) { a.pause(); a.muted = false; } },
+    (e: Error) => { diag(`unlock failed: ${e?.name}`); a.muted = false; },
+  );
 }
 
 export function emmaStop() {
@@ -357,15 +366,20 @@ export async function emmaSpeak(text: string, on: { start?: () => void; done?: (
       }
       if (my !== gen) return;
       if (!started) { started = true; on.start?.(); }
+      primed = false;
       a.src = toUrl(ready[i]!);
       a.muted = false;
+      a.volume = 1;
       E.making = false;
       emit();
       await new Promise<void>((res, rej) => {
         wake = res;
-        a.onended = () => res();
-        a.onerror = () => rej(new Error('playback failed'));
-        a.play().catch((e: Error) => rej(new Error(e?.name === 'NotAllowedError' ? 'blocked' : `playback: ${e?.message}`)));
+        a.onended = () => { if (i === 0 || i === pieces.length - 1) diag(`emma piece ${i + 1} ended at ${a.currentTime.toFixed(1)}s`); res(); };
+        a.onerror = () => { diag(`emma audio error ${a.error?.code}`); rej(new Error('playback failed')); };
+        a.play().then(
+          () => { if (i === 0) diag(`emma playing (${E.backend}, muted=${a.muted}, vol=${a.volume})`); },
+          (e: Error) => { diag(`emma play refused: ${e?.name}`); rej(new Error(e?.name === 'NotAllowedError' ? 'blocked' : `playback: ${e?.message}`)); },
+        );
       });
       if (my !== gen) return;
       await new Promise((r) => setTimeout(r, 160));

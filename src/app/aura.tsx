@@ -7,7 +7,8 @@ import { askAura, ChatTurn, researchLibrary } from '@/aura/chat';
 import { AURA_ENDPOINT, AURA_KEY } from '@/aura/config';
 import { useAuraContext } from '@/aura/useAuraContext';
 import { emmaRetry, EmmaStatus, emmaStatus, emmaWarm, onEmmaStatus } from '@/aura/emma';
-import { primeAura, speakAura, stopAura } from '@/aura/voice';
+import { diagLines, onDiag } from '@/aura/diag';
+import { primeAura, soundCheck, speakAura, stopAura } from '@/aura/voice';
 import { Icon } from '@/components/Icon';
 import { useReducedMotion } from '@/components/motion';
 import { Overline } from '@/components/ui';
@@ -60,6 +61,9 @@ export default function AuraChat() {
 
   const [emma, setEmma] = useState<EmmaStatus>(emmaStatus);
   useEffect(() => onEmmaStatus(setEmma), []);
+  const [log, setLog] = useState<string[]>([]);
+  const [showLog, setShowLog] = useState(false);
+  useEffect(() => onDiag(() => setLog(diagLines())), []);
   useEffect(() => () => stopAura(), []);
   // Get Emma ready as soon as the screen opens, so she is ready by the time Aura answers.
   useEffect(() => {
@@ -209,6 +213,28 @@ export default function AuraChat() {
             {emma.state === 'failed' ? <Text style={{ color: t.lavender, fontFamily: fonts.semibold }}> Try Emma again</Text> : null}
           </Text>
         </Pressable>
+      ) : null}
+
+      {voiceOn && Platform.OS === 'web' ? (
+        <View style={{ paddingHorizontal: 16, paddingVertical: 6, borderTopWidth: 1, borderTopColor: t.border, gap: 6 }}>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Sound check: play a tone and a sentence, and show what the voice is doing"
+            onPress={() => { setShowLog(true); soundCheck(); }}
+            hitSlop={8}
+          >
+            <Text style={[type.caption, { color: t.lavender, fontFamily: fonts.semibold, textAlign: 'center' }]}>
+              {showLog ? 'Run the sound check again' : 'No sound? Run a sound check'}
+            </Text>
+          </Pressable>
+          {showLog ? (
+            <ScrollView style={{ maxHeight: 140 }}>
+              <Text selectable style={{ color: t.muted, fontFamily: fonts.body, fontSize: 11.5, lineHeight: 16 }}>
+                {(log.length ? log : ['Nothing yet.']).join('\n')}
+              </Text>
+            </ScrollView>
+          ) : null}
+        </View>
       ) : null}
 
       <View style={{ flexDirection: 'row', gap: 10, padding: 12, borderTopWidth: 1, borderTopColor: t.border, alignItems: 'flex-end' }}>
