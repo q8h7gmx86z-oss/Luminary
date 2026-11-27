@@ -54,6 +54,7 @@ function Gate() {
       <Stack.Screen name="rafi/[id]" options={{ title: 'The Rafi Programme' }} />
       <Stack.Screen name="article/[id]" options={{ title: 'Learn' }} />
       <Stack.Screen name="backup" options={{ title: 'Backup and move' }} />
+      <Stack.Screen name="aura" options={{ title: 'Aura' }} />
       <Stack.Screen name="stats/[game]" options={{ title: 'Game details' }} />
       <Stack.Screen name="research/index" options={{ title: 'The evidence' }} />
       <Stack.Screen name="research/[id]" options={{ title: 'The evidence' }} />

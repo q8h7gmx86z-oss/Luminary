@@ -1,5 +1,6 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { Text, View } from 'react-native';
+import { router } from 'expo-router';
+import { Pressable, Text, View } from 'react-native';
 
 import { useReducedMotion } from '@/components/motion';
 import { useStore } from '@/lib/store';
@@ -70,7 +71,20 @@ function useSettling(target: AuraState, key: string): AuraState {
  * Aura with a line of guidance. When the person turns Aura off, the note disappears, or with
  * `essential` the text stays as plain copy, for lines that carry information the screen needs.
  */
-export function AuraNote({ line, title = 'Aura', framed = true, essential = false }: { line: AuraLine; title?: string; framed?: boolean; essential?: boolean }) {
+export function AuraNote({
+  line,
+  title = 'Aura',
+  framed = true,
+  essential = false,
+  ask,
+}: {
+  line: AuraLine;
+  title?: string;
+  framed?: boolean;
+  essential?: boolean;
+  /** Shows "Ask Aura", opening the conversation about this topic. */
+  ask?: string;
+}) {
   const t = useTheme();
   const mode = useAuraMode();
   const still = useReducedMotion();
@@ -80,8 +94,8 @@ export function AuraNote({ line, title = 'Aura', framed = true, essential = fals
   }
   return (
     <View
-      accessible
-      accessibilityLabel={`${title}: ${line.text}`}
+      accessible={!ask}
+      accessibilityLabel={ask ? undefined : `${title}: ${line.text}`}
       style={[
         { flexDirection: 'row', alignItems: 'center', gap: 4, width: '100%' },
         framed ? { backgroundColor: t.surface, borderRadius: radii.panel, borderWidth: 1, borderColor: t.border, paddingVertical: 10, paddingRight: 16, paddingLeft: 4 } : null,
@@ -93,6 +107,17 @@ export function AuraNote({ line, title = 'Aura', framed = true, essential = fals
       <View style={{ flex: 1, gap: 3 }}>
         <Text style={[type.overline, { color: t.muted, fontSize: 10 }]}>{title}</Text>
         <Text style={{ color: t.text, fontFamily: fonts.body, fontSize: 14, lineHeight: 20 }}>{line.text}</Text>
+        {ask ? (
+          <Pressable
+            accessibilityRole="link"
+            accessibilityLabel={`Ask Aura about ${ask}`}
+            onPress={() => router.push({ pathname: '/aura', params: { topic: ask } })}
+            hitSlop={8}
+            style={{ alignSelf: 'flex-start', marginTop: 4 }}
+          >
+            <Text style={{ color: t.lavender, fontFamily: fonts.semibold, fontSize: 13 }}>Ask Aura</Text>
+          </Pressable>
+        ) : null}
       </View>
     </View>
   );

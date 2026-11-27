@@ -100,6 +100,10 @@ export type Settings = {
   contrast: 'standard' | 'high';
   /** Aura, the companion: guidance and in-game reactions, guidance only, or off. */
   aura: 'full' | 'guide' | 'off';
+  /** Talking to Aura sends questions to a server, so it stays off until the person turns it on. */
+  auraChat: boolean;
+  /** Aura reads her answers aloud on the device. */
+  auraVoice: boolean;
 };
 export const DEFAULT_SETTINGS: Settings = {
   calmMode: false,
@@ -116,6 +120,8 @@ export const DEFAULT_SETTINGS: Settings = {
   insights: false,
   contrast: 'standard',
   aura: 'full',
+  auraChat: false,
+  auraVoice: true,
 };
 
 function defaultState(): State {
