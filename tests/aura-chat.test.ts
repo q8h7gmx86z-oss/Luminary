@@ -61,3 +61,26 @@ test('askAura reports each failure plainly', async () => {
   const down = async () => { throw new Error('net'); };
   assert.deepEqual(await askAura('https://x', 'k', body, down as typeof fetch), { ok: false, reason: 'offline' });
 });
+
+import { speechPieces, wavBytes } from '../src/aura/voicePick.ts';
+
+test('Emma reads sentence by sentence, splitting long ones at commas', () => {
+  assert.deepEqual(speechPieces('Level four. **Target** 70 to 85%! Ready?'), ['Level four.', 'Target 70 to 85%!', 'Ready?']);
+  const long = 'Sleep consolidates what you practised, so the gain from today shows tomorrow, which is why spacing sessions across the week works better than one long block, according to several trials.';
+  const parts = speechPieces(long);
+  assert.ok(parts.length > 1);
+  assert.ok(parts.every((p) => p.length <= 110));
+  assert.equal(parts.join(' '), long);
+  assert.deepEqual(speechPieces('   '), []);
+});
+
+test('WAV header matches 24 kHz 16-bit mono', () => {
+  const b = wavBytes(new Float32Array([0, 1, -1, 2]));
+  const v = new DataView(b.buffer);
+  assert.equal(b.length, 44 + 8);
+  assert.equal(String.fromCharCode(...b.slice(0, 4)), 'RIFF');
+  assert.equal(v.getUint32(24, true), 24000);
+  assert.equal(v.getInt16(46, true), 32767);
+  assert.equal(v.getInt16(48, true), -32768);
+  assert.equal(v.getInt16(50, true), 32767);
+});

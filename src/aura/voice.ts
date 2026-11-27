@@ -1,11 +1,16 @@
 import * as Speech from 'expo-speech';
 import { Platform } from 'react-native';
 
+import { emmaSpeak, emmaStop, emmaSupported, primeEmma } from './emma';
 import { cleanForSpeech, pickAuraVoice } from './voicePick';
+
+// Aura speaks with Emma, the Kokoro bf_emma voice made on the phone, as in Sandra's other apps.
+// Where Emma can't run (native builds for now, or a phone where she failed to start), the system's
+// own British voice reads instead.
 
 let chosen: string | null | undefined;
 
-async function auraVoice(): Promise<string | undefined> {
+async function systemVoice(): Promise<string | undefined> {
   if (chosen !== undefined) return chosen ?? undefined;
   try {
     let voices = await Speech.getAvailableVoicesAsync();
@@ -21,10 +26,9 @@ async function auraVoice(): Promise<string | undefined> {
   return chosen ?? undefined;
 }
 
-/** Speaks Aura's answer on the device, with the Emma voice when it is installed. */
-export async function speakAura(text: string, on: { start?: () => void; done?: () => void } = {}) {
+async function speakSystem(text: string, on: { start?: () => void; done?: () => void }) {
   Speech.stop();
-  const voice = await auraVoice();
+  const voice = await systemVoice();
   Speech.speak(cleanForSpeech(text), {
     voice,
     language: 'en-GB',
@@ -36,6 +40,26 @@ export async function speakAura(text: string, on: { start?: () => void; done?: (
   });
 }
 
+/** Call during the tap that will lead to speech, so phones allow the audio to play later. */
+export function primeAura() {
+  primeEmma();
+}
+
+/** Reads Aura's answer aloud: Emma where she can run, the system voice otherwise. */
+export async function speakAura(text: string, on: { start?: () => void; done?: () => void } = {}) {
+  stopAura();
+  if (emmaSupported()) {
+    try {
+      await emmaSpeak(text, on);
+      return;
+    } catch {
+      // Emma couldn't start on this phone; the system voice reads this answer instead.
+    }
+  }
+  await speakSystem(text, on);
+}
+
 export function stopAura() {
+  emmaStop();
   Speech.stop();
 }

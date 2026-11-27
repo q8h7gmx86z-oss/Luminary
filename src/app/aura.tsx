@@ -6,7 +6,8 @@ import AuraOrb, { AuraState } from '@/aura/AuraOrb';
 import { askAura, ChatTurn, researchLibrary } from '@/aura/chat';
 import { AURA_ENDPOINT, AURA_KEY } from '@/aura/config';
 import { useAuraContext } from '@/aura/useAuraContext';
-import { speakAura, stopAura } from '@/aura/voice';
+import { emmaRetry, EmmaStatus, emmaStatus, onEmmaStatus } from '@/aura/emma';
+import { primeAura, speakAura, stopAura } from '@/aura/voice';
 import { Icon } from '@/components/Icon';
 import { useReducedMotion } from '@/components/motion';
 import { Overline } from '@/components/ui';
@@ -44,12 +45,15 @@ export default function AuraChat() {
   const scroll = useRef<React.ComponentRef<typeof ScrollView>>(null);
   const voiceOn = state.settings.auraVoice;
 
+  const [emma, setEmma] = useState<EmmaStatus>(emmaStatus);
+  useEffect(() => onEmmaStatus(setEmma), []);
   useEffect(() => () => stopAura(), []);
 
   const send = async (text: string) => {
     const q = text.trim();
     if (!q || busy) return;
     stopAura();
+    if (voiceOn) primeAura();
     const next = [...turns, { role: 'user' as const, content: q }];
     setTurns(next);
     setDraft('');
@@ -133,6 +137,21 @@ export default function AuraChat() {
           <Text style={[type.overline, { color: t.muted }]}>{busy ? 'Aura is thinking' : 'Aura · performance coach'}</Text>
         </View>
 
+        {voiceOn && Platform.OS === 'web' && emma.state === 'loading' ? (
+          <Text accessibilityLiveRegion="polite" style={[type.caption, { color: t.muted, textAlign: 'center' }]}>
+            {emma.pct >= 99
+              ? 'Getting Emma’s voice ready: almost there.'
+              : `Getting Emma’s voice ready${emma.pct ? `: ${emma.pct}%` : ''}.${emma.pct < 50 ? ' The first time is a one-off download of about 115 MB.' : ''}`}
+          </Text>
+        ) : null}
+        {voiceOn && Platform.OS === 'web' && emma.state === 'failed' ? (
+          <Pressable accessibilityRole="button" onPress={emmaRetry} hitSlop={8}>
+            <Text style={[type.caption, { color: t.muted, textAlign: 'center' }]}>
+              Emma’s voice couldn’t start on this device, so a standard voice reads instead. <Text style={{ color: t.lavender, fontFamily: fonts.semibold }}>Try Emma again</Text>
+            </Text>
+          </Pressable>
+        ) : null}
+
         {turns.length === 0 ? (
           <View style={{ gap: 10 }}>
             <Text style={[type.body, { color: t.text, textAlign: 'center' }]}>
@@ -164,7 +183,7 @@ export default function AuraChat() {
                   {m.content}
                 </Text>
                 {voiceOn && !m.failed ? (
-                  <Pressable accessibilityRole="button" accessibilityLabel="Read this answer aloud" onPress={() => { setOrb('explaining'); speakAura(m.content, { done: () => setOrb('idle') }); }} hitSlop={8}>
+                  <Pressable accessibilityRole="button" accessibilityLabel="Read this answer aloud" onPress={() => { primeAura(); setOrb('explaining'); speakAura(m.content, { done: () => setOrb('idle') }); }} hitSlop={8}>
                     <Text style={{ color: t.lavender, fontFamily: fonts.semibold, fontSize: 13 }}>Play again</Text>
                   </Pressable>
                 ) : null}
