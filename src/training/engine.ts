@@ -125,10 +125,17 @@ export function sd(xs: number[]): number | undefined {
   return Math.sqrt(xs.reduce((a, x) => a + (x - m) ** 2, 0) / (xs.length - 1));
 }
 
-/** Response-time summary for a round, rounded to whole milliseconds. */
+/**
+ * Responses faster than this are anticipations: no one can see and respond to a stimulus this quickly,
+ * so they are guesses and are left out of speed scores, as is standard in reaction time research.
+ */
+export const ANTICIPATION_MS = 150;
+
+/** Response-time summary for a round, rounded to whole milliseconds. Anticipations are excluded. */
 export function rtStats(rts: number[]): { rtMs?: number; rtMedian?: number; rtSd?: number } {
   const r = (x: number | undefined) => (x === undefined ? undefined : Math.round(x));
-  return { rtMs: r(mean(rts)), rtMedian: r(median(rts)), rtSd: r(sd(rts)) };
+  const real = rts.filter((x) => x >= ANTICIPATION_MS);
+  return { rtMs: r(mean(real)), rtMedian: r(median(real)), rtSd: r(sd(real)) };
 }
 
 /** Difference in median time between two kinds of trial, such as switch minus repeat. */
