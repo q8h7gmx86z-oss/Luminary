@@ -2,6 +2,8 @@ import { Link, router } from 'expo-router';
 import React, { useState } from 'react';
 import { Pressable, Text, useWindowDimensions, View } from 'react-native';
 
+import { AuraNote } from '@/aura/Aura';
+import { todayBrief } from '@/aura/script';
 import { GameBadge, NavyGlow } from '@/components/GameBadge';
 import { Icon } from '@/components/Icon';
 import { useCountUp } from '@/components/motion';
@@ -149,6 +151,36 @@ function WorkoutRow({ game, reason }: { game: GameId; reason: string }) {
   );
 }
 
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+/** Aura's briefing for today, from the plan and the person's recent training. */
+function TodayBrief({ plan }: { plan: ReturnType<typeof useTodayPlan> }) {
+  const { state } = useStore();
+  const today = dayKey();
+  const { results, workouts } = state.training;
+  const days = [...workouts, ...results.map((r) => r.day)].filter((d) => d < today).sort();
+  const last = days[days.length - 1];
+  const daysAway = last ? Math.round((Date.parse(today) - Date.parse(last)) / DAY_MS) : null;
+  const week = new Set(weekOf(today));
+  const targeted = plan.find((p) => p.kind === 'targeted');
+  return (
+    <AuraNote
+      line={todayBrief({
+        firstVisit: results.length === 0,
+        workedOut: workouts.includes(today),
+        daysAway,
+        tasks: plan.length,
+        minutes: state.settings.sessionMinutes,
+        targeted: targeted
+          ? { skill: SKILLS[GAMES[targeted.game].skill].name, stalled: targeted.reason.includes('levelled off'), goal: targeted.reason.startsWith('Your goal') }
+          : undefined,
+        thisWeek: workouts.filter((w) => week.has(w)).length,
+        weeklyTarget: WEEKLY_TARGET,
+      })}
+    />
+  );
+}
+
 export default function Today() {
   const { state, toggleHabit } = useStore();
   const t = useTheme();
@@ -176,6 +208,8 @@ export default function Today() {
       </View>
 
       <PerformancePanel />
+
+      <TodayBrief plan={plan} />
 
       <View style={{ gap: 10 }}>
         <View style={{ flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between' }}>

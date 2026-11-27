@@ -2,6 +2,8 @@ import { Stack, useLocalSearchParams } from 'expo-router';
 import React from 'react';
 import { Text, View } from 'react-native';
 
+import { AuraNote } from '@/aura/Aura';
+import { researchLine } from '@/aura/script';
 import { EvidenceDetail, VerdictChip } from '@/components/Research';
 import { Body, Overline, Screen } from '@/components/ui';
 import { evidenceFor } from '@/content/research';
@@ -31,6 +33,7 @@ export default function ResearchDetail() {
         <VerdictChip verdict={e.verdict} />
         <Text style={[type.body, { color: t.muted }]}>{e.why}</Text>
       </View>
+      <AuraNote line={researchLine(e.verdict, e.papers.length)} />
       <EvidenceDetail evidence={e} />
     </Screen>
   );

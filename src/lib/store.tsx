@@ -98,6 +98,8 @@ export type Settings = {
   insights: boolean;
   /** High contrast brightens secondary text and borders. */
   contrast: 'standard' | 'high';
+  /** Aura, the companion: guidance and in-game reactions, guidance only, or off. */
+  aura: 'full' | 'guide' | 'off';
 };
 export const DEFAULT_SETTINGS: Settings = {
   calmMode: false,
@@ -113,6 +115,7 @@ export const DEFAULT_SETTINGS: Settings = {
   colourAssist: false,
   insights: false,
   contrast: 'standard',
+  aura: 'full',
 };
 
 function defaultState(): State {

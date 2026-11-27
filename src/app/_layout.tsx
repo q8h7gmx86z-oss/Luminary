@@ -8,8 +8,8 @@ import { useFonts } from 'expo-font';
 import { Redirect, Stack, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import React from 'react';
-import { ActivityIndicator, View } from 'react-native';
 
+import { AuraLoading, AuraProvider } from '@/aura/Aura';
 import { StoreProvider, useStore } from '@/lib/store';
 import { fonts, useTheme } from '@/lib/theme';
 
@@ -28,11 +28,7 @@ function Gate() {
   });
 
   if (!ready || (!fontsLoaded && !fontError)) {
-    return (
-      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: t.bg }}>
-        <ActivityIndicator color={t.primary} />
-      </View>
-    );
+    return <AuraLoading />;
   }
 
   // Crisis help must always be reachable, even before onboarding.
@@ -90,8 +86,10 @@ function Gate() {
 export default function RootLayout() {
   return (
     <StoreProvider>
-      <StatusBar style="light" />
-      <Gate />
+      <AuraProvider>
+        <StatusBar style="light" />
+        <Gate />
+      </AuraProvider>
     </StoreProvider>
   );
 }

@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
+import { AuraInGame } from '@/aura/Aura';
 import { useStore } from '@/lib/store';
 import { useTheme } from '@/lib/theme';
 
@@ -36,6 +37,7 @@ export function GameFrame({
   return (
     <View style={[styles.wrap, { backgroundColor: t.bg }]}>
       <View style={styles.top}>
+        <AuraInGame />
         <View style={{ flex: 1 }}>
           <Text style={[styles.title, { color: t.text }]}>{title}</Text>
           <Text style={{ color: t.muted, fontSize: 13 }}>
