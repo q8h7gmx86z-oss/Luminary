@@ -6,7 +6,7 @@ import AuraOrb, { AuraState } from '@/aura/AuraOrb';
 import { askAura, ChatTurn, researchLibrary } from '@/aura/chat';
 import { AURA_ENDPOINT, AURA_KEY } from '@/aura/config';
 import { useAuraContext } from '@/aura/useAuraContext';
-import { emmaRetry, EmmaStatus, emmaStatus, onEmmaStatus } from '@/aura/emma';
+import { emmaRetry, EmmaStatus, emmaStatus, emmaWarm, onEmmaStatus } from '@/aura/emma';
 import { primeAura, speakAura, stopAura } from '@/aura/voice';
 import { Icon } from '@/components/Icon';
 import { useReducedMotion } from '@/components/motion';
@@ -33,7 +33,7 @@ const FAILURE: Record<string, string> = {
 function voiceNote(e: EmmaStatus): string {
   if (e.state === 'loading') {
     if (e.pct >= 99) return 'Getting Emma’s voice ready: almost there.';
-    return `Getting Emma’s voice ready${e.pct ? `: ${e.pct}%` : ''}.${e.pct < 50 ? ' The first time is a one-off download of about 115 MB.' : ''}`;
+    return `Getting Emma’s voice ready${e.pct ? `: ${e.pct}%` : ''}.${e.pct < 50 ? ' The first time is a one-off download of about 115 MB.' : ''} A standard voice reads until she’s ready.`;
   }
   if (e.state === 'failed') return `Emma’s voice couldn’t start on this device${e.err ? ` (${e.err})` : ''}, so a standard voice reads instead.`;
   if (e.making) return 'Emma is preparing the answer.';
@@ -61,6 +61,10 @@ export default function AuraChat() {
   const [emma, setEmma] = useState<EmmaStatus>(emmaStatus);
   useEffect(() => onEmmaStatus(setEmma), []);
   useEffect(() => () => stopAura(), []);
+  // Get Emma ready as soon as the screen opens, so she is ready by the time Aura answers.
+  useEffect(() => {
+    if (voiceOn && state.settings.auraChat) emmaWarm();
+  }, [voiceOn, state.settings.auraChat]);
 
   const send = async (text: string) => {
     const q = text.trim();

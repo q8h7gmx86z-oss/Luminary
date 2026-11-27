@@ -242,6 +242,7 @@ let audio: HTMLAudioElement | null = null;
 let gen = 0;
 let urls: string[] = [];
 let wake: (() => void) | null = null;
+let silent = '';
 const el = () => {
   if (!audio) {
     audio = document.createElement('audio');
@@ -262,7 +263,9 @@ export function primeEmma() {
   if (typeof document === 'undefined') return;
   const a = el();
   if (a.dataset.ok) return;
-  a.src = toUrl(new Float32Array(2400));
+  // A silent clip kept for the page's life: emmaStop() must not revoke it while it is unlocking.
+  if (!silent) silent = URL.createObjectURL(new Blob([wavBytes(new Float32Array(2400), RATE) as BlobPart], { type: 'audio/wav' }));
+  a.src = silent;
   a.muted = true;
   a.play().then(() => { a.dataset.ok = '1'; a.pause(); a.muted = false; }).catch(() => { a.muted = false; });
 }
@@ -277,6 +280,23 @@ export function emmaStop() {
   wake = null;
   urls.forEach((u) => URL.revokeObjectURL(u));
   urls = [];
+}
+
+/** Starts getting Emma ready in the background (download once, then from the cache). */
+export function emmaWarm() {
+  if (E.state === 'ready' || E.p || !emmaSupported()) return;
+  init().catch(() => { /* status shows why */ });
+}
+
+/** True once Emma is ready to speak, waiting at most `ms` for her. Starts getting her ready if nothing has yet. */
+export function emmaWait(ms: number): Promise<boolean> {
+  if (E.state === 'ready') return Promise.resolve(true);
+  if (!E.p) emmaWarm();
+  if (!E.p) return Promise.resolve(false);
+  return new Promise((res) => {
+    const t = setTimeout(() => res(E.state === 'ready'), ms);
+    E.p!.then(() => { clearTimeout(t); res(true); }, () => { clearTimeout(t); res(false); });
+  });
 }
 
 /** Lets Emma try again after she was paused on this phone. */
