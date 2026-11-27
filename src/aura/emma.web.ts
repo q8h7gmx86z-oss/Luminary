@@ -112,6 +112,8 @@ function onMsg(m: Msg) {
       const r = m.ms / 1000 / sec;
       E.rtf = E.rtf ? E.rtf * 0.6 + r * 0.4 : r;
     }
+    made.set(p.text, m.audio);
+    if (made.size > 120) made.delete(made.keys().next().value!);
     p.res(m.audio);
   } else p.rej(new Error(m.message || 'voice error'));
 }
@@ -228,7 +230,21 @@ function fallback(why: string) {
   pend.forEach((p) => post(p.text).then(p.res, p.rej));
 }
 
+// Clips Emma has already made, so Listen replays an answer at once instead of making it again.
+const made = new Map<string, Float32Array>();
+
+/** Stops making the clips still waiting. Their promises resolve empty, so no reading hangs. */
+function cancelPending() {
+  if (!E.pend.size) return;
+  if (E.w) { try { E.w.postMessage({ type: 'cancel', ids: [...E.pend.keys()] }); } catch { /* gone */ } }
+  const pend = [...E.pend.values()];
+  E.pend.clear();
+  pend.forEach((p) => p.res(new Float32Array(0)));
+}
+
 function post(text: string): Promise<Float32Array> {
+  const hit = made.get(text);
+  if (hit) return Promise.resolve(hit);
   return init().then(
     () =>
       new Promise<Float32Array>((res, rej) => {
@@ -281,9 +297,7 @@ export function primeEmma() {
 
 export function emmaStop() {
   gen++;
-  if (E.w && E.pend.size) {
-    try { E.w.postMessage({ type: 'cancel', ids: [...E.pend.keys()] }); } catch { /* gone */ }
-  }
+  cancelPending();
   // Leave the silent unlock clip playing: stopping it can cancel the unlock on iPhone.
   if (!primed) { try { audio?.pause(); } catch { /* none */ } }
   wake?.();
@@ -342,6 +356,7 @@ export async function emmaSpeak(text: string, on: { start?: () => void; done?: (
     const clips = pieces.map((t) => post(t));
     const ready: (Float32Array | null)[] = pieces.map(() => null);
     clips.forEach((p, k) => p.then((a) => { ready[k] = a; }, () => {}));
+    let started = false;
     const est = (t: string) => Math.max(0.6, t.length * 0.066);
     const rtf = () => E.rtf ?? (E.backend === 'gpu' ? 0.6 : 1.8);
     const enough = (i: number) => {
@@ -355,24 +370,31 @@ export async function emmaSpeak(text: string, on: { start?: () => void; done?: (
       if (all) return true;
       for (let k = i; k < pieces.length && ready[k]; k++) ahead += ready[k]!.length / RATE;
       const r = rtf();
-      // Never hold more than a few seconds back: on a slow phone a short pause between sentences
-      // is better than a long silence before Aura starts.
-      return !!ready[i] && ahead >= Math.min(4, remain * (1 - 1 / Math.max(1, r)) + (r < 0.9 ? 0.5 : 1.5));
+      const need = remain * (1 - 1 / Math.max(1, r)) + (r < 0.9 ? 0.5 : 1.5);
+      // Before starting, build up enough to read to the end smoothly, but wait no more than 10
+      // seconds. Part way through, never hold more than a few seconds back.
+      if (!started) return !!ready[i] && (ahead >= need || Date.now() - t0 >= 10000);
+      return !!ready[i] && ahead >= Math.min(4, need);
     };
     const a = el();
-    let started = false;
     for (let i = 0; i < pieces.length; i++) {
       if (!ready[i] || i === 0) {
         while (!enough(i)) {
           if (my !== gen) return;
           const k = ready.findIndex((c, j) => j >= i && !c);
           if (!started) {
-            // If Emma can't start within 15 seconds, the standard voice reads this answer instead.
-            const left = 15000 - (Date.now() - t0);
+            if (ready[i]) {
+              // The first sentence is ready: wait for more, but start by the 10 second mark.
+              const left = 10000 - (Date.now() - t0);
+              if (left > 0) await Promise.race([clips[k], new Promise((r) => setTimeout(r, left))]);
+              continue;
+            }
+            // If Emma can't make the first sentence within 20 seconds, the standard voice reads instead.
+            const left = 20000 - (Date.now() - t0);
             const slow = left <= 0 || (await Promise.race([clips[k].then(() => false), new Promise<boolean>((r) => setTimeout(() => r(true), left))]));
             if (slow) {
-              diag(`emma too slow: ${ready.filter(Boolean).length} of ${pieces.length} pieces after 15s`);
-              if (E.w && E.pend.size) { try { E.w.postMessage({ type: 'cancel', ids: [...E.pend.keys()] }); } catch { /* gone */ } }
+              diag(`emma too slow: ${ready.filter(Boolean).length} of ${pieces.length} pieces after 20s`);
+              cancelPending();
               throw new Error('too slow');
             }
           } else await clips[k];
