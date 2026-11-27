@@ -15,16 +15,16 @@ function minutes(body: string[]): number {
   return Math.max(1, Math.round(words / 200));
 }
 
-export default function Learn() {
+export default function Discover() {
   const t = useTheme();
   return (
     <Screen>
       <View style={{ gap: 6 }}>
-        <Overline>The science library</Overline>
+        <Overline>The Brain Observatory</Overline>
         <Text accessibilityRole="header" style={[type.title, { color: t.text }]}>
-          Why every task works.
+          Understand your own mind.
         </Text>
-        <Text style={[type.body, { color: t.muted }]}>Short reads on the research behind your training. Every claim is sourced.</Text>
+        <Text style={[type.body, { color: t.muted }]}>How the mind works, why each task is built the way it is, and what the evidence really says. Every claim is sourced.</Text>
       </View>
 
       <Pressable accessibilityRole="button" accessibilityLabel="The evidence. Every game and tool linked to its peer-reviewed papers." onPress={() => router.push('/research')}>

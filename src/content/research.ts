@@ -782,7 +782,7 @@ export const EVIDENCE: Evidence[] = [
       'Each extra speed session attended went with about 10% lower dementia risk.',
       'Across 52 trials, processing speed was the skill that responded most to computer training.',
     ],
-    limits: 'ACTIVE is one trial, its training was supervised in person, and the dementia result only just reached significance. No effect on everyday functioning showed up at two years. Treat it as the strongest lead we have, not proof.',
+    limits: 'ACTIVE is one trial, its training was supervised in person, and the dementia result only just reached significance. No effect on everyday functioning showed up at two years. Speed Match is a speeded matching game, not the exact training ACTIVE used, so those results support training your speed, not this game in particular. Treat it as the strongest lead we have, not proof.',
     papers: ['edwards2017', 'ball2002', 'lampit2014'],
     quote: 'cajal',
   },

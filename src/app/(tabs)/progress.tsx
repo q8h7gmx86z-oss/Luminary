@@ -18,6 +18,7 @@ import { Metric } from '@/training/Metric';
 import { Spark } from '@/training/Spark';
 import { gameAnalytics, skillSummaries, workoutsThisWeek } from '@/training/stats';
 import { GameBadge } from '@/components/GameBadge';
+import { report } from '@/training/benchmark';
 
 const WEEKLY_GOAL = 3;
 
@@ -119,6 +120,78 @@ function NetworkExplorer() {
   );
 }
 
+/** The four skills first, each with its own trend, so a gain in one is never hidden by a flat total. */
+function FourSkills() {
+  const t = useTheme();
+  const { state } = useStore();
+  const summaries = skillSummaries(state.training.results, state.training.levels, (g) => GAMES[g].skill, Object.keys(SKILLS) as Skill[]);
+  return (
+    <View style={{ backgroundColor: t.surface, borderRadius: radii.panel, borderWidth: 1, borderColor: t.border, padding: 16, gap: 4 }}>
+      <Overline>Your four skills</Overline>
+      {summaries.map((s, i) => {
+        const sk = SKILLS[s.skill];
+        const change =
+          s.rounds === 0
+            ? 'Not trained yet'
+            : s.vsBaseline === undefined
+              ? 'Baseline after 6 rounds'
+              : `${s.vsBaseline > 0 ? '+' : ''}${s.vsBaseline} vs your start · ${s.direction === 'improving' ? 'climbing' : s.direction === 'dipping' ? 'recent dip' : 'steady'}`;
+        return (
+          <View key={s.skill} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 10, borderTopWidth: i === 0 ? 0 : 1, borderTopColor: t.border }}>
+            <View style={{ flex: 1, gap: 2 }}>
+              <Text style={[type.label, { color: sk.color }]}>{sk.name}</Text>
+              <Text style={[type.caption, { color: s.vsBaseline && s.vsBaseline > 0 ? t.good : t.muted, fontSize: 12 }]}>{change}</Text>
+            </View>
+            <View style={{ width: 92 }}>
+              {s.trend.length > 1 ? <Spark values={s.trend.map((p) => p.value)} color={sk.color} height={28} label={`${sk.name} trend`} /> : null}
+            </View>
+            <Text style={[type.number, { color: t.text, width: 44, textAlign: 'right' }]} accessibilityLabel={`${s.skillScore} out of 100`}>
+              {s.rounds ? s.skillScore : '—'}
+            </Text>
+          </View>
+        );
+      })}
+      <Text style={[type.caption, { color: t.muted, fontSize: 11.5 }]}>Skill scores out of 100, against your own record only.</Text>
+    </View>
+  );
+}
+
+/** The three levels of progress from the blueprint, kept separate so one never stands in for another. */
+function ThreeLevels() {
+  const t = useTheme();
+  const { state } = useStore();
+  const rounds = state.training.results.length;
+  const bench = state.training.benchmarks ?? [];
+  const changes = report(bench);
+  const improved = changes?.filter((c) => c.verdict === 'improved').length ?? 0;
+  const rows: { n: string; title: string; status: string; href?: '/benchmark' }[] = [
+    { n: '1', title: 'In the games', status: rounds ? `${rounds} rounds measured. See each skill above.` : 'Starts with your first workout.' },
+    {
+      n: '2',
+      title: 'On tasks you never practise',
+      status: changes ? `${improved} of ${changes.length} Benchmark tasks show a reliable gain.` : bench.length ? 'One more Benchmark gives your first comparison.' : 'Take the monthly Benchmark to find out.',
+      href: '/benchmark',
+    },
+    { n: '3', title: 'In daily life', status: 'A short monthly check-in arrives in a later update.' },
+  ];
+  return (
+    <Card>
+      <Heading>Three kinds of progress</Heading>
+      <Body muted>Getting better at a game, improving on tasks you never train, and noticing a difference day to day are different things. Luminary keeps them apart.</Body>
+      {rows.map((r) => (
+        <Pressable key={r.n} disabled={!r.href} accessibilityRole={r.href ? 'link' : undefined} onPress={() => r.href && router.push(r.href)} style={{ flexDirection: 'row', gap: 12, paddingVertical: 8 }}>
+          <Text style={{ color: t.lavender, fontFamily: fonts.display, fontSize: 15, width: 16 }}>{r.n}</Text>
+          <View style={{ flex: 1, gap: 2 }}>
+            <Text style={[type.label, { color: t.text }]}>{r.title}</Text>
+            <Text style={[type.caption, { color: t.muted }]}>{r.status}</Text>
+          </View>
+          {r.href ? <Icon name="arrow" size={14} color={t.muted} /> : null}
+        </Pressable>
+      ))}
+    </Card>
+  );
+}
+
 export default function Progress() {
   const t = useTheme();
   const { state } = useStore();
@@ -130,15 +203,17 @@ export default function Progress() {
   return (
     <Screen>
       <View style={{ gap: 6 }}>
-        <Overline>Your skill network</Overline>
+        <Overline>Your progress</Overline>
         <Text accessibilityRole="header" style={[type.title, { color: t.text }]}>
-          Watch it light up.
+          Four skills, measured honestly.
         </Text>
-        <Text style={[type.body, { color: t.muted }]}>Tap a region to explore that task.</Text>
+        <Text style={[type.body, { color: t.muted }]}>Each skill has its own trend. Sharpness sums them up.</Text>
       </View>
 
-      <NetworkExplorer />
+      <FourSkills />
       <SharpnessCard />
+      <ThreeLevels />
+      <NetworkExplorer />
       <WholeBrainCard />
       <LabCard />
 

@@ -12,7 +12,22 @@ export type GameInfo = {
   icon: IconName;
   /** The task's own accent colour, used on its icon, bars and glow. */
   accent: string;
+  /** What the game feels like to play, for browsing by experience rather than by skill. First is the main one. */
+  experiences: Experience[];
 };
+
+/** Ways to browse the library by the kind of play people fancy, not the skill it trains. */
+export type Experience = 'reaction' | 'visual' | 'memory' | 'words' | 'puzzles' | 'rhythm';
+
+export const EXPERIENCES: Record<Experience, { name: string; description: string }> = {
+  reaction: { name: 'Fast reaction', description: 'Quick decisions against the clock.' },
+  visual: { name: 'Visual and spatial', description: 'Shapes, positions and finding things fast.' },
+  memory: { name: 'Memory', description: 'Hold it, rearrange it, recall it.' },
+  words: { name: 'Words', description: 'Language and meaning.' },
+  puzzles: { name: 'Planning and puzzles', description: 'Think ahead, find the rule, adapt.' },
+  rhythm: { name: 'Rhythm', description: 'Timing and keeping the beat.' },
+};
+export const EXPERIENCE_ORDER: Experience[] = ['reaction', 'visual', 'memory', 'words', 'puzzles', 'rhythm'];
 
 export const SKILLS: Record<Skill, { name: string; color: string; gradient: [string, string]; description: string }> = {
   speed: { name: 'Processing speed', color: '#4F8CFF', gradient: ['#4F8CFF', '#3B6FE0'], description: 'How quickly you take in and respond to information.' },
@@ -28,6 +43,7 @@ export const GAMES: Record<GameId, GameInfo> = {
     skill: 'speed',
     icon: 'bolt',
     accent: '#4F8CFF',
+    experiences: ['reaction', 'visual'],
     tagline: 'Is it the same as the last one?',
     howTo: [
       'A symbol appears. Decide if it matches the one just before it.',
@@ -41,6 +57,7 @@ export const GAMES: Record<GameId, GameInfo> = {
     skill: 'memory',
     icon: 'grid',
     accent: '#9B7BFF',
+    experiences: ['memory', 'visual'],
     tagline: 'Watch the lights, then repeat the pattern.',
     howTo: [
       'Tiles light up one at a time. Watch the order.',
@@ -54,6 +71,7 @@ export const GAMES: Record<GameId, GameInfo> = {
     skill: 'attention',
     icon: 'bulb',
     accent: '#2DB6A3',
+    experiences: ['reaction'],
     tagline: 'Tap the blue lights. Hold back on red.',
     howTo: [
       'Lights flash in the centre of the screen.',
@@ -67,6 +85,7 @@ export const GAMES: Record<GameId, GameInfo> = {
     skill: 'memory',
     icon: 'star',
     accent: '#6672FF',
+    experiences: ['memory', 'visual'],
     tagline: 'Was the star here before?',
     howTo: [
       'A star appears in one of eight squares, one at a time.',
@@ -80,6 +99,7 @@ export const GAMES: Record<GameId, GameInfo> = {
     skill: 'attention',
     icon: 'palette',
     accent: '#FF7D6B',
+    experiences: ['reaction', 'words'],
     tagline: 'Name the ink, not the word.',
     howTo: [
       'A colour word appears, written in a coloured ink.',
@@ -93,6 +113,7 @@ export const GAMES: Record<GameId, GameInfo> = {
     skill: 'flexibility',
     icon: 'swap',
     accent: '#F2A65A',
+    experiences: ['puzzles', 'reaction'],
     tagline: 'Odd or even? More or less? Follow the colour.',
     howTo: [
       'A number appears on a coloured card.',
@@ -106,6 +127,7 @@ export const GAMES: Record<GameId, GameInfo> = {
     skill: 'memory',
     icon: 'sort',
     accent: '#B48CFF',
+    experiences: ['memory'],
     tagline: 'Hold it, then put it in order.',
     howTo: [
       'A mix of numbers and letters appears, one at a time.',
@@ -119,6 +141,7 @@ export const GAMES: Record<GameId, GameInfo> = {
     skill: 'memory',
     icon: 'rewind',
     accent: '#8F86FF',
+    experiences: ['memory', 'visual'],
     tagline: 'Watch the pattern, then play it back in reverse.',
     howTo: [
       'Tiles light up one at a time. Watch the order.',
@@ -132,6 +155,7 @@ export const GAMES: Record<GameId, GameInfo> = {
     skill: 'attention',
     icon: 'stop',
     accent: '#E2607A',
+    experiences: ['reaction'],
     tagline: 'Go with the arrow. Stop if it turns red.',
     howTo: [
       'An arrow points left or right. Tap that side as fast as you can.',
@@ -145,6 +169,7 @@ export const GAMES: Record<GameId, GameInfo> = {
     skill: 'speed',
     icon: 'search',
     accent: '#5DA8FF',
+    experiences: ['visual', 'reaction'],
     tagline: 'Find the odd one out, fast.',
     howTo: [
       'A field of shapes appears. One of them is different.',
@@ -158,6 +183,7 @@ export const GAMES: Record<GameId, GameInfo> = {
     skill: 'flexibility',
     icon: 'tower',
     accent: '#E9B45C',
+    experiences: ['puzzles', 'visual'],
     tagline: 'Plan the moves before you make them.',
     howTo: [
       'Move the balls on the left to match the target on the right.',
@@ -171,6 +197,7 @@ export const GAMES: Record<GameId, GameInfo> = {
     skill: 'flexibility',
     icon: 'words',
     accent: '#F28C5A',
+    experiences: ['words', 'puzzles'],
     tagline: 'Does the word fit? The question keeps changing.',
     howTo: [
       'A question and a word appear, such as “Animals?” and “otter”.',

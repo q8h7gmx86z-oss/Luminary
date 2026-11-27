@@ -10,7 +10,8 @@ import { useStore } from '@/lib/store';
 import { BenchmarkCard } from '@/training/BenchmarkCard';
 import { ChampionshipsCard } from '@/training/ChampionshipsUI';
 import { fonts, radii, type, useTheme } from '@/lib/theme';
-import { AVAILABLE, GAMES, SKILLS } from '@/training/catalog';
+import { AVAILABLE, Experience, EXPERIENCE_ORDER, EXPERIENCES, GAMES, SKILLS } from '@/training/catalog';
+import { ChallengesCard } from '@/training/ChallengesCard';
 import { GameId, MAX_LEVEL, Skill } from '@/training/engine';
 
 const SKILL_LIST = Object.keys(SKILLS) as Skill[];
@@ -86,8 +87,17 @@ function GameCard({ game }: { game: GameId }) {
 export default function Train() {
   const t = useTheme();
   const { state } = useStore();
+  const [mode, setMode] = useState<'skill' | 'experience'>('skill');
   const [filter, setFilter] = useState<Skill | 'all'>('all');
-  const games = (Object.keys(GAMES) as GameId[]).filter((g) => filter === 'all' || GAMES[g].skill === filter);
+  const [feel, setFeel] = useState<Experience | 'all'>('all');
+  const all = Object.keys(GAMES) as GameId[];
+  const games =
+    mode === 'skill'
+      ? all.filter((g) => filter === 'all' || GAMES[g].skill === filter)
+      : all.filter((g) => feel === 'all' || GAMES[g].experiences.includes(feel));
+  // Only offer experiences that have at least one game, so no chip leads to an empty shelf.
+  const feels = EXPERIENCE_ORDER.filter((e) => all.some((g) => GAMES[g].experiences.includes(e)));
+  const count = all.length;
   const lastTest = state.training.tests?.length ? state.training.tests[state.training.tests.length - 1] : undefined;
 
   return (
@@ -95,7 +105,7 @@ export default function Train() {
       <View style={{ gap: 6 }}>
         <Overline>The cognitive laboratory</Overline>
         <Text accessibilityRole="header" style={[type.title, { color: t.text }]}>
-          Twelve tasks. Four skills.
+          {count} tasks. Four skills.
         </Text>
         <Text style={[type.body, { color: t.muted }]}>Every task adapts to you, getting harder as you improve.</Text>
       </View>
@@ -103,11 +113,38 @@ export default function Train() {
       <ChampionshipsCard />
       <BenchmarkCard />
 
-      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
-        <Chip label="All" on={filter === 'all'} onPress={() => setFilter('all')} />
-        {SKILL_LIST.map((s) => (
-          <Chip key={s} label={SHORT[s]} on={filter === s} onPress={() => setFilter(s)} />
-        ))}
+      <View style={{ gap: 10 }}>
+        <View accessibilityRole="radiogroup" accessibilityLabel="Browse games" style={{ flexDirection: 'row', borderRadius: 12, borderWidth: 1, borderColor: t.border, padding: 3 }}>
+          {(['skill', 'experience'] as const).map((m) => (
+            <Pressable
+              key={m}
+              accessibilityRole="radio"
+              accessibilityState={{ checked: mode === m }}
+              onPress={() => setMode(m)}
+              style={{ flex: 1, height: 36, borderRadius: 9, alignItems: 'center', justifyContent: 'center', backgroundColor: mode === m ? t.surface : 'transparent' }}
+            >
+              <Text style={{ color: mode === m ? t.text : t.muted, fontFamily: fonts.semibold, fontSize: 13.5 }}>{m === 'skill' ? 'By skill' : 'By experience'}</Text>
+            </Pressable>
+          ))}
+        </View>
+        {mode === 'skill' ? (
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
+            <Chip label="All" on={filter === 'all'} onPress={() => setFilter('all')} />
+            {SKILL_LIST.map((s) => (
+              <Chip key={s} label={SHORT[s]} on={filter === s} onPress={() => setFilter(s)} />
+            ))}
+          </View>
+        ) : (
+          <>
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
+              <Chip label="All" on={feel === 'all'} onPress={() => setFeel('all')} />
+              {feels.map((e) => (
+                <Chip key={e} label={EXPERIENCES[e].name} on={feel === e} onPress={() => setFeel(e)} />
+              ))}
+            </View>
+            {feel !== 'all' ? <Text style={[type.caption, { color: t.muted }]}>{EXPERIENCES[feel].description}</Text> : null}
+          </>
+        )}
       </View>
 
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
@@ -115,6 +152,8 @@ export default function Train() {
           <GameCard key={g} game={g} />
         ))}
       </View>
+
+      <ChallengesCard />
 
       <Pressable
         accessibilityRole="button"

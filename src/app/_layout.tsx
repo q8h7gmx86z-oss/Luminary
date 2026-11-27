@@ -58,6 +58,8 @@ function Gate() {
       <Stack.Screen name="stats/[game]" options={{ title: 'Game details' }} />
       <Stack.Screen name="research/index" options={{ title: 'The evidence' }} />
       <Stack.Screen name="research/[id]" options={{ title: 'The evidence' }} />
+      <Stack.Screen name="focus" options={{ title: 'Focus' }} />
+      <Stack.Screen name="habits" options={{ title: 'Daily brain habits' }} />
       <Stack.Screen name="mood" options={{ title: 'Mood check-in' }} />
       <Stack.Screen name="sleep" options={{ title: 'Sleep' }} />
       <Stack.Screen name="movement" options={{ title: 'Movement' }} />
