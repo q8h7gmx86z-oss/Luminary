@@ -131,6 +131,7 @@ export function GameRunner({
         <View style={{ width: '100%', maxWidth: 420 }}>
           <AuraNote
             essential
+            ask={`my ${info.name} result`}
             line={resultLine({
               accuracy: result.accuracy,
               level: result.level,

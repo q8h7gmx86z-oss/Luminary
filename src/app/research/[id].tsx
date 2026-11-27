@@ -33,7 +33,7 @@ export default function ResearchDetail() {
         <VerdictChip verdict={e.verdict} />
         <Text style={[type.body, { color: t.muted }]}>{e.why}</Text>
       </View>
-      <AuraNote line={researchLine(e.verdict, e.papers.length)} />
+      <AuraNote line={researchLine(e.verdict, e.papers.length)} ask={`the research on ${e.name}`} />
       <EvidenceDetail evidence={e} />
     </Screen>
   );

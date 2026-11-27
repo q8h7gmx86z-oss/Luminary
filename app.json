@@ -49,7 +49,9 @@
     "extra": {
       "eas": {
         "projectId": "b6fc3b6a-02c3-468c-aeec-ce586c05ecbe"
-      }
+      },
+      "auraEndpoint": "",
+      "auraKey": ""
     }
   }
 }

@@ -211,6 +211,30 @@ export default function Preferences() {
         />
       </Row>
 
+      <Row
+        title="Talk to Aura"
+        why="Ask Aura questions and hear her answers in the Emma voice on your phone. Your question and a short training summary go to Aura's server to be answered; nothing is stored there."
+      >
+        <Segmented<'on' | 'off'>
+          label="Talk to Aura"
+          value={s.auraChat ? 'on' : 'off'}
+          onChange={(v) => setSetting('auraChat', v === 'on')}
+          options={[
+            { value: 'off', label: 'Off' },
+            { value: 'on', label: 'On' },
+          ]}
+        />
+        <Segmented<'on' | 'off'>
+          label="Aura's voice"
+          value={s.auraVoice ? 'on' : 'off'}
+          onChange={(v) => setSetting('auraVoice', v === 'on')}
+          options={[
+            { value: 'on', label: 'Read answers aloud' },
+            { value: 'off', label: 'Text only' },
+          ]}
+        />
+      </Row>
+
       <Row title="Vibration" why="A light tap for right answers and a short buzz for wrong ones. Phones only.">
         <Segmented<'on' | 'off'>
           label="Vibration"

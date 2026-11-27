@@ -129,6 +129,7 @@ function Summary({ focus, results, before, after, firstTime }: { focus: boolean;
 
       <View style={{ width: '100%', maxWidth: 440 }}>
         <AuraNote
+          ask="today's session"
           line={summaryLine({
             firstTime,
             diff,

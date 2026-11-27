@@ -165,6 +165,7 @@ function TodayBrief({ plan }: { plan: ReturnType<typeof useTodayPlan> }) {
   const targeted = plan.find((p) => p.kind === 'targeted');
   return (
     <AuraNote
+      ask="today's training"
       line={todayBrief({
         firstVisit: results.length === 0,
         workedOut: workouts.includes(today),

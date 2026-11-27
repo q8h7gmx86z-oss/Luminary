@@ -18,6 +18,7 @@
   ],
   "exclude": [
     "tests",
+    "supabase",
     "node_modules"
   ]
 }
