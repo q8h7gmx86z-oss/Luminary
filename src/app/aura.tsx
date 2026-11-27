@@ -1,10 +1,10 @@
-import Constants from 'expo-constants';
 import { Stack, useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { KeyboardAvoidingView, Platform, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 
 import AuraOrb, { AuraState } from '@/aura/AuraOrb';
 import { askAura, ChatTurn, researchLibrary } from '@/aura/chat';
+import { AURA_ENDPOINT, AURA_KEY } from '@/aura/config';
 import { useAuraContext } from '@/aura/useAuraContext';
 import { speakAura, stopAura } from '@/aura/voice';
 import { Icon } from '@/components/Icon';
@@ -13,7 +13,6 @@ import { Overline } from '@/components/ui';
 import { useStore } from '@/lib/store';
 import { fonts, radii, type, useTheme } from '@/lib/theme';
 
-const extra = (Constants.expoConfig?.extra ?? {}) as { auraEndpoint?: string; auraKey?: string };
 
 const STARTERS = [
   'What should I focus on this week?',
@@ -37,7 +36,8 @@ export default function AuraChat() {
   const { topic } = useLocalSearchParams<{ topic?: string }>();
   const context = useAuraContext();
   const library = useMemo(researchLibrary, []);
-  const [turns, setTurns] = useState<ChatTurn[]>([]);
+  // Failure notes are shown but never sent back to Aura as part of the conversation.
+  const [turns, setTurns] = useState<(ChatTurn & { failed?: boolean })[]>([]);
   const [draft, setDraft] = useState('');
   const [orb, setOrb] = useState<AuraState>('idle');
   const [busy, setBusy] = useState(false);
@@ -50,12 +50,12 @@ export default function AuraChat() {
     const q = text.trim();
     if (!q || busy) return;
     stopAura();
-    const next: ChatTurn[] = [...turns, { role: 'user', content: q }];
+    const next = [...turns, { role: 'user' as const, content: q }];
     setTurns(next);
     setDraft('');
     setBusy(true);
     setOrb('thinking');
-    const r = await askAura(extra.auraEndpoint, extra.auraKey, { messages: next, context, topic, library, ageGroup: state.ageGroup });
+    const r = await askAura(AURA_ENDPOINT, AURA_KEY, { messages: next.filter((x) => !x.failed), context, topic, library, ageGroup: state.ageGroup });
     setBusy(false);
     if (r.ok) {
       setTurns((ts) => [...ts, { role: 'assistant', content: r.text }]);
@@ -63,7 +63,7 @@ export default function AuraChat() {
       if (voiceOn) speakAura(r.text, { done: () => setOrb('idle') });
       else setTimeout(() => setOrb('idle'), 2600);
     } else {
-      setTurns((ts) => [...ts, { role: 'assistant', content: FAILURE[r.reason] }]);
+      setTurns((ts) => [...ts, { role: 'assistant', content: FAILURE[r.reason], failed: true }]);
       setOrb('error');
       setTimeout(() => setOrb('idle'), 900);
     }
@@ -163,7 +163,7 @@ export default function AuraChat() {
                 <Text selectable style={{ color: t.text, fontFamily: fonts.body, fontSize: 15, lineHeight: 22 }}>
                   {m.content}
                 </Text>
-                {voiceOn ? (
+                {voiceOn && !m.failed ? (
                   <Pressable accessibilityRole="button" accessibilityLabel="Read this answer aloud" onPress={() => { setOrb('explaining'); speakAura(m.content, { done: () => setOrb('idle') }); }} hitSlop={8}>
                     <Text style={{ color: t.lavender, fontFamily: fonts.semibold, fontSize: 13 }}>Play again</Text>
                   </Pressable>
