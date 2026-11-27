@@ -43,6 +43,17 @@ async function speakSystem(text: string, on: { start?: () => void; done?: () => 
 /** Call during the tap that will lead to speech, so phones allow the audio to play later. */
 export function primeAura() {
   primeEmma();
+  // iPhones only let a page speak with the system voice after it has spoken during a tap, so say
+  // nothing, silently, now. Then the fallback voice works if Emma can't start.
+  if (Platform.OS === 'web') {
+    try {
+      const u = new SpeechSynthesisUtterance(' ');
+      u.volume = 0;
+      window.speechSynthesis.speak(u);
+    } catch {
+      // no speech engine on this browser
+    }
+  }
 }
 
 /** Reads Aura's answer aloud: Emma where she can run, the system voice otherwise. */

@@ -29,6 +29,19 @@ const FAILURE: Record<string, string> = {
   'not-configured': 'Conversation with Aura is being set up and isn’t live yet. The guidance across the app works as normal.',
 };
 
+/** What Emma's voice is doing, shown just above the question box so it stays in view. */
+function voiceNote(e: EmmaStatus): string {
+  if (e.state === 'loading') {
+    if (e.pct >= 99) return 'Getting Emma’s voice ready: almost there.';
+    return `Getting Emma’s voice ready${e.pct ? `: ${e.pct}%` : ''}.${e.pct < 50 ? ' The first time is a one-off download of about 115 MB.' : ''}`;
+  }
+  if (e.state === 'failed') return `Emma’s voice couldn’t start on this device${e.err ? ` (${e.err})` : ''}, so a standard voice reads instead.`;
+  if (e.making) return 'Emma is preparing the answer.';
+  if (e.err === 'blocked') return 'Your phone paused the sound. Tap Listen under the answer to hear Emma.';
+  if (e.err) return `Emma couldn’t read that answer (${e.err}). Tap Listen to try again.`;
+  return '';
+}
+
 /** Talk to Aura. The conversation stays in memory only and is gone when you leave this screen. */
 export default function AuraChat() {
   const t = useTheme();
@@ -137,21 +150,6 @@ export default function AuraChat() {
           <Text style={[type.overline, { color: t.muted }]}>{busy ? 'Aura is thinking' : 'Aura · performance coach'}</Text>
         </View>
 
-        {voiceOn && Platform.OS === 'web' && emma.state === 'loading' ? (
-          <Text accessibilityLiveRegion="polite" style={[type.caption, { color: t.muted, textAlign: 'center' }]}>
-            {emma.pct >= 99
-              ? 'Getting Emma’s voice ready: almost there.'
-              : `Getting Emma’s voice ready${emma.pct ? `: ${emma.pct}%` : ''}.${emma.pct < 50 ? ' The first time is a one-off download of about 115 MB.' : ''}`}
-          </Text>
-        ) : null}
-        {voiceOn && Platform.OS === 'web' && emma.state === 'failed' ? (
-          <Pressable accessibilityRole="button" onPress={emmaRetry} hitSlop={8}>
-            <Text style={[type.caption, { color: t.muted, textAlign: 'center' }]}>
-              Emma’s voice couldn’t start on this device, so a standard voice reads instead. <Text style={{ color: t.lavender, fontFamily: fonts.semibold }}>Try Emma again</Text>
-            </Text>
-          </Pressable>
-        ) : null}
-
         {turns.length === 0 ? (
           <View style={{ gap: 10 }}>
             <Text style={[type.body, { color: t.text, textAlign: 'center' }]}>
@@ -184,7 +182,7 @@ export default function AuraChat() {
                 </Text>
                 {voiceOn && !m.failed ? (
                   <Pressable accessibilityRole="button" accessibilityLabel="Read this answer aloud" onPress={() => { primeAura(); setOrb('explaining'); speakAura(m.content, { done: () => setOrb('idle') }); }} hitSlop={8}>
-                    <Text style={{ color: t.lavender, fontFamily: fonts.semibold, fontSize: 13 }}>Play again</Text>
+                    <Text style={{ color: t.lavender, fontFamily: fonts.semibold, fontSize: 13 }}>Listen</Text>
                   </Pressable>
                 ) : null}
               </View>
@@ -193,6 +191,21 @@ export default function AuraChat() {
         )}
         <Text style={[type.caption, { color: t.muted, textAlign: 'center', marginTop: 'auto' }]}>Aura coaches; she does not diagnose. Not medical advice.</Text>
       </ScrollView>
+
+      {voiceOn && Platform.OS === 'web' && voiceNote(emma) ? (
+        <Pressable
+          accessibilityRole={emma.state === 'failed' || emma.err ? 'button' : 'text'}
+          accessibilityLiveRegion="polite"
+          disabled={!(emma.state === 'failed' || emma.err)}
+          onPress={emmaRetry}
+          style={{ paddingHorizontal: 16, paddingVertical: 8, borderTopWidth: 1, borderTopColor: t.border }}
+        >
+          <Text style={[type.caption, { color: t.muted, textAlign: 'center' }]}>
+            {voiceNote(emma)}
+            {emma.state === 'failed' ? <Text style={{ color: t.lavender, fontFamily: fonts.semibold }}> Try Emma again</Text> : null}
+          </Text>
+        </Pressable>
+      ) : null}
 
       <View style={{ flexDirection: 'row', gap: 10, padding: 12, borderTopWidth: 1, borderTopColor: t.border, alignItems: 'flex-end' }}>
         <TextInput

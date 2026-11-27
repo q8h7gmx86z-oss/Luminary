@@ -11,7 +11,7 @@
 import { speechPieces, wavBytes } from './voicePick';
 
 export type EmmaState = 'idle' | 'loading' | 'ready' | 'failed';
-export type EmmaStatus = { state: EmmaState; pct: number; fast: boolean };
+export type EmmaStatus = { state: EmmaState; pct: number; fast: boolean; making: boolean; err: string };
 
 type Msg = { type: string; id?: number; audio?: Float32Array; ms?: number; message?: string; gpu?: unknown; init?: boolean; backend?: string; got?: number; total?: number; stage?: string; info?: { warmMs?: number; warmSec?: number } };
 type Pending = { res: (a: Float32Array) => void; rej: (e: Error) => void; text: string };
@@ -38,9 +38,12 @@ const E = {
   nid: 0,
   rtf: null as number | null,
   skipGpu: false,
+  stageAt: 0,
+  making: false,
+  err: '',
 };
 const listeners = new Set<(s: EmmaStatus) => void>();
-const status = (): EmmaStatus => ({ state: E.state, pct: E.pct, fast: E.backend === 'gpu' || E.trying });
+const status = (): EmmaStatus => ({ state: E.state, pct: E.pct, fast: E.backend === 'gpu' || E.trying, making: E.making, err: E.err });
 const emit = () => listeners.forEach((f) => f(status()));
 
 // If the page restarted while Emma was loading or speaking, the phone ran out of memory. Pause fast
@@ -88,6 +91,10 @@ function onMsg(m: Msg) {
   if (m.type === 'progress' && m.total) {
     E.pct = Math.min(99, Math.round(((m.got ?? 0) / m.total) * 100));
     emit();
+    return;
+  }
+  if (m.type === 'stage') {
+    E.stageAt = Date.now();
     return;
   }
   if (m.type !== 'audio' && m.type !== 'error') return;
@@ -156,7 +163,17 @@ function init(): Promise<void> {
         busy(true);
         emit();
         try {
-          const r = await ask(w, { type: 'init', opts: { gpu: true, speed: SPEED } }, 'ready');
+          E.stageAt = 0;
+          const r = await Promise.race([
+            ask(w, { type: 'init', opts: { gpu: true, speed: SPEED } }, 'ready'),
+            // If fast mode sits on setting up for more than 90 seconds, use the processor instead.
+            new Promise<Msg>((_, rej) => {
+              const t = setInterval(() => {
+                if (E.stageAt && Date.now() - E.stageAt > 90000) { clearInterval(t); rej(new Error('fast mode took too long')); }
+                if (!E.trying) clearInterval(t);
+              }, 3000);
+            }),
+          ]);
           if (r.backend !== 'gpu') throw new Error('fast mode did not start');
           if (r.info?.warmSec && r.info.warmSec > 0.3 && r.info.warmMs) E.rtf = r.info.warmMs / 1000 / r.info.warmSec;
           ls.del(K.gpuErr);
@@ -174,7 +191,8 @@ function init(): Promise<void> {
     await ask(w, { type: 'init', opts: { gpu: false } }, 'ready');
     return ready(w, 'wasm');
   })();
-  E.p.catch(() => {
+  E.p.catch((e) => {
+    E.err = String((e as Error)?.message || e).slice(0, 140);
     E.state = 'failed';
     E.trying = false;
     E.p = null;
@@ -263,6 +281,7 @@ export function emmaStop() {
 
 /** Lets Emma try again after she was paused on this phone. */
 export function emmaRetry() {
+  E.err = '';
   ls.del(K.off);
   ls.del(K.gpuBad);
   ls.del(K.gpuErr);
@@ -284,6 +303,8 @@ export async function emmaSpeak(text: string, on: { start?: () => void; done?: (
   if (++speaking === 1) busy(true);
   let failed = false;
   try {
+    E.making = true;
+    emit();
     await init();
     if (my !== gen) return;
     const clips = pieces.map((t) => post(t));
@@ -318,19 +339,24 @@ export async function emmaSpeak(text: string, on: { start?: () => void; done?: (
       if (!started) { started = true; on.start?.(); }
       a.src = toUrl(ready[i]!);
       a.muted = false;
+      E.making = false;
+      emit();
       await new Promise<void>((res, rej) => {
         wake = res;
         a.onended = () => res();
         a.onerror = () => rej(new Error('playback failed'));
-        a.play().catch(rej);
+        a.play().catch((e: Error) => rej(new Error(e?.name === 'NotAllowedError' ? 'blocked' : `playback: ${e?.message}`)));
       });
       if (my !== gen) return;
       await new Promise((r) => setTimeout(r, 160));
     }
   } catch (e) {
     failed = true;
+    E.err = String((e as Error)?.message || e).slice(0, 140);
     throw e;
   } finally {
+    E.making = false;
+    emit();
     if (--speaking === 0) busy(false);
     if (my === gen && !failed) on.done?.();
   }
